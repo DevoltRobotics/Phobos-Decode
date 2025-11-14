@@ -1,9 +1,18 @@
 package org.firstinspires.ftc.teamcode.Utilities;
 
-import com.bylazar.telemetry.PanelsTelemetry;
+import static org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.SorterSubsystem.waitAimTimer;
+import static org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.SorterSubsystem.artifacToArtifactTimer;
+import static org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.SorterSubsystem.blockerHFreePos;
+import static org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.SorterSubsystem.blockerHHidePos;
+import static org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.SorterSubsystem.blockersUp;
+import static org.firstinspires.ftc.teamcode.Autonomous.DrivePos.startingPoseCloseRed;
+
+import com.acmerobotics.dashboard.FtcDashboard;
+import com.acmerobotics.dashboard.config.Config;
+import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.bylazar.telemetry.TelemetryManager;
 import com.pedropathing.follower.Follower;
-import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
+import com.pedropathing.geometry.Pose;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.seattlesolvers.solverslib.command.Command;
@@ -13,22 +22,29 @@ import com.seattlesolvers.solverslib.command.SequentialCommandGroup;
 import com.seattlesolvers.solverslib.command.Subsystem;
 import com.seattlesolvers.solverslib.command.WaitCommand;
 
-import org.firstinspires.ftc.teamcode.Autonomous.pedroPathing.Constants;
-import org.firstinspires.ftc.teamcode.Autonomous.pedroPathing.PedroSubsystem;
+import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
+import org.firstinspires.ftc.teamcode.pedroPathing.PedroSubsystem;
 import org.firstinspires.ftc.teamcode.Subsystems.Intake.IntakeSubsystem;
-import org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.SorterSubsystem;
-import org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.horizontalBlockerCMD;
 import org.firstinspires.ftc.teamcode.Subsystems.Intake.moveIntakeCMD;
 import org.firstinspires.ftc.teamcode.Subsystems.Lifting.LiftingSubsystem;
 import org.firstinspires.ftc.teamcode.Subsystems.Shooter.ShooterSubsystem;
 import org.firstinspires.ftc.teamcode.Subsystems.Shooter.shooterToBasketCMD;
+import org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.SorterSubsystem;
+import org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.horizontalBlockerCMD;
+import org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.lateralBlockersCMD;
 import org.firstinspires.ftc.teamcode.Subsystems.Turret.TurretSubsystem;
 import org.firstinspires.ftc.teamcode.Subsystems.Turret.turretToBasketCMD;
 import org.firstinspires.ftc.teamcode.Subsystems.Vision.VisionSubsystem;
+import org.firstinspires.ftc.teamcode.Subsystems.Vision.detectMotifCMD;
 
+import java.util.function.BooleanSupplier;
+
+@Config
 public abstract class OpModeCommand extends OpMode {
 
     public Follower follower;
+
+    public Alliance currentAliance = Alliance.RED;
 
     public TelemetryManager telemetryM;
 
@@ -39,7 +55,6 @@ public abstract class OpModeCommand extends OpMode {
     public LiftingSubsystem liftingSubsystem;
     public ShooterSubsystem shooterSb;
     public TurretSubsystem turretSb;
-
 
     public IMU imu;
 
@@ -65,9 +80,15 @@ public abstract class OpModeCommand extends OpMode {
 
     @Override
     public void init() {
+        telemetry = new MultipleTelemetry(
+                telemetry,
+                FtcDashboard.getInstance().getTelemetry()
+        );
 
         follower = Constants.createFollower(hardwareMap);
-        telemetryM = PanelsTelemetry.INSTANCE.getTelemetry();
+        follower.setStartingPose(startingPoseCloseRed == null ? new Pose() : startingPoseCloseRed);
+        follower.update();
+
 
         register(
                 pedroSb = new PedroSubsystem(follower, telemetry),
@@ -76,35 +97,17 @@ public abstract class OpModeCommand extends OpMode {
                 turretSb = new TurretSubsystem(hardwareMap, telemetry, true),
                 //liftingSubsystem = new LiftingSubsystem(hardwareMap),
                 shooterSb = new ShooterSubsystem(hardwareMap, telemetry, true),
-                visionSb = new VisionSubsystem(hardwareMap)
+                visionSb = new VisionSubsystem(hardwareMap, currentAliance)
         );
 
-        imu = hardwareMap.get(IMU.class, "imu");
+        visionSb.limelight.pipelineSwitch(0);
+
+        //imu = hardwareMap.get(IMU.class, "imu");
 
         initialize();
     }
 
-    public Command cyclesShootCMD() {
-        return new SequentialCommandGroup(
-                new ParallelCommandGroup(
-                        new turretToBasketCMD(turretSb, visionSb),
-                        new shooterToBasketCMD(shooterSb, visionSb, follower)
-                ),
-
-                new WaitCommand(500),
-
-                new ParallelCommandGroup(
-                        new moveIntakeCMD(intakeSb, 1)
-                        //new horizontalBlockerCMD(so, blockerHFreePos)
-                ),
-
-                new WaitCommand(200)
-
-
-        );
-    }
-
-    public void initImu() {
+    /*public void initImu() {
         IMU.Parameters parameters = new IMU.Parameters(new RevHubOrientationOnRobot(
                 RevHubOrientationOnRobot.LogoFacingDirection.RIGHT,
                 RevHubOrientationOnRobot.UsbFacingDirection.UP));
@@ -112,14 +115,29 @@ public abstract class OpModeCommand extends OpMode {
         imu.resetYaw();
     }
 
+     */
+
     @Override
     public void init_loop() {
+        telemetry.addData("PATTERN", visionSb.alliance);
+
+        new detectMotifCMD(visionSb).schedule();
+
         CommandScheduler.getInstance().run();
     }
 
     @Override
+    public void start() {
+        visionSb.limelight.pipelineSwitch(0);
+
+    }
+
+    @Override
     public void loop() {
-        CommandScheduler.getInstance().run();
+        telemetry.addData("Heading", Math.toDegrees(follower.getHeading()));
+
+        telemetry.update();
+        FtcDashboard.getInstance().getTelemetry().update();
         run();
     }
 
@@ -129,4 +147,36 @@ public abstract class OpModeCommand extends OpMode {
 
     public abstract void initialize();
 
+
+    //COMANDS
+
+    public Command cyclesShootCMD(BooleanSupplier booleano) {
+
+        return new ParallelCommandGroup(
+                new turretToBasketCMD(turretSb, visionSb).asProxy().interruptOn(booleano),
+                new shooterToBasketCMD(shooterSb, visionSb).asProxy(),
+
+                new SequentialCommandGroup(
+                        new WaitCommand(waitAimTimer - 50),
+                        new moveIntakeCMD(intakeSb, 1)
+                ),
+
+                new SequentialCommandGroup(
+                        new WaitCommand(waitAimTimer),
+                        new horizontalBlockerCMD(sorterSb, blockerHFreePos).asProxy(),
+                        new WaitCommand(artifacToArtifactTimer)
+                )
+
+        )
+
+                ;
+    }
+
+    public Command startCMD() {
+
+                return new SequentialCommandGroup(
+                        new horizontalBlockerCMD(sorterSb, blockerHHidePos),
+                        new lateralBlockersCMD(sorterSb, 0, blockersUp)
+                );
+    }
 }

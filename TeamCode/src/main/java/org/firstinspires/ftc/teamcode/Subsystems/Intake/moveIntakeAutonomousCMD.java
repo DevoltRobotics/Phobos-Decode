@@ -2,15 +2,13 @@ package org.firstinspires.ftc.teamcode.Subsystems.Intake;
 
 import com.seattlesolvers.solverslib.command.CommandBase;
 
-import org.firstinspires.ftc.teamcode.Subsystems.Turret.TurretSubsystem;
-
-public class moveIntakeCMD extends CommandBase {
+public class moveIntakeAutonomousCMD extends CommandBase {
 
     private final IntakeSubsystem intakeSubsystem;
 
     private double power;
 
-    public moveIntakeCMD(IntakeSubsystem intakeSb, double powerTarget) {
+    public moveIntakeAutonomousCMD(IntakeSubsystem intakeSb, double powerTarget) {
         intakeSubsystem = intakeSb;
         power = powerTarget;
 
@@ -24,7 +22,7 @@ public class moveIntakeCMD extends CommandBase {
 
 
     @Override
-    public void end(boolean interruptible) {
-        intakeSubsystem.power = 0;
+    public boolean isFinished() {
+        return true;
     }
 }

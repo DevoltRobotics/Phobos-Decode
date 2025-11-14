@@ -1,14 +1,8 @@
 package org.firstinspires.ftc.teamcode.Subsystems.Turret;
 
-import static android.graphics.Color.RED;
-import static org.firstinspires.ftc.teamcode.Subsystems.Vision.VisionSubsystem.limelightTaRatio;
-import static org.firstinspires.ftc.teamcode.Utilities.StaticConstants.shoootVsint2;
-
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.pedropathing.follower.Follower;
-import com.qualcomm.hardware.limelightvision.LLResult;
-import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.seattlesolvers.solverslib.command.CommandBase;
@@ -18,7 +12,7 @@ import org.firstinspires.ftc.teamcode.Subsystems.Vision.VisionSubsystem;
 import org.firstinspires.ftc.teamcode.Utilities.Alliance;
 
 @Config
-public class turretToBasketCMD extends CommandBase {
+public class turretToBasketAngle extends CommandBase {
 
     public static PIDFCoefficients llPidCoeffs = new PIDFCoefficients(0.043, 0.0, 0.0001, 0);
 
@@ -27,19 +21,19 @@ public class turretToBasketCMD extends CommandBase {
     private final TurretSubsystem turretSubsystem;
     private final VisionSubsystem visionSubsystem;
 
+    private ElapsedTime timer;
+
     public static double redGoalAngle = 60;
 
-    /*public static double blueGoalAngle = 150;
+    public static double blueGoalAngle = 150;
 
     private double staticTarget;
 
     private boolean hasTargeted = false;
 
-
-     */
     Follower follower;
 
-    public turretToBasketCMD(TurretSubsystem turretSb, VisionSubsystem vSb) {
+    public turretToBasketAngle(TurretSubsystem turretSb, VisionSubsystem vSb, Follower fllw) {
         turretSubsystem = turretSb;
         visionSubsystem = vSb;
 
@@ -49,6 +43,7 @@ public class turretToBasketCMD extends CommandBase {
 
     @Override
     public void initialize() {
+        timer = new ElapsedTime();
 
         llPidf = new PIDFController(llPidCoeffs);
         turretSubsystem.isTurretManual = false;
@@ -58,7 +53,7 @@ public class turretToBasketCMD extends CommandBase {
     public void execute() {
         llPidf.setCoefficients(llPidCoeffs);
         llPidf.setSetPoint(0);
-        //llPidf.setTolerance(0.1);
+        llPidf.setTolerance(0.1);
 
         Double tA = visionSubsystem.getAllianceTA();
 
@@ -74,17 +69,22 @@ public class turretToBasketCMD extends CommandBase {
 
             FtcDashboard.getInstance().getTelemetry().addData("llTurretTarget", llTargt);
 
+            hasTargeted = true;
         }else {
-            /*double robotHeading = Math.toDegrees(follower.getHeading());
+            double robotHeading = Math.toDegrees(follower.getHeading());
 
             if (visionSubsystem.alliance == Alliance.RED) {
                 staticTarget = robotHeading - redGoalAngle;
 
+            } else {
+                turretSubsystem.turretTarget = robotHeading - blueGoalAngle;
             }
-
-             */
 
         }
     }
 
+    @Override
+    public boolean isFinished() {
+        return timer.seconds() > 1.5;
+    }
 }

@@ -7,23 +7,28 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 @TeleOp
 public class color_sensor_test extends OpMode {
 
-    int Scale = 1;
+    RevColorSensorV3 colorR;
+    RevColorSensorV3 colorL;
 
-    RevColorSensorV3 colorSensor;
 
     @Override
     public void init() {
 
-        colorSensor = hardwareMap.get(RevColorSensorV3.class, "color");
-
+        colorR = hardwareMap.get(RevColorSensorV3.class, "colorR");
+        colorL = hardwareMap.get(RevColorSensorV3.class, "colorL");
     }
 
     @Override
     public void loop() {
+        telemetry.addData("Rightred", colorR.red());
+        telemetry.addData("Rightblue", colorR.blue());
+        telemetry.addData("Rightgreen", colorR.green());
 
-        telemetry.addData("red", colorSensor.red() * Scale);
-        telemetry.addData("blue", colorSensor.blue() * Scale);
-        telemetry.addData("green", colorSensor.green() * Scale);
+        telemetry.addLine("--------------------");
+
+        telemetry.addData("Leftred", colorL.red());
+        telemetry.addData("Leftblue", colorL.blue());
+        telemetry.addData("Leftgreen", colorL.green());
 
 
     }

@@ -26,7 +26,6 @@ public class turretToPosCMD extends CommandBase {
     public void execute() {
         turretSubsystem.isTurretManual = false;
         turretSubsystem.turretTarget = basketTarget;
-
     }
 
     @Override

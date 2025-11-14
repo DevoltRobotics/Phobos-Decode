@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.Subsystems.Turret;
 
+import static org.firstinspires.ftc.teamcode.Subsystems.Turret.TurretSubsystem.manualIncrement;
+
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.seattlesolvers.solverslib.command.CommandBase;
 
@@ -17,36 +19,12 @@ public class turretManaulCMD extends CommandBase {
     }
 
     @Override
-    public void initialize() {
-
-    }
-
-    @Override
     public void execute() {
-
-        boolean isManual = gamepad.right_bumper || gamepad.left_bumper;
-
-        if (isManual){
-            turretSubsystem.isTurretManual = true;
-
-            if (gamepad.right_bumper) {
-                turretSubsystem.turretPower = 0.85;
-            } else if (gamepad.left_bumper) {
-                turretSubsystem.turretPower = -0.85;
-            }
-
-        }else {
-            turretSubsystem.isTurretManual = false;
-            turretSubsystem.turretPower = 0;
+        if (gamepad.right_bumper) {
+            turretSubsystem.turretTarget += manualIncrement;
+        } else if (gamepad.left_bumper) {
+            turretSubsystem.turretTarget -= manualIncrement;
         }
 
     }
-
-    @Override
-    public boolean isFinished() {
-        turretSubsystem.isTurretManual = false;
-
-        return false;
-    }
-
 }

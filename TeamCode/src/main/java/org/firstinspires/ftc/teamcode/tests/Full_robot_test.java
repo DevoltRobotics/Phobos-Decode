@@ -1,7 +1,8 @@
 package org.firstinspires.ftc.teamcode.tests;
 
+import static org.firstinspires.ftc.teamcode.Subsystems.Shooter.ShooterSubsystem.shooterCoeffs;
 import static org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.SorterSubsystem.blockersUp;
-import static org.firstinspires.ftc.teamcode.Utilities.StaticConstants.limelightTaRatio;
+import static org.firstinspires.ftc.teamcode.Subsystems.Vision.VisionSubsystem.limelightTaRatio;
 import static org.firstinspires.ftc.teamcode.Utilities.StaticConstants.shoootVsint1;
 import static org.firstinspires.ftc.teamcode.Utilities.StaticConstants.shoootVsint2;
 import static org.firstinspires.ftc.teamcode.Utilities.StaticConstants.shoootVsint3;
@@ -13,7 +14,6 @@ import static org.firstinspires.ftc.teamcode.Utilities.StaticConstants.shoootVso
 import static org.firstinspires.ftc.teamcode.Utilities.StaticConstants.shoootVsout4;
 
 import static org.firstinspires.ftc.teamcode.Utilities.StaticConstants.shoootVsout5;
-import static org.firstinspires.ftc.teamcode.Utilities.StaticConstants.shooterCoeffs;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
@@ -24,13 +24,11 @@ import com.pedropathing.geometry.Pose;
 import com.pedropathing.paths.PathChain;
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
-import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
@@ -38,15 +36,16 @@ import com.seattlesolvers.solverslib.controller.PIDFController;
 import com.seattlesolvers.solverslib.util.InterpLUT;
 
 import org.firstinspires.ftc.robotcore.external.Supplier;
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-import org.firstinspires.ftc.teamcode.Autonomous.pedroPathing.Constants;
-import org.firstinspires.ftc.teamcode.Utilities.StaticConstants;
+import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
+import org.firstinspires.ftc.teamcode.Subsystems.Shooter.ShooterSubsystem;
 
 import com.pedropathing.follower.Follower;
 
 @TeleOp
 @Config
 public class Full_robot_test extends OpMode {
+
+    public static double provitionalShooterTarget = 1400;
 
     CRServo capstaneSr;
 
@@ -189,10 +188,10 @@ public class Full_robot_test extends OpMode {
 
         double shooterTarget = vsFunc.get(tArea);
 
-        shooterController.setSetPoint(shooterTarget);
+        shooterController.setSetPoint(provitionalShooterTarget);
 
-        double velocityError = shooterTarget - motorVel;
-        double shooterTargetPwr = (StaticConstants.shooterkV * shooterTarget) + shooterController.calculate(motorVel);
+        double velocityError = provitionalShooterTarget - motorVel;
+        double shooterTargetPwr = (ShooterSubsystem.shooterkV * provitionalShooterTarget) + shooterController.calculate(motorVel);
 
         if (gamepad2.dpad_up && toggleTimer.seconds() > 0.5) {
             toggleShooterP = !toggleShooterP;
@@ -245,16 +244,18 @@ public class Full_robot_test extends OpMode {
             blockerR.setPosition(0.5 + blockersUp);
             blockerL.setPosition(0.5 - blockersUp);
         } else if (gamepad2.x) {
-            blockerL.setPosition(0.5);
+            blockerR.setPosition(0.5);
         }
 
-        telemetry.addData("upsVelocity", motorVel);
-        telemetry.addData("shooterTarget", shooterTarget);
+        telemetry.addData("shooterVelocity", motorVel);
+        telemetry.addData("shooterTarget", provitionalShooterTarget);
         telemetry.addData("toggle", toggleShooterP);
         telemetry.addData("vError", velocityError);
         telemetry.addData("ta", tArea);
 
         telemetry.addData("servoPosition", blockerH.getPosition());
+
+        telemetry.update();
 
     }
 }

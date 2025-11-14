@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode.Utilities;
 
-public class StringConstants {
-
-
+public enum Alliance {
+    RED, BLUE, ANY
 }

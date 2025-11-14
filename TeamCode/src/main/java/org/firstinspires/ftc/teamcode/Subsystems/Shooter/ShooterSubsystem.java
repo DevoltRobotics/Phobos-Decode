@@ -1,8 +1,11 @@
 package org.firstinspires.ftc.teamcode.Subsystems.Shooter;
 
+import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.PIDFCoefficients;
+import com.qualcomm.robotcore.hardware.Servo;
 import com.seattlesolvers.solverslib.command.SubsystemBase;
 import com.seattlesolvers.solverslib.controller.PIDFController;
 import com.seattlesolvers.solverslib.util.InterpLUT;
@@ -17,38 +20,39 @@ import static org.firstinspires.ftc.teamcode.Utilities.StaticConstants.shoootVso
 import static org.firstinspires.ftc.teamcode.Utilities.StaticConstants.shoootVsout3;
 import static org.firstinspires.ftc.teamcode.Utilities.StaticConstants.shoootVsout4;
 import static org.firstinspires.ftc.teamcode.Utilities.StaticConstants.shoootVsout5;
-import static org.firstinspires.ftc.teamcode.Utilities.StaticConstants.shooterCoeffs;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.teamcode.Utilities.Pattern;
 import org.firstinspires.ftc.teamcode.Utilities.StaticConstants;
 
+@Config
 public class ShooterSubsystem extends SubsystemBase {
 
     DcMotorEx shooterMDown;
     DcMotorEx shooterMUp;
 
+    public static double shooterkV = 0.000565;
+    public static PIDFCoefficients shooterCoeffs = new PIDFCoefficients(0.01, 0.0, 0.0, 0);
     PIDFController shooterController = new PIDFController(shooterCoeffs);
 
     Telemetry telemetry;
 
     public InterpLUT vsFunc = new InterpLUT();
 
-    public double targetdistance = shoootVsint2;
-
     public boolean isBlueAliance;
 
-    double shooterTarget;
+    double shooterTarget = shoootVsout2;
 
     //CONSTANTS
 
-    public static int standarShooterVel = 900;
+    public static int standarShooterVel = 0;
 
     public ShooterSubsystem(HardwareMap hMap, Telemetry telemetry, boolean isBlueAliance) {
 
         shooterMDown = hMap.get(DcMotorEx.class, "shdown");
         shooterMUp = hMap.get(DcMotorEx.class, "shup");
 
-        shooterMDown.setDirection(DcMotorSimple.Direction.REVERSE);
+        shooterMUp.setDirection(DcMotorSimple.Direction.REVERSE);
 
         vsFunc.add(shoootVsint1, shoootVsout1);
         vsFunc.add(shoootVsint2, shoootVsout2);
@@ -69,12 +73,10 @@ public class ShooterSubsystem extends SubsystemBase {
 
         shooterController.setCoefficients(shooterCoeffs);
 
-
-
         shooterController.setSetPoint(shooterTarget);
 
         double velocityError = shooterTarget - motorVel;
-        double shooterTargetPwr = (StaticConstants.shooterkV * shooterTarget) + shooterController.calculate(motorVel);
+        double shooterTargetPwr = (shooterkV * shooterTarget) + shooterController.calculate(motorVel);
 
         shooterMUp.setPower(shooterTargetPwr);
         shooterMDown.setPower(shooterTargetPwr);

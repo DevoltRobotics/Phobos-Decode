@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode.Subsystems.Turret;
 
-import static org.firstinspires.ftc.teamcode.Utilities.StaticConstants.maxTurretTurnDegrees;
 import static org.firstinspires.ftc.teamcode.Utilities.StaticConstants.shoootVsint1;
 import static org.firstinspires.ftc.teamcode.Utilities.StaticConstants.shoootVsint2;
 import static org.firstinspires.ftc.teamcode.Utilities.StaticConstants.shoootVsint3;
@@ -11,9 +10,9 @@ import static org.firstinspires.ftc.teamcode.Utilities.StaticConstants.shoootVso
 import static org.firstinspires.ftc.teamcode.Utilities.StaticConstants.shoootVsout3;
 import static org.firstinspires.ftc.teamcode.Utilities.StaticConstants.shoootVsout4;
 import static org.firstinspires.ftc.teamcode.Utilities.StaticConstants.shoootVsout5;
-import static org.firstinspires.ftc.teamcode.Utilities.StaticConstants.turretRatio;
-import static org.firstinspires.ftc.teamcode.Utilities.StaticConstants.turretRatioBtoL;
 
+
+import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.hardware.AnalogInput;
 import com.qualcomm.robotcore.hardware.CRServo;
@@ -31,11 +30,14 @@ public class TurretSubsystem extends SubsystemBase {
 
     public CRServo turretM;
     public AnalogInput turretE;
-
-    public static PIDFCoefficients turretCoeffs = new PIDFCoefficients(0.017, 0.0, 0.0, 0);
+    public static PIDFCoefficients turretCoeffs = new PIDFCoefficients(0.02, 0.0, 0.0003, 0);
 
     public PIDFController turretController = new PIDFController(turretCoeffs);
 
+    public static double turretRatio = (double) 58 / 185;
+    public static double turretRatioBtoL = (double) 185 / 58;
+
+    public static int maxTurretTurnDegrees = 100;
     public double turretP = 0;
     public Double lastTurretP = null;
 
@@ -43,10 +45,12 @@ public class TurretSubsystem extends SubsystemBase {
 
     public double turretTarget = 0;
 
+    public static double manualIncrement = 3;
+
     public double error;
 
     public double turretPower;
-    public boolean isTurretManual = false;
+    public boolean isTurretManual;
 
     public double pidPower;
 
@@ -62,6 +66,8 @@ public class TurretSubsystem extends SubsystemBase {
         turretM = hMap.get(CRServo.class,"trt");
         turretE = hMap.get(AnalogInput.class, "trtE");
 
+        isTurretManual = false;
+
         this.telemetry = telemetry;
         this.isAlianceBlue = isAlianceBlue;
         turretvsFunc.add(shoootVsint1, shoootVsout1);
@@ -75,16 +81,15 @@ public class TurretSubsystem extends SubsystemBase {
     @Override
     public void periodic() {
         turretController.setCoefficients(turretCoeffs);
+        turretP = (turretE.getVoltage() / 3.3) * 360;
 
-        turretP = (turretE.getVoltage()  / 3.3) * 360;
-
-        if(lastTurretP == null) {
+        if (lastTurretP == null) {
             lastTurretP = turretP;
         }
 
         double deltaPos = turretP - lastTurretP;
 
-        if(Math.abs(deltaPos) < 0.05) {
+        if (Math.abs(deltaPos) < 0.05) {
             deltaPos = 0;
         }
 
@@ -97,16 +102,9 @@ public class TurretSubsystem extends SubsystemBase {
 
         turretPRelative -= (deltaPos * turretRatio);
 
-        turretTarget = Range.clip(turretTarget, -maxTurretTurnDegrees, maxTurretTurnDegrees) ;
+        turretTarget = Range.clip(turretTarget, -maxTurretTurnDegrees, maxTurretTurnDegrees);
 
-        if (isTurretManual){
-            pidPower = 0;
-            turretTarget = turretPRelative;;
-
-        }else {
-            pidPower = turretController.calculate(turretPRelative);
-
-        }
+        pidPower = turretController.calculate(turretPRelative);
 
         error = turretTarget - turretPRelative;
 
@@ -117,10 +115,8 @@ public class TurretSubsystem extends SubsystemBase {
 
         lastTurretP = turretP;
 
-        telemetry.addData("isTurretManual", isTurretManual);
-        telemetry.addData("TurretP", turretP);
-        telemetry.addData("TurretPRel", turretPRelative);
-        telemetry.addData("TurretTarget", turretTarget);
-        telemetry.addData("TurretError", error);
+        FtcDashboard.getInstance().getTelemetry().addData("TurretPRel", turretPRelative);
+        FtcDashboard.getInstance().getTelemetry().addData("TurretTarget", turretTarget);
+        FtcDashboard.getInstance().getTelemetry().addData("TurretError", error);
     }
 }

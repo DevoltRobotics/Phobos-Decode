@@ -1,10 +1,9 @@
-package org.firstinspires.ftc.teamcode.Autonomous.pedroPathing;
+package org.firstinspires.ftc.teamcode.pedroPathing;
 
 import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.Pose;
 import com.pedropathing.paths.Path;
 import com.pedropathing.paths.PathChain;
-import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.seattlesolvers.solverslib.command.Command;
 import com.seattlesolvers.solverslib.command.CommandBase;
@@ -15,6 +14,8 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 public class PedroSubsystem extends SubsystemBase {
 
     public Follower follower;
+
+    public static double slowModeMultiplier = 0.5;
 
     public Pose EndPose = new Pose();
 
@@ -61,12 +62,28 @@ public class PedroSubsystem extends SubsystemBase {
 
         @Override
         public void execute() {
-            follower.setTeleOpDrive(-gamepad.left_stick_y, -gamepad.left_stick_x, -gamepad.right_stick_x, false);
+            boolean isSlowMode = gamepad.right_trigger > 0.5;
+
+            if (isSlowMode) {
+                follower.setTeleOpDrive(
+                        -gamepad.left_stick_y * slowModeMultiplier,
+                        -gamepad.left_stick_x * slowModeMultiplier,
+                        -gamepad.right_stick_x * slowModeMultiplier,
+                        false // Robot Centric
+                        );
+            }else {
+                follower.setTeleOpDrive(
+                        -gamepad.left_stick_y,
+                        -gamepad.left_stick_x,
+                        -gamepad.right_stick_x,
+                        false
+                );
+            }
         }
 
         @Override
         public void end(boolean interrupted) {
-            follower.breakFollowing();
+            //follower.breakFollowing();
         }
 
         @Override
@@ -133,12 +150,25 @@ public class PedroSubsystem extends SubsystemBase {
 
             @Override
             public void execute() {
-                follower.setTeleOpDrive(
-                        -gamepad.left_stick_y,
-                        -gamepad.left_stick_x,
-                        -gamepad.right_stick_x,
-                        false // Robot Centric
-                );
+
+                boolean slowMode = gamepad.right_trigger > 0.5;
+
+                if (!slowMode) {
+                    follower.setTeleOpDrive(
+                            -gamepad.left_stick_y,
+                            -gamepad.left_stick_x,
+                            -gamepad.right_stick_x,
+                            false // Robot Centric
+                    );
+                }else {
+                    follower.setTeleOpDrive(
+                            -gamepad.left_stick_y * 0.5,
+                            -gamepad.left_stick_x * 0.5,
+                            -gamepad.right_stick_x * 0.5,
+                            false // Robot Centric
+                    );
+
+                }
             }
 
             @Override
