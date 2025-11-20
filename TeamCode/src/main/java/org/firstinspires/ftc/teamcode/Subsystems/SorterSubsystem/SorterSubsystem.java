@@ -65,7 +65,8 @@ public class SorterSubsystem extends SubsystemBase {
     @Override
     public void periodic() {
 
-        if (colorSensorsDelay.seconds() > 100) {
+        /*
+        if (colorSensorsDelay.milliseconds() > 100) {
             greenInR = colorR.green();
             greenInL = colorL.green();
             blueInR = colorR.blue();
@@ -74,15 +75,15 @@ public class SorterSubsystem extends SubsystemBase {
             colorSensorsDelay.reset();
         }
 
-        if (greenInR > 90 && greenInR > blueInR) {
+        if (greenInR > 100 && greenInR > blueInR) {
             rightArtifact = Artifact.Green;
         } else if (blueInR > 90 && blueInR > greenInR) {
             rightArtifact = Artifact.Purple;
         }
 
-        if (greenInL > 90 && greenInL > blueInL) {
+        if (greenInL > 190 && greenInL > blueInL) {
             leftArtifact = Artifact.Green;
-        } else if (blueInL > 90 && blueInL > greenInL) {
+        } else if (blueInL > 170 && blueInL > greenInL) {
             leftArtifact = Artifact.Purple;
         }
 
@@ -92,81 +93,9 @@ public class SorterSubsystem extends SubsystemBase {
         telemetry.addData("RightBlue", blueInR);
         telemetry.addData("LeftBlue", blueInL);
 
+        telemetry.addData("WhatIsRightArt", rightArtifact);
+        telemetry.addData("WhatIsLefttArt", leftArtifact);
+
+*/
     }
-
-    /*public Command preSorterCmd(VisionSubsystem vision) {
-        currentPattern = vision.getPatternDetected();
-
-        double greenInR = this.greenInR;
-        double blueInR = this.blueInR;
-
-        if (greenInR > 90 && greenInR > blueInR) {
-            rightArtifact = Artifact.Green;
-        } else if (blueInR > 90 && blueInR > greenInR) {
-            rightArtifact = Artifact.Purple;
-        }
-
-        double greenInL = this.greenInL;
-        double blueInL = this.blueInL;
-
-        if (greenInL > 90 && greenInL > blueInL) {
-            leftArtifact = Artifact.Green;
-        } else if (blueInL > 90 && blueInL > greenInL) {
-            leftArtifact = Artifact.Purple;
-        }
-
-        switch (currentPattern){
-            case PPG:
-                new SequentialCommandGroup(
-                        new ConditionalCommand(
-                                new lateralBlockersCMD(sorterSubsystem, blockersUp, 0),
-                                new lateralBlockersCMD(sorterSubsystem, 0, blockersUp),
-                                () -> rightArtifact.equals(Artifact.Purple)
-                        ),
-                        new WaitCommand(artifacToArtifactTimer),
-
-                        new ConditionalCommand(
-                                new lateralBlockersCMD(sorterSubsystem, 0, blockersUp),
-                                new lateralBlockersCMD(sorterSubsystem, blockersUp, 0),
-                                () -> leftArtifact.equals(Artifact.Purple)
-                        )
-
-                ).schedule();
-
-                break;
-
-            case PGP:
-                new SequentialCommandGroup(
-                        new ConditionalCommand(
-                                new lateralBlockersCMD(sorterSubsystem, blockersUp, 0),
-                                new lateralBlockersCMD(sorterSubsystem, 0, blockersUp),
-                                () -> rightArtifact.equals(Artifact.Purple)
-                        ),
-                        new WaitCommand(artifacToArtifactTimer),
-
-                        new ConditionalCommand(
-                                new lateralBlockersCMD(sorterSubsystem, 0, blockersUp),
-                                new lateralBlockersCMD(sorterSubsystem, blockersUp, 0),
-                                () -> leftArtifact.equals(Artifact.Green)
-                        )
-
-                ).schedule();
-                break;
-
-            case GPP:
-                new SequentialCommandGroup(
-                        new ConditionalCommand(
-                                new lateralBlockersCMD(sorterSubsystem, blockersUp, 0),
-                                new lateralBlockersCMD(sorterSubsystem, 0, blockersUp),
-                                () -> rightArtifact.equals(Artifact.Green)
-                        ),
-                        new WaitCommand(artifacToArtifactTimer)
-
-                ).schedule();
-
-                break;
-        }
-    }
-
-     */
 }

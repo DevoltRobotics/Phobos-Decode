@@ -44,7 +44,7 @@ public abstract class OpModeCommand extends OpMode {
 
     public Follower follower;
 
-    public Alliance currentAliance = Alliance.RED;
+    public final Alliance currentAliance;
 
     public TelemetryManager telemetryM;
 
@@ -57,6 +57,10 @@ public abstract class OpModeCommand extends OpMode {
     public TurretSubsystem turretSb;
 
     public IMU imu;
+
+    public OpModeCommand(Alliance alliance) {
+        this.currentAliance = alliance;
+    }
 
     //reinicia la lista de comandos
     public void reset() {
@@ -86,7 +90,6 @@ public abstract class OpModeCommand extends OpMode {
         );
 
         follower = Constants.createFollower(hardwareMap);
-        follower.setStartingPose(startingPoseCloseRed == null ? new Pose() : startingPoseCloseRed);
         follower.update();
 
 
@@ -100,7 +103,6 @@ public abstract class OpModeCommand extends OpMode {
                 visionSb = new VisionSubsystem(hardwareMap, currentAliance)
         );
 
-        visionSb.limelight.pipelineSwitch(0);
 
         //imu = hardwareMap.get(IMU.class, "imu");
 
@@ -119,16 +121,12 @@ public abstract class OpModeCommand extends OpMode {
 
     @Override
     public void init_loop() {
-        telemetry.addData("PATTERN", visionSb.alliance);
+        //telemetry.addData("PATTERN", visionSb.alliance);
 
-        new detectMotifCMD(visionSb).schedule();
-
-        CommandScheduler.getInstance().run();
     }
 
     @Override
     public void start() {
-        visionSb.limelight.pipelineSwitch(0);
 
     }
 
@@ -136,7 +134,6 @@ public abstract class OpModeCommand extends OpMode {
     public void loop() {
         telemetry.addData("Heading", Math.toDegrees(follower.getHeading()));
 
-        telemetry.update();
         FtcDashboard.getInstance().getTelemetry().update();
         run();
     }
@@ -153,8 +150,8 @@ public abstract class OpModeCommand extends OpMode {
     public Command cyclesShootCMD(BooleanSupplier booleano) {
 
         return new ParallelCommandGroup(
-                new turretToBasketCMD(turretSb, visionSb).asProxy().interruptOn(booleano),
-                new shooterToBasketCMD(shooterSb, visionSb).asProxy(),
+                new turretToBasketCMD(turretSb, visionSb, false).asProxy().interruptOn(booleano),
+                new shooterToBasketCMD(shooterSb, visionSb),
 
                 new SequentialCommandGroup(
                         new WaitCommand(waitAimTimer - 50),
@@ -173,7 +170,6 @@ public abstract class OpModeCommand extends OpMode {
     }
 
     public Command startCMD() {
-
                 return new SequentialCommandGroup(
                         new horizontalBlockerCMD(sorterSb, blockerHHidePos),
                         new lateralBlockersCMD(sorterSb, 0, blockersUp)

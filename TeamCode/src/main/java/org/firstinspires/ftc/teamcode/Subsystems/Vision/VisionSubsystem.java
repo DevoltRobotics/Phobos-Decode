@@ -33,7 +33,7 @@ public class VisionSubsystem extends SubsystemBase {
 
         limelight.setPollRateHz(100);
         limelight.start();
-        limelight.pipelineSwitch(1);
+        limelight.pipelineSwitch(0);
     }
 
     public void periodic(){

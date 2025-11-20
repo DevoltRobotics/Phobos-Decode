@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.tests;
 
 import static org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.SorterSubsystem.blockerHHidePos;
 import static org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.SorterSubsystem.blockersUp;
@@ -22,27 +22,24 @@ import org.firstinspires.ftc.teamcode.Subsystems.Shooter.shooterToVelAutonomousC
 import org.firstinspires.ftc.teamcode.Subsystems.Shooter.shooterToVelCMD;
 import org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.horizontalBlockerCMD;
 import org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.lateralBlockersCMD;
+import org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.preSorterCmd;
 import org.firstinspires.ftc.teamcode.Subsystems.Turret.turretManaulCMD;
 import org.firstinspires.ftc.teamcode.Subsystems.Turret.turretToBasketCMD;
 import org.firstinspires.ftc.teamcode.Utilities.Alliance;
 import org.firstinspires.ftc.teamcode.Utilities.OpModeCommand;
 
-import java.util.function.DoubleSupplier;
-
 @Config
-public abstract class teleOp extends OpModeCommand {
+@TeleOp
+public class SorterComanndTest extends OpModeCommand {
 
     //GamepadEx chasis;
     GamepadEx garra;
 
     double angleOffSet;
 
-    public teleOp(Alliance alliance) {
-        super(alliance);
+    public SorterComanndTest() {
+        super(Alliance.RED);
     }
-
-    boolean sorterMode = false;
-    ElapsedTime sorterModeTimer = new ElapsedTime();
 
     @Override
     public void initialize() {
@@ -52,20 +49,6 @@ public abstract class teleOp extends OpModeCommand {
         garra = new GamepadEx(gamepad2);
 
         ///CHASSIS
-
-        CommandScheduler.getInstance().setDefaultCommand(pedroSb, pedroSb.fieldCentricCmd(gamepad1));
-
-        /// GARRA
-
-        Trigger intakeIn = new Trigger(() -> gamepad2.right_trigger >= 0.5);
-        Trigger intakeOut = new Trigger(() -> gamepad2.left_trigger >= 0.5);
-
-        intakeIn.whileActiveOnce(new moveIntakeCMD(intakeSb, 1));
-        intakeOut.whileActiveOnce(new moveIntakeCMD(intakeSb, -1));
-
-        CommandScheduler.getInstance().setDefaultCommand(turretSb, new turretManaulCMD(turretSb, visionSb, follower, gamepad2));
-
-        //CommandScheduler.getInstance().setDefaultCommand(shooterSb, new shooterToVelCMD(shooterSb, ()-> gamepad2.right_stick_y));
 
         Button blockerUpButton = new GamepadButton(
                 garra,
@@ -83,52 +66,18 @@ public abstract class teleOp extends OpModeCommand {
                 new lateralBlockersCMD(sorterSb, 0, blockersUp)
         );
 
-        Button autoAimButton = new GamepadButton(
+        Button sorterSeq = new GamepadButton(
                 garra,
                 GamepadKeys.Button.A);
 
-        autoAimButton.whileHeld(
-                new turretToBasketCMD(turretSb, visionSb, false)
+        sorterSeq.whileHeld(
+                new preSorterCmd(sorterSb, visionSb.pattern, sorterSb.leftArtifact, sorterSb.rightArtifact)
         );
-
-        Button prepareShootCloseButton = new GamepadButton(
-                garra,
-                GamepadKeys.Button.DPAD_RIGHT);
-
-        prepareShootCloseButton.whenPressed(new shooterToVelAutonomousCMD(shooterSb, 1200));
-
-        Button prepareShootFurtherButton = new GamepadButton(
-                garra,
-                GamepadKeys.Button.DPAD_LEFT);
-
-        prepareShootFurtherButton.whenPressed(new shooterToVelAutonomousCMD(shooterSb, 1400));
-
-        Button shootButton = new GamepadButton(
-                garra,
-                GamepadKeys.Button.DPAD_UP);
-
-        shootButton.whenPressed(cyclesShootCMD(()-> (gamepad2.right_bumper || gamepad2.left_bumper)));
-
-        Button stopShootButton = new GamepadButton(
-                garra,
-                GamepadKeys.Button.DPAD_DOWN);
-
-        stopShootButton.whenPressed(
-                new ParallelCommandGroup(
-                        new shooterToVelAutonomousCMD(shooterSb, 0),
-                        new moveIntakeAutonomousCMD(intakeSb, 0),
-
-                new SequentialCommandGroup(
-                        new horizontalBlockerCMD(sorterSb, blockerHHidePos),
-                        new lateralBlockersCMD(sorterSb, 0, blockersUp)
-                )
-        ));
 
     }
 
     @Override
     public void start() {
-
         startCMD().schedule();
     }
 

@@ -1,15 +1,9 @@
 package org.firstinspires.ftc.teamcode.Subsystems.Vision;
 
-import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
-import com.pedropathing.follower.Follower;
-import com.qualcomm.hardware.limelightvision.LLResult;
-import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.seattlesolvers.solverslib.command.CommandBase;
-import com.seattlesolvers.solverslib.controller.PIDFController;
 
-import org.firstinspires.ftc.teamcode.Subsystems.Turret.TurretSubsystem;
 import org.firstinspires.ftc.teamcode.Utilities.Pattern;
 
 @Config
@@ -19,8 +13,10 @@ public class detectMotifCMD extends CommandBase {
 
     private ElapsedTime timer;
 
+
     public detectMotifCMD(VisionSubsystem vSb) {
         visionSubsystem = vSb;
+        visionSubsystem.limelight.pipelineSwitch(1);
 
         addRequirements(visionSubsystem);
     }
@@ -56,7 +52,12 @@ public class detectMotifCMD extends CommandBase {
     }
 
     @Override
+    public void end(boolean interrupted) {
+        visionSubsystem.limelight.pipelineSwitch(0);
+    }
+
+    @Override
     public boolean isFinished() {
-        return timer.seconds() > 0.1;
+        return timer.seconds() > 1;
     }
 }

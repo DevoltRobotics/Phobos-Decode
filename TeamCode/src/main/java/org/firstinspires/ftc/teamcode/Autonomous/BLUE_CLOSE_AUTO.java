@@ -1,12 +1,10 @@
 package org.firstinspires.ftc.teamcode.Autonomous;
 
-import static org.firstinspires.ftc.teamcode.Autonomous.DrivePos.intakeArtifactsCloseRedPose;
-import static org.firstinspires.ftc.teamcode.Autonomous.DrivePos.intakeArtifactsControlPointCloseRedPose;
+import static org.firstinspires.ftc.teamcode.Autonomous.DrivePos.launchFirstArtifactsCloseBluePose;
 import static org.firstinspires.ftc.teamcode.Autonomous.DrivePos.launchFirstArtifactsCloseRedPose;
-import static org.firstinspires.ftc.teamcode.Autonomous.DrivePos.launchSecondArtifactsCloseRedPose;
+import static org.firstinspires.ftc.teamcode.Autonomous.DrivePos.parkCloseBluePose;
 import static org.firstinspires.ftc.teamcode.Autonomous.DrivePos.parkCloseRedPose;
-import static org.firstinspires.ftc.teamcode.Autonomous.DrivePos.prepareForIntakeArtifactsCloseRedPose;
-import static org.firstinspires.ftc.teamcode.Autonomous.DrivePos.prepareForIntakeArtifactsControlPointCloseRedPose;
+import static org.firstinspires.ftc.teamcode.Autonomous.DrivePos.startingPoseCloseBlue;
 import static org.firstinspires.ftc.teamcode.Autonomous.DrivePos.startingPoseCloseRed;
 import static org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.SorterSubsystem.artifacToArtifactTimer;
 import static org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.SorterSubsystem.blockerHFreePos;
@@ -14,7 +12,6 @@ import static org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.SorterSu
 import static org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.SorterSubsystem.blockersUp;
 import static org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.SorterSubsystem.waitAimTimer;
 
-import com.pedropathing.geometry.BezierCurve;
 import com.pedropathing.geometry.BezierLine;
 import com.pedropathing.paths.Path;
 import com.pedropathing.paths.PathChain;
@@ -28,7 +25,6 @@ import com.seattlesolvers.solverslib.command.WaitCommand;
 import org.firstinspires.ftc.teamcode.Subsystems.Intake.moveIntakeCMD;
 import org.firstinspires.ftc.teamcode.Subsystems.Shooter.shooterToBasketCMD;
 import org.firstinspires.ftc.teamcode.Subsystems.Shooter.shooterToVelAutonomousCMD;
-import org.firstinspires.ftc.teamcode.Subsystems.Shooter.shooterToVelCMD;
 import org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.horizontalBlockerCMD;
 import org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.lateralBlockersCMD;
 import org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.preSorterCmd;
@@ -39,20 +35,20 @@ import org.firstinspires.ftc.teamcode.Utilities.Alliance;
 import org.firstinspires.ftc.teamcode.Utilities.OpModeCommand;
 
 @Autonomous
-public class RED_CLOSE_AUTO extends OpModeCommand {
+public class BLUE_CLOSE_AUTO extends OpModeCommand {
 
     private Path launchPreloadArtifacts, park;
     private PathChain prepareForIntakeArtifacts, intakeArtifacts, launchSecondArtifacts;
 
     Command autoCommand;
 
-    public RED_CLOSE_AUTO() {
-        super(Alliance.RED);
+    public BLUE_CLOSE_AUTO() {
+        super(Alliance.BLUE);
     }
 
     public void createPaths() {
-        launchPreloadArtifacts = new Path(new BezierLine(startingPoseCloseRed, launchFirstArtifactsCloseRedPose));
-        launchPreloadArtifacts.setLinearHeadingInterpolation(startingPoseCloseRed.getHeading(), launchFirstArtifactsCloseRedPose.getHeading());
+        launchPreloadArtifacts = new Path(new BezierLine(startingPoseCloseBlue, launchFirstArtifactsCloseBluePose));
+        launchPreloadArtifacts.setConstantHeadingInterpolation(startingPoseCloseBlue.getHeading());
 
         /*prepareForIntakeArtifacts = follower.pathBuilder()
                 .addPath(new BezierCurve(launchFirstArtifactsCloseRedPose, prepareForIntakeArtifactsControlPointCloseRedPose, prepareForIntakeArtifactsCloseRedPose))
@@ -73,8 +69,8 @@ public class RED_CLOSE_AUTO extends OpModeCommand {
 
          */
 
-        park = new Path(new BezierLine(launchFirstArtifactsCloseRedPose, parkCloseRedPose));
-        park.setLinearHeadingInterpolation(launchFirstArtifactsCloseRedPose.getHeading(), parkCloseRedPose.getHeading());
+        park = new Path(new BezierLine(launchFirstArtifactsCloseBluePose, parkCloseBluePose));
+        park.setConstantHeadingInterpolation(launchFirstArtifactsCloseBluePose.getHeading());
 
         //pickcenter = follower.holdPoint();
 
@@ -83,23 +79,24 @@ public class RED_CLOSE_AUTO extends OpModeCommand {
 
     @Override
     public void initialize() {
-        follower.setStartingPose(startingPoseCloseRed);
+        follower.setStartingPose(startingPoseCloseBlue);
 
         createPaths();
 
         autoCommand =
                 new SequentialCommandGroup(
                         new WaitCommand(13000),
+
+
                         new lateralBlockersCMD(sorterSb, 0, blockersUp),
                         new horizontalBlockerCMD(sorterSb, blockerHHidePos),
                         new WaitCommand(500),
 
-                        new ParallelCommandGroup(
+                                new ParallelCommandGroup(
                                 pedroSb.followPathCmd(launchPreloadArtifacts),
                                 new turretToPosCMD(turretSb, 0),
                                 new shooterToVelAutonomousCMD(shooterSb,1120)
-                        ),
-
+                                ),
                         new WaitCommand(1500),
 
                         new ParallelDeadlineGroup(
@@ -116,12 +113,12 @@ public class RED_CLOSE_AUTO extends OpModeCommand {
                                 ),
 
                                 new SequentialCommandGroup(
-                                        new WaitCommand(300),
-                                        new moveIntakeCMD(intakeSb, 1)
-                                ),
+                                                new WaitCommand( 300),
+                                                new moveIntakeCMD(intakeSb, 1)
+                                                ),
 
-                                new turretToBasketCMD(turretSb, visionSb, true),
-                                new shooterToBasketCMD(shooterSb, visionSb)
+                                    new turretToBasketCMD(turretSb, visionSb, true),
+                                    new shooterToBasketCMD(shooterSb, visionSb)
 
                         ),
 
@@ -131,18 +128,16 @@ public class RED_CLOSE_AUTO extends OpModeCommand {
                                 new turretToPosCMD(turretSb, 0),
 
                                 new SequentialCommandGroup(
-                                        new horizontalBlockerCMD(sorterSb, blockerHHidePos),
+                                    new horizontalBlockerCMD(sorterSb, blockerHHidePos),
                                         new lateralBlockersCMD(sorterSb, 0, 0)
 
                                 )
-                        )
+                                )
                 );
-
     }
 
     @Override
     public void start() {
         autoCommand.schedule();
-
     }
 }

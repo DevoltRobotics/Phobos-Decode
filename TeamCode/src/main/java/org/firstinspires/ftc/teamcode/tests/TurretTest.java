@@ -11,6 +11,7 @@ import com.seattlesolvers.solverslib.gamepad.GamepadEx;
 import com.seattlesolvers.solverslib.gamepad.GamepadKeys;
 
 import org.firstinspires.ftc.teamcode.Subsystems.Turret.turretToBasketCMD;
+import org.firstinspires.ftc.teamcode.Utilities.Alliance;
 import org.firstinspires.ftc.teamcode.Utilities.OpModeCommand;
 import org.firstinspires.ftc.teamcode.Subsystems.Turret.turretManaulCMD;
 import org.firstinspires.ftc.teamcode.Subsystems.Turret.turretToPosCMD;
@@ -23,16 +24,20 @@ public class TurretTest extends OpModeCommand {
 
     public static double turretTargetPos = 50;
 
+    public TurretTest() {
+        super(Alliance.RED);
+    }
+
     @Override
     public void initialize() {
         garra = new GamepadEx(gamepad2);
 
-        CommandScheduler.getInstance().setDefaultCommand(turretSb, new turretManaulCMD(turretSb, gamepad2));
+        CommandScheduler.getInstance().setDefaultCommand(turretSb, new turretManaulCMD(turretSb, visionSb, follower, gamepad2));
 
         Button targetBasket = new GamepadButton(
                 garra,
                 GamepadKeys.Button.A);
 
-        targetBasket.whenPressed(new turretToBasketCMD(turretSb, visionSb));
+        targetBasket.whenPressed(new turretToBasketCMD(turretSb, visionSb, false));
     }
 }

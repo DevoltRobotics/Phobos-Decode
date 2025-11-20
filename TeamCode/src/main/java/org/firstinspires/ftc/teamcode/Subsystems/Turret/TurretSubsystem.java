@@ -30,9 +30,15 @@ public class TurretSubsystem extends SubsystemBase {
 
     public CRServo turretM;
     public AnalogInput turretE;
-    public static PIDFCoefficients turretCoeffs = new PIDFCoefficients(0.02, 0.0, 0.0003, 0);
 
+    public static PIDFCoefficients turretCoeffs = new PIDFCoefficients(0.02, 0.0, 0.0003, 0);
     public PIDFController turretController = new PIDFController(turretCoeffs);
+
+    public static PIDFCoefficients llPidCoeffs = new PIDFCoefficients(0.043, 0.0, 0.0001, 0);
+    public PIDFController llPidf;
+
+    public static PIDFCoefficients headingPidfCoeffs = new PIDFCoefficients(0.043, 0.0, 0.0001, 0);
+    public PIDFController headingPidfController;
 
     public static double turretRatio = (double) 58 / 185;
     public static double turretRatioBtoL = (double) 185 / 58;
@@ -50,13 +56,10 @@ public class TurretSubsystem extends SubsystemBase {
     public double error;
 
     public double turretPower;
-    public boolean isTurretManual;
 
     public double pidPower;
 
     public boolean isAlianceBlue;
-
-    public boolean turretHasBeenRestarted = false;
 
     Telemetry telemetry;
 
@@ -66,10 +69,12 @@ public class TurretSubsystem extends SubsystemBase {
         turretM = hMap.get(CRServo.class,"trt");
         turretE = hMap.get(AnalogInput.class, "trtE");
 
-        isTurretManual = false;
+        llPidf = new PIDFController(llPidCoeffs);
+        headingPidfController = new PIDFController(headingPidfCoeffs);
 
         this.telemetry = telemetry;
         this.isAlianceBlue = isAlianceBlue;
+
         turretvsFunc.add(shoootVsint1, shoootVsout1);
         turretvsFunc.add(shoootVsint2, shoootVsout2);
         turretvsFunc.add(shoootVsint3, shoootVsout3);
@@ -118,5 +123,13 @@ public class TurretSubsystem extends SubsystemBase {
         FtcDashboard.getInstance().getTelemetry().addData("TurretPRel", turretPRelative);
         FtcDashboard.getInstance().getTelemetry().addData("TurretTarget", turretTarget);
         FtcDashboard.getInstance().getTelemetry().addData("TurretError", error);
+
+
+        llPidf.setCoefficients(llPidCoeffs);
+        llPidf.setSetPoint(0);
+
+        headingPidfController.setCoefficients(headingPidfCoeffs);
+        headingPidfController.setSetPoint(0);
+
     }
 }

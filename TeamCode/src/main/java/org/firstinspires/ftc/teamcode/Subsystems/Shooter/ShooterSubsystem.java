@@ -41,7 +41,7 @@ public class ShooterSubsystem extends SubsystemBase {
 
     public boolean isBlueAliance;
 
-    double shooterTarget = shoootVsout2;
+    double shooterTarget = 0;
 
     //CONSTANTS
 

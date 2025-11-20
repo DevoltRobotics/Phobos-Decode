@@ -47,15 +47,6 @@ public class shooterToBasketCMD extends CommandBase {
 //generating final equation
         vsFunc.createLUT();
 
-        /*shooterPosLut.add(shoootVsint1, shoootVsout1);
-        shooterPosLut.add(shoootVsint2, shoootVsout2);
-        shooterPosLut.add(shoootVsint3, shoootVsout3);
-        shooterPosLut.add(shoootVsint4, shoootVsout4);
-//generating final equation
-        shooterPosLut.createLUT();
-
-
-         */
         addRequirements(shooterSubsystem);
     }
 

@@ -20,69 +20,44 @@ import org.firstinspires.ftc.teamcode.Utilities.Alliance;
 @Config
 public class turretToBasketCMD extends CommandBase {
 
-    public static PIDFCoefficients llPidCoeffs = new PIDFCoefficients(0.043, 0.0, 0.0001, 0);
-
-    PIDFController llPidf;
-
     private final TurretSubsystem turretSubsystem;
     private final VisionSubsystem visionSubsystem;
 
-    public static double redGoalAngle = 60;
-
-    /*public static double blueGoalAngle = 150;
-
-    private double staticTarget;
-
-    private boolean hasTargeted = false;
-
-
-     */
-    Follower follower;
-
-    public turretToBasketCMD(TurretSubsystem turretSb, VisionSubsystem vSb) {
+    boolean isAuto;
+    public turretToBasketCMD(TurretSubsystem turretSb, VisionSubsystem vSb, boolean isAuto) {
         turretSubsystem = turretSb;
         visionSubsystem = vSb;
 
+        this.isAuto = isAuto;
         addRequirements(turretSubsystem);
-    }
-
-
-    @Override
-    public void initialize() {
-
-        llPidf = new PIDFController(llPidCoeffs);
-        turretSubsystem.isTurretManual = false;
     }
 
     @Override
     public void execute() {
-        llPidf.setCoefficients(llPidCoeffs);
-        llPidf.setSetPoint(0);
-        //llPidf.setTolerance(0.1);
-
         Double tA = visionSubsystem.getAllianceTA();
 
         Double tX = visionSubsystem.getAllianceTX();
 
         if(tX != null && tA != null) {
             if (tA < 50) {
-                tX += 5.5;
+                if (!isAuto) {
+                    switch (visionSubsystem.alliance) {
+
+                        case RED:
+                            tX += 5.5;
+                            break;
+
+                        case BLUE:
+                            tX -= 5.5;
+                            break;
+                    }
+                }
             }
 
-            double llTargt = llPidf.calculate(tX);
+            double llTargt = turretSubsystem.llPidf.calculate(tX);
             turretSubsystem.turretTarget -= llTargt;
 
             FtcDashboard.getInstance().getTelemetry().addData("llTurretTarget", llTargt);
-
-        }else {
-            /*double robotHeading = Math.toDegrees(follower.getHeading());
-
-            if (visionSubsystem.alliance == Alliance.RED) {
-                staticTarget = robotHeading - redGoalAngle;
-
-            }
-
-             */
 
         }
     }

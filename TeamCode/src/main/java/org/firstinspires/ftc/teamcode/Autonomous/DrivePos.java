@@ -10,9 +10,9 @@ public class DrivePos {
 
     ///  RED
     /// CLOSE
-    public static Pose startingPoseCloseRed = new Pose(109, 135, Math.toRadians(0));
+    public static Pose startingPoseCloseRed = new Pose(123, 123, Math.toRadians(40));
 
-    public static Pose launchFirstArtifactsCloseRedPose = new Pose(98, 97, Math.toRadians(45));
+    public static Pose launchFirstArtifactsCloseRedPose = new Pose(105, 102, Math.toRadians(40));
 
     public static Pose prepareForIntakeArtifactsCloseRedPose = new Pose(126, 98, Math.toRadians(245));
     public static Pose prepareForIntakeArtifactsControlPointCloseRedPose = new Pose(98, 97, Math.toRadians(245));
@@ -22,7 +22,7 @@ public class DrivePos {
 
     public static Pose launchSecondArtifactsCloseRedPose = new Pose(94, 91, Math.toRadians(300));
 
-    public static Pose parkCloseRedPose = new Pose(100, 80, Math.toRadians(45));
+    public static Pose parkCloseRedPose = new Pose(90, 118, Math.toRadians(40));
 
     /// FURTHER
 
@@ -34,7 +34,7 @@ public class DrivePos {
 
     public static Pose launchSecondArtifactsFurtherRedPose = new Pose(87, 13, Math.toRadians(30));
 
-    public static Pose parkFurtherRedPose = new Pose(92, 32, Math.toRadians(30));
+    public static Pose parkFurtherRedPose = new Pose(90, 28, Math.toRadians(90));
 
     ///  BLUE
 
@@ -42,7 +42,15 @@ public class DrivePos {
 
     public static Pose startingPoseCloseBlue = startingPoseCloseRed.mirror();
 
+    public static Pose launchFirstArtifactsCloseBluePose = launchFirstArtifactsCloseRedPose.mirror();
+
+    public static Pose parkCloseBluePose = parkCloseRedPose.mirror();
+
+
     /// FURTHER
 
+    public static Pose startingPoseFurtherBlue = startingPoseFurtherRed.mirror();
+
+    public static Pose parkFurtherBluePose = parkFurtherRedPose.mirror();
 
 }

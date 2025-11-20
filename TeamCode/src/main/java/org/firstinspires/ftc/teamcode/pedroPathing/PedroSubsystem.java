@@ -79,6 +79,10 @@ public class PedroSubsystem extends SubsystemBase {
                         false
                 );
             }
+
+            if(gamepad.yWasPressed()) {
+                follower.setPose(new Pose());
+            }
         }
 
         @Override
