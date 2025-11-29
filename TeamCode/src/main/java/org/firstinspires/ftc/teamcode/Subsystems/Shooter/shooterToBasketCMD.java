@@ -1,11 +1,13 @@
 package org.firstinspires.ftc.teamcode.Subsystems.Shooter;
 
 import static org.firstinspires.ftc.teamcode.Subsystems.Vision.VisionSubsystem.limelightTaRatio;
+import static org.firstinspires.ftc.teamcode.Utilities.StaticConstants.shoootVsint0;
 import static org.firstinspires.ftc.teamcode.Utilities.StaticConstants.shoootVsint1;
 import static org.firstinspires.ftc.teamcode.Utilities.StaticConstants.shoootVsint2;
 import static org.firstinspires.ftc.teamcode.Utilities.StaticConstants.shoootVsint3;
 import static org.firstinspires.ftc.teamcode.Utilities.StaticConstants.shoootVsint4;
 import static org.firstinspires.ftc.teamcode.Utilities.StaticConstants.shoootVsint5;
+import static org.firstinspires.ftc.teamcode.Utilities.StaticConstants.shoootVsout0;
 import static org.firstinspires.ftc.teamcode.Utilities.StaticConstants.shoootVsout1;
 import static org.firstinspires.ftc.teamcode.Utilities.StaticConstants.shoootVsout2;
 import static org.firstinspires.ftc.teamcode.Utilities.StaticConstants.shoootVsout3;
@@ -39,6 +41,7 @@ public class shooterToBasketCMD extends CommandBase {
         shooterSubsystem = shooterSb;
         visionSubsystem = vSb;
 
+        vsFunc.add(shoootVsint0, shoootVsout0);
         vsFunc.add(shoootVsint1, shoootVsout1);
         vsFunc.add(shoootVsint2, shoootVsout2);
         vsFunc.add(shoootVsint3, shoootVsout3);
@@ -62,7 +65,7 @@ public class shooterToBasketCMD extends CommandBase {
         TargetA = visionSubsystem.getAllianceTA();
 
         if (TargetA != null) {
-            double targetA = Range.clip(TargetA, shoootVsint1 + 0.1, shoootVsint5 - 0.1);
+            double targetA = Range.clip(TargetA, shoootVsint0 + 0.1, shoootVsint5 - 0.1);
             shooterSubsystem.shooterTarget = vsFunc.get(targetA);
 
         }

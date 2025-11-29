@@ -3,6 +3,8 @@ package org.firstinspires.ftc.teamcode.Subsystems.Turret;
 import static org.firstinspires.ftc.teamcode.Subsystems.Turret.TurretSubsystem.llPidCoeffs;
 import static org.firstinspires.ftc.teamcode.Subsystems.Turret.TurretSubsystem.manualIncrement;
 
+import static java.lang.Math.atan2;
+
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.bylazar.configurables.annotations.Configurable;
@@ -27,8 +29,10 @@ public class turretManaulCMD extends CommandBase {
 
     Follower follower;
 
-    private double targetGoalY = 144;
-    private double targetGoalX = 0;
+    double newTurretTargetRelative = 0;
+
+    private double goalY = 144;
+    private double goalX = 0;
 
     public turretManaulCMD(TurretSubsystem turretSb, VisionSubsystem visionSb, Follower fllw, Gamepad gamepad) {
         turretSubsystem = turretSb;
@@ -49,9 +53,7 @@ public class turretManaulCMD extends CommandBase {
         Double tA = visionSubsystem.getAllianceTA();
         Double tX = visionSubsystem.getAllianceTX();
 
-        Double robotHeading = Math.toDegrees(follower.poseTracker.getPose().getHeading());
-
-        double deltaTurretAngle = turretSubsystem.turretP - robotHeading;
+        double robotHeading = Math.toDegrees(follower.poseTracker.getPose().getHeading());
 
         if(tX != null && tA != null) {
             if (tA < 50) {
@@ -70,25 +72,14 @@ public class turretManaulCMD extends CommandBase {
             double llTargt = turretSubsystem.llPidf.calculate(tX);
             turretSubsystem.turretTarget -= llTargt;
 
-            FtcDashboard.getInstance().getTelemetry().addData("llTurretTarget", llTargt);
+            if (Math.abs(tX) < 0.5){
+                newTurretTargetRelative = (turretSubsystem.turretPRelative - robotHeading);
 
-        }else {
-
-            /*if (visionSubsystem.alliance == Alliance.RED) {
-                staticTarget = robotHeading - redGoalAngle;
-
-                double desiredTurretAngle =
-
+                turretSubsystem.newTurretTarget = robotHeading + newTurretTargetRelative;
             }
 
-             */
+            FtcDashboard.getInstance().getTelemetry().addData("llTurretTarget", llTargt);
 
-        }
-
-        if (gamepad.right_bumper) {
-            turretSubsystem.turretTarget += manualIncrement;
-        } else if (gamepad.left_bumper) {
-            turretSubsystem.turretTarget -= manualIncrement;
         }
 
     }

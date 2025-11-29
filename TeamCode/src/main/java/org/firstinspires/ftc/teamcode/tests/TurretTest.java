@@ -25,19 +25,19 @@ public class TurretTest extends OpModeCommand {
     public static double turretTargetPos = 50;
 
     public TurretTest() {
-        super(Alliance.RED);
+        super(Alliance.RED, false);
     }
 
     @Override
     public void initialize() {
         garra = new GamepadEx(gamepad2);
 
-        CommandScheduler.getInstance().setDefaultCommand(turretSb, new turretManaulCMD(turretSb, visionSb, follower, gamepad2));
+        //CommandScheduler.getInstance().setDefaultCommand(turretSb, new turretManaulCMD(turretSb, visionSb, follower, gamepad2));
 
         Button targetBasket = new GamepadButton(
                 garra,
                 GamepadKeys.Button.A);
 
-        targetBasket.whenPressed(new turretToBasketCMD(turretSb, visionSb, false));
+        //targetBasket.whenPressed(new turretToBasketCMD(turretSb, visionSb, follower));
     }
 }

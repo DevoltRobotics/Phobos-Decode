@@ -1,20 +1,12 @@
 package org.firstinspires.ftc.teamcode.Autonomous;
 
-import static org.firstinspires.ftc.teamcode.Autonomous.DrivePos.intakeArtifactsCloseRedPose;
-import static org.firstinspires.ftc.teamcode.Autonomous.DrivePos.intakeArtifactsControlPointCloseRedPose;
 import static org.firstinspires.ftc.teamcode.Autonomous.DrivePos.launchFirstArtifactsCloseRedPose;
-import static org.firstinspires.ftc.teamcode.Autonomous.DrivePos.launchSecondArtifactsCloseRedPose;
 import static org.firstinspires.ftc.teamcode.Autonomous.DrivePos.parkCloseRedPose;
-import static org.firstinspires.ftc.teamcode.Autonomous.DrivePos.prepareForIntakeArtifactsCloseRedPose;
-import static org.firstinspires.ftc.teamcode.Autonomous.DrivePos.prepareForIntakeArtifactsControlPointCloseRedPose;
 import static org.firstinspires.ftc.teamcode.Autonomous.DrivePos.startingPoseCloseRed;
-import static org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.SorterSubsystem.artifacToArtifactTimer;
 import static org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.SorterSubsystem.blockerHFreePos;
 import static org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.SorterSubsystem.blockerHHidePos;
 import static org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.SorterSubsystem.blockersUp;
-import static org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.SorterSubsystem.waitAimTimer;
 
-import com.pedropathing.geometry.BezierCurve;
 import com.pedropathing.geometry.BezierLine;
 import com.pedropathing.paths.Path;
 import com.pedropathing.paths.PathChain;
@@ -27,14 +19,11 @@ import com.seattlesolvers.solverslib.command.WaitCommand;
 
 import org.firstinspires.ftc.teamcode.Subsystems.Intake.moveIntakeCMD;
 import org.firstinspires.ftc.teamcode.Subsystems.Shooter.shooterToBasketCMD;
-import org.firstinspires.ftc.teamcode.Subsystems.Shooter.shooterToVelAutonomousCMD;
 import org.firstinspires.ftc.teamcode.Subsystems.Shooter.shooterToVelCMD;
 import org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.horizontalBlockerCMD;
 import org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.lateralBlockersCMD;
-import org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.preSorterCmd;
 import org.firstinspires.ftc.teamcode.Subsystems.Turret.turretToBasketCMD;
 import org.firstinspires.ftc.teamcode.Subsystems.Turret.turretToPosCMD;
-import org.firstinspires.ftc.teamcode.Subsystems.Vision.detectMotifCMD;
 import org.firstinspires.ftc.teamcode.Utilities.Alliance;
 import org.firstinspires.ftc.teamcode.Utilities.OpModeCommand;
 
@@ -47,7 +36,7 @@ public class RED_CLOSE_AUTO extends OpModeCommand {
     Command autoCommand;
 
     public RED_CLOSE_AUTO() {
-        super(Alliance.RED);
+        super(Alliance.RED, true);
     }
 
     public void createPaths() {
@@ -97,7 +86,7 @@ public class RED_CLOSE_AUTO extends OpModeCommand {
                         new ParallelCommandGroup(
                                 pedroSb.followPathCmd(launchPreloadArtifacts),
                                 new turretToPosCMD(turretSb, 0),
-                                new shooterToVelAutonomousCMD(shooterSb,1120)
+                                new shooterToVelCMD(shooterSb,1120)
                         ),
 
                         new WaitCommand(1500),
@@ -120,14 +109,14 @@ public class RED_CLOSE_AUTO extends OpModeCommand {
                                         new moveIntakeCMD(intakeSb, 1)
                                 ),
 
-                                new turretToBasketCMD(turretSb, visionSb, true),
+                          //      new turretToBasketCMD(turretSb, visionSb, follower),
                                 new shooterToBasketCMD(shooterSb, visionSb)
 
                         ),
 
                         new ParallelCommandGroup(
                                 pedroSb.followPathCmd(park),
-                                new shooterToVelAutonomousCMD(shooterSb,0),
+                                new shooterToVelCMD(shooterSb,0),
                                 new turretToPosCMD(turretSb, 0),
 
                                 new SequentialCommandGroup(

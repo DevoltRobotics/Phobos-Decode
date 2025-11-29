@@ -1,15 +1,19 @@
 package org.firstinspires.ftc.teamcode;
 
+import static org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.SorterSubsystem.artifacToArtifactTimer;
+import static org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.SorterSubsystem.blockerHFreePos;
 import static org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.SorterSubsystem.blockerHHidePos;
 import static org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.SorterSubsystem.blockersUp;
+import static org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.SorterSubsystem.waitAimTimer;
 
 import com.acmerobotics.dashboard.config.Config;
 import com.pedropathing.geometry.Pose;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.util.ElapsedTime;
 import com.seattlesolvers.solverslib.command.CommandScheduler;
+import com.seattlesolvers.solverslib.command.ConditionalCommand;
+import com.seattlesolvers.solverslib.command.InstantCommand;
 import com.seattlesolvers.solverslib.command.ParallelCommandGroup;
 import com.seattlesolvers.solverslib.command.SequentialCommandGroup;
+import com.seattlesolvers.solverslib.command.WaitCommand;
 import com.seattlesolvers.solverslib.command.button.Button;
 import com.seattlesolvers.solverslib.command.button.GamepadButton;
 import com.seattlesolvers.solverslib.command.button.Trigger;
@@ -18,16 +22,16 @@ import com.seattlesolvers.solverslib.gamepad.GamepadKeys;
 
 import org.firstinspires.ftc.teamcode.Subsystems.Intake.moveIntakeAutonomousCMD;
 import org.firstinspires.ftc.teamcode.Subsystems.Intake.moveIntakeCMD;
-import org.firstinspires.ftc.teamcode.Subsystems.Shooter.shooterToVelAutonomousCMD;
+import org.firstinspires.ftc.teamcode.Subsystems.Sensors.lightSorterCMD;
+import org.firstinspires.ftc.teamcode.Subsystems.Shooter.shooterToBasketCMD;
 import org.firstinspires.ftc.teamcode.Subsystems.Shooter.shooterToVelCMD;
 import org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.horizontalBlockerCMD;
 import org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.lateralBlockersCMD;
-import org.firstinspires.ftc.teamcode.Subsystems.Turret.turretManaulCMD;
+import org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.preSorterTeleopCMD;
 import org.firstinspires.ftc.teamcode.Subsystems.Turret.turretToBasketCMD;
 import org.firstinspires.ftc.teamcode.Utilities.Alliance;
+import org.firstinspires.ftc.teamcode.Utilities.Artifact;
 import org.firstinspires.ftc.teamcode.Utilities.OpModeCommand;
-
-import java.util.function.DoubleSupplier;
 
 @Config
 public abstract class teleOp extends OpModeCommand {
@@ -36,13 +40,12 @@ public abstract class teleOp extends OpModeCommand {
     GamepadEx garra;
 
     double angleOffSet;
+    Boolean isTurretManual = true;
+    boolean isClose = true;
 
     public teleOp(Alliance alliance) {
-        super(alliance);
+        super(alliance, false);
     }
-
-    boolean sorterMode = false;
-    ElapsedTime sorterModeTimer = new ElapsedTime();
 
     @Override
     public void initialize() {
@@ -53,7 +56,7 @@ public abstract class teleOp extends OpModeCommand {
 
         ///CHASSIS
 
-        CommandScheduler.getInstance().setDefaultCommand(pedroSb, pedroSb.fieldCentricCmd(gamepad1));
+        //CommandScheduler.getInstance().setDefaultCommand(pedroSb, pedroSb.fieldCentricCmd(gamepad1));
 
         /// GARRA
 
@@ -61,11 +64,9 @@ public abstract class teleOp extends OpModeCommand {
         Trigger intakeOut = new Trigger(() -> gamepad2.left_trigger >= 0.5);
 
         intakeIn.whileActiveOnce(new moveIntakeCMD(intakeSb, 1));
-        intakeOut.whileActiveOnce(new moveIntakeCMD(intakeSb, -1));
+        intakeOut.whileActiveOnce(new moveIntakeCMD(intakeSb, -0.7));
 
-        CommandScheduler.getInstance().setDefaultCommand(turretSb, new turretManaulCMD(turretSb, visionSb, follower, gamepad2));
-
-        //CommandScheduler.getInstance().setDefaultCommand(shooterSb, new shooterToVelCMD(shooterSb, ()-> gamepad2.right_stick_y));
+        CommandScheduler.getInstance().setDefaultCommand(turretSb, new turretToBasketCMD(turretSb, visionSb, sensorsSb, follower, () -> isTurretManual, () -> isClose, gamepad2));
 
         Button blockerUpButton = new GamepadButton(
                 garra,
@@ -80,34 +81,74 @@ public abstract class teleOp extends OpModeCommand {
                 GamepadKeys.Button.X);
 
         blockerDownButton.whenPressed(
-                new lateralBlockersCMD(sorterSb, 0, blockersUp)
-        );
 
-        Button autoAimButton = new GamepadButton(
-                garra,
-                GamepadKeys.Button.A);
+                new ConditionalCommand(
+                        new lateralBlockersCMD(sorterSb, 0, 0),
+                        new lateralBlockersCMD(sorterSb, 0, blockersUp),
+                        () -> sensorsSb.sorterMode
 
-        autoAimButton.whileHeld(
-                new turretToBasketCMD(turretSb, visionSb, false)
+                )
+
+
         );
 
         Button prepareShootCloseButton = new GamepadButton(
                 garra,
                 GamepadKeys.Button.DPAD_RIGHT);
 
-        prepareShootCloseButton.whenPressed(new shooterToVelAutonomousCMD(shooterSb, 1200));
+        prepareShootCloseButton.whenPressed(
+                new ParallelCommandGroup(
+                        new shooterToVelCMD(shooterSb, 1200),
+
+                        new InstantCommand(
+                                () -> isTurretManual = false
+                        ),
+
+                        new InstantCommand(
+                                () -> isClose = true
+                        )
+                ));
 
         Button prepareShootFurtherButton = new GamepadButton(
                 garra,
                 GamepadKeys.Button.DPAD_LEFT);
 
-        prepareShootFurtherButton.whenPressed(new shooterToVelAutonomousCMD(shooterSb, 1400));
+        prepareShootFurtherButton.whenPressed(
+                new ParallelCommandGroup(
+                        new shooterToVelCMD(shooterSb, 1400),
+
+                        new InstantCommand(
+                                () -> isTurretManual = false
+                        ),
+
+                        new InstantCommand(
+                                () -> isClose = false
+                        )
+                ));
 
         Button shootButton = new GamepadButton(
                 garra,
                 GamepadKeys.Button.DPAD_UP);
 
-        shootButton.whenPressed(cyclesShootCMD(()-> (gamepad2.right_bumper || gamepad2.left_bumper)));
+        shootButton.whenPressed(
+                new ParallelCommandGroup(
+                        new shooterToBasketCMD(shooterSb, visionSb),
+                        new InstantCommand(
+                                () -> {
+                                    isTurretManual = false;
+                                }
+                        ),
+                        new SequentialCommandGroup(
+                                new WaitCommand(waitAimTimer + 100),
+                                new moveIntakeAutonomousCMD(intakeSb, 1)
+                        ),
+
+                        new SequentialCommandGroup(
+                                new WaitCommand(waitAimTimer),
+                                new horizontalBlockerCMD(sorterSb, blockerHFreePos).asProxy(),
+                                new WaitCommand(artifacToArtifactTimer)
+                        )
+                ));
 
         Button stopShootButton = new GamepadButton(
                 garra,
@@ -115,14 +156,65 @@ public abstract class teleOp extends OpModeCommand {
 
         stopShootButton.whenPressed(
                 new ParallelCommandGroup(
-                        new shooterToVelAutonomousCMD(shooterSb, 0),
+                        new shooterToVelCMD(shooterSb, 1000),
                         new moveIntakeAutonomousCMD(intakeSb, 0),
 
+                        new SequentialCommandGroup(
+                                new horizontalBlockerCMD(sorterSb, blockerHHidePos),
+
+                                new ConditionalCommand(
+                                        new lateralBlockersCMD(sorterSb, 0, 0),
+                                        new lateralBlockersCMD(sorterSb, 0, blockersUp),
+                                        () -> sensorsSb.sorterMode
+
+                               )
+            ),
+
+                        new InstantCommand(
+                                () -> isTurretManual = true
+                        )
+                ));
+
+        CommandScheduler.getInstance().setDefaultCommand(sensorsSb, new lightSorterCMD(sensorsSb, visionSb));
+
+        CommandScheduler.getInstance().setDefaultCommand(sorterSb, new preSorterTeleopCMD(sorterSb, sensorsSb));
+
+        Button toggleSorterTarget = new GamepadButton(
+                garra,
+                GamepadKeys.Button.A);
+
+        toggleSorterTarget.whenPressed(
+                        new InstantCommand(() -> {
+                            if (sensorsSb.targetArtifact.equals(Artifact.Green)) {
+                                sensorsSb.targetArtifact = Artifact.Purple;
+
+                            } else {
+                                sensorsSb.targetArtifact = Artifact.Green;
+
+                            }
+                        })
+        );
+
+        Button toggleSorterMode = new GamepadButton(
+                garra,
+                GamepadKeys.Button.PS);
+
+        toggleSorterMode.whenPressed(
                 new SequentialCommandGroup(
-                        new horizontalBlockerCMD(sorterSb, blockerHHidePos),
-                        new lateralBlockersCMD(sorterSb, 0, blockersUp)
+                        new InstantCommand(
+                                () -> sensorsSb.sorterMode = !sensorsSb.sorterMode
+                        ),
+
+                        new WaitCommand(80),
+
+                        new ConditionalCommand(
+                                new lateralBlockersCMD(sorterSb, 0, 0),
+                                new lateralBlockersCMD(sorterSb, 0, blockersUp),
+                                () -> sensorsSb.sorterMode
+
+                        )
                 )
-        ));
+        );
 
     }
 

@@ -18,7 +18,7 @@ public class Torreta_onlypower extends OpMode {
 
     AnalogInput axonE;
 
-    //PIDFController turretController = new PIDFController(turretCoeffs);
+    //PIDFController principalTurretController = new PIDFController(principalTurretCoeffs);
 
 
     @Override

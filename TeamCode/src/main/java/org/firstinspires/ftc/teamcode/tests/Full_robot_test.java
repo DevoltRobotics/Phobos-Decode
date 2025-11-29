@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.tests;
 import static org.firstinspires.ftc.teamcode.Subsystems.Shooter.ShooterSubsystem.shooterCoeffs;
 import static org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.SorterSubsystem.blockersUp;
 import static org.firstinspires.ftc.teamcode.Subsystems.Vision.VisionSubsystem.limelightTaRatio;
+import static org.firstinspires.ftc.teamcode.Utilities.StaticConstants.shoootVsint0;
 import static org.firstinspires.ftc.teamcode.Utilities.StaticConstants.shoootVsint1;
 import static org.firstinspires.ftc.teamcode.Utilities.StaticConstants.shoootVsint2;
 import static org.firstinspires.ftc.teamcode.Utilities.StaticConstants.shoootVsint3;
@@ -69,7 +70,7 @@ public class Full_robot_test extends OpMode {
 
     Limelight3A limelight3A;
 
-    double tArea = shoootVsint1 + 1;
+    double tArea = shoootVsint0 + 1;
 
     PIDFController shooterController = new PIDFController(shooterCoeffs);
 
@@ -182,7 +183,7 @@ public class Full_robot_test extends OpMode {
 
         if (result != null) {
             if (result.isValid()) {
-                tArea = Range.clip(result.getTa() * limelightTaRatio, shoootVsint1 + 0.1, shoootVsint5 - 0.1);
+                tArea = Range.clip(result.getTa() * limelightTaRatio, shoootVsint0 + 0.1, shoootVsint5 - 0.1);
             }
         }
 

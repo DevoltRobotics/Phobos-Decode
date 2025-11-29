@@ -3,38 +3,26 @@ package org.firstinspires.ftc.teamcode.Subsystems.Shooter;
 
 import com.seattlesolvers.solverslib.command.CommandBase;
 
-import java.util.function.DoubleSupplier;
-
 public class shooterToVelCMD extends CommandBase {
 
     private final ShooterSubsystem shooterSubsystem;
 
-    DoubleSupplier targetVel;
+    double targetVel;
 
-
-    public shooterToVelCMD(ShooterSubsystem shooterSb, DoubleSupplier targetVel) {
+    public shooterToVelCMD(ShooterSubsystem shooterSb, double targetVel) {
         shooterSubsystem = shooterSb;
 
         this.targetVel = targetVel;
         addRequirements(shooterSubsystem);
     }
 
-    public shooterToVelCMD(ShooterSubsystem shooterSb, double targetVel) {
-        shooterSubsystem = shooterSb;
-
-        this.targetVel = () -> targetVel;
-        addRequirements(shooterSubsystem);
-    }
-
     @Override
     public void execute() {
-        shooterSubsystem.shooterTarget = targetVel.getAsDouble();
+        shooterSubsystem.shooterTarget = targetVel;
     }
 
     @Override
-    public void end(boolean interrupted) {
-        shooterSubsystem.shooterTarget = ShooterSubsystem.standarShooterVel;
-
+    public boolean isFinished() {
+        return true;
     }
-
 }

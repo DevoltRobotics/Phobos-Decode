@@ -15,16 +15,8 @@ public class turretToPosCMD extends CommandBase {
         addRequirements(turretSubsystem);
     }
 
-
-    @Override
-    public void initialize() {
-        turretSubsystem.isTurretManual = false;
-
-    }
-
     @Override
     public void execute() {
-        turretSubsystem.isTurretManual = false;
         turretSubsystem.turretTarget = basketTarget;
     }
 

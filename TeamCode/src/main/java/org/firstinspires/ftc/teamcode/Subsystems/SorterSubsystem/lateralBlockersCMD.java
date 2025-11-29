@@ -1,20 +1,15 @@
 package org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem;
 
+import static org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.SorterSubsystem.blockersUp;
+
 import com.seattlesolvers.solverslib.command.CommandBase;
 
 public class lateralBlockersCMD extends CommandBase {
 
     private final SorterSubsystem sorterSubsystem;
 
-    private double rightPos;
-    private double leftPos;
-
-    public lateralBlockersCMD(SorterSubsystem sorterSb, double rightPosTarget) {
-        sorterSubsystem = sorterSb;
-        rightPos = rightPosTarget;
-
-        addRequirements(sorterSubsystem);
-    }
+    private final double rightPos;
+    private final double leftPos;
 
     public lateralBlockersCMD(SorterSubsystem sorterSb, double rightPosTarget, double leftPosTarget) {
         sorterSubsystem = sorterSb;
@@ -26,9 +21,9 @@ public class lateralBlockersCMD extends CommandBase {
 
     @Override
     public void execute() {
-
         sorterSubsystem.blockerR.setPosition(0.5 + rightPos);
         sorterSubsystem.blockerL.setPosition(0.5 - leftPos);
+
     }
 
     @Override

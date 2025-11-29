@@ -6,6 +6,8 @@ import com.seattlesolvers.solverslib.command.ConditionalCommand;
 import com.seattlesolvers.solverslib.command.SequentialCommandGroup;
 import com.seattlesolvers.solverslib.command.WaitCommand;
 
+import org.firstinspires.ftc.teamcode.Subsystems.Sensors.SensorsSubsystem;
+import org.firstinspires.ftc.teamcode.Subsystems.Vision.VisionSubsystem;
 import org.firstinspires.ftc.teamcode.Utilities.Artifact;
 import org.firstinspires.ftc.teamcode.Utilities.Pattern;
 
@@ -14,16 +16,22 @@ public class postSorterCmd extends SequentialCommandGroup {
     public static int firstArtifactWaitTimer = 1000;
     public static int waitUntilArtifactsTimer = 1400;
 
-    public postSorterCmd(SorterSubsystem sorterSubsystem, Pattern pattern, Artifact leftArtifact, Artifact rightArtifact) {
+    SorterSubsystem sorterSb;
+    VisionSubsystem visionSb;
 
-        switch (pattern) {
+    public postSorterCmd(SorterSubsystem sorterSb, SensorsSubsystem sensorsSb, VisionSubsystem visionSb) {
+
+        this.sorterSb = sorterSb;
+        this.visionSb = visionSb;
+
+        switch (visionSb.pattern) {
             case PPG:
                 addCommands(
 
                         new ConditionalCommand(
-                                new lateralBlockersCMD(sorterSubsystem, 0, blockersUp),
-                                new lateralBlockersCMD(sorterSubsystem, blockersUp, 0),
-                                () -> leftArtifact.equals(Artifact.Purple)
+                                new lateralBlockersCMD(sorterSb, 0, blockersUp),
+                                new lateralBlockersCMD(sorterSb, blockersUp, 0),
+                                () -> sensorsSb.leftArtifact.equals(Artifact.Purple)
                         ),
 
                         new WaitCommand(waitUntilArtifactsTimer)
@@ -32,9 +40,9 @@ public class postSorterCmd extends SequentialCommandGroup {
             case PGP:
                 addCommands(
                         new ConditionalCommand(
-                                new lateralBlockersCMD(sorterSubsystem, 0, blockersUp),
-                                new lateralBlockersCMD(sorterSubsystem, blockersUp, 0),
-                                () -> leftArtifact.equals(Artifact.Green)
+                                new lateralBlockersCMD(sorterSb, 0, blockersUp),
+                                new lateralBlockersCMD(sorterSb, blockersUp, 0),
+                                () -> sensorsSb.leftArtifact.equals(Artifact.Green)
                         ),
 
                         new WaitCommand(waitUntilArtifactsTimer)
@@ -44,6 +52,8 @@ public class postSorterCmd extends SequentialCommandGroup {
 
                 break;
         }
+
+        addRequirements(this.sorterSb);
     }
 
 }

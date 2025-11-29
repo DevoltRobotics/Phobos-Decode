@@ -26,14 +26,19 @@ public class VisionSubsystem extends SubsystemBase {
 
     public final Alliance alliance;
 
-    public VisionSubsystem(HardwareMap hMap, Alliance alliance) {
+    public boolean isAuto;
+
+    public VisionSubsystem(HardwareMap hMap, Alliance alliance, boolean isAuto) {
         limelight = hMap.get(Limelight3A.class, "limelight");
 
         this.alliance = alliance;
 
+        this.isAuto = isAuto;
+
         limelight.setPollRateHz(100);
         limelight.start();
         limelight.pipelineSwitch(0);
+
     }
 
     public void periodic(){
@@ -79,6 +84,21 @@ public class VisionSubsystem extends SubsystemBase {
         return null;
     }
 
+
+    public Double getAllianceTXDegrees() {
+
+        if (result != null && result.isValid() && !result.getFiducialResults().isEmpty()) {
+            int id = result.getFiducialResults().get(0).getFiducialId();
+
+            if (alliance == Alliance.ANY ||
+                    (alliance == Alliance.RED && id == 24) ||
+                    (alliance == Alliance.BLUE && id == 20)) {
+                return result.getTxNC();
+            }
+        }
+
+        return null;
+    }
     public Pattern getPatternDetected() {
         if (result != null && result.isValid() && !result.getFiducialResults().isEmpty()) {
             int id = result.getFiducialResults().get(0).getFiducialId();

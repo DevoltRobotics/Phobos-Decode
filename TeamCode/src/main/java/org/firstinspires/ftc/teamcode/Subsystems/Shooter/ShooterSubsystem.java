@@ -10,11 +10,13 @@ import com.seattlesolvers.solverslib.command.SubsystemBase;
 import com.seattlesolvers.solverslib.controller.PIDFController;
 import com.seattlesolvers.solverslib.util.InterpLUT;
 
+import static org.firstinspires.ftc.teamcode.Utilities.StaticConstants.shoootVsint0;
 import static org.firstinspires.ftc.teamcode.Utilities.StaticConstants.shoootVsint1;
 import static org.firstinspires.ftc.teamcode.Utilities.StaticConstants.shoootVsint2;
 import static org.firstinspires.ftc.teamcode.Utilities.StaticConstants.shoootVsint3;
 import static org.firstinspires.ftc.teamcode.Utilities.StaticConstants.shoootVsint4;
 import static org.firstinspires.ftc.teamcode.Utilities.StaticConstants.shoootVsint5;
+import static org.firstinspires.ftc.teamcode.Utilities.StaticConstants.shoootVsout0;
 import static org.firstinspires.ftc.teamcode.Utilities.StaticConstants.shoootVsout1;
 import static org.firstinspires.ftc.teamcode.Utilities.StaticConstants.shoootVsout2;
 import static org.firstinspires.ftc.teamcode.Utilities.StaticConstants.shoootVsout3;
@@ -54,6 +56,8 @@ public class ShooterSubsystem extends SubsystemBase {
 
         shooterMUp.setDirection(DcMotorSimple.Direction.REVERSE);
 
+
+        vsFunc.add(shoootVsint0, shoootVsout0);
         vsFunc.add(shoootVsint1, shoootVsout1);
         vsFunc.add(shoootVsint2, shoootVsout2);
         vsFunc.add(shoootVsint3, shoootVsout3);

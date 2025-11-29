@@ -1,65 +1,164 @@
 package org.firstinspires.ftc.teamcode.Subsystems.Turret;
 
-import static android.graphics.Color.RED;
-import static org.firstinspires.ftc.teamcode.Subsystems.Vision.VisionSubsystem.limelightTaRatio;
-import static org.firstinspires.ftc.teamcode.Utilities.StaticConstants.shoootVsint2;
+import static org.firstinspires.ftc.teamcode.Subsystems.Turret.TurretSubsystem.furtherCorrection;
+import static org.firstinspires.ftc.teamcode.Subsystems.Turret.TurretSubsystem.manualIncrement;
+import static org.firstinspires.ftc.teamcode.Utilities.Alliance.RED;
 
-import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.pedropathing.follower.Follower;
-import com.qualcomm.hardware.limelightvision.LLResult;
-import com.qualcomm.hardware.limelightvision.Limelight3A;
-import com.qualcomm.robotcore.hardware.PIDFCoefficients;
+import com.qualcomm.robotcore.hardware.Gamepad;
+import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.seattlesolvers.solverslib.command.CommandBase;
-import com.seattlesolvers.solverslib.controller.PIDFController;
+import com.seattlesolvers.solverslib.command.CommandScheduler;
 
+import org.firstinspires.ftc.teamcode.Subsystems.Sensors.SensorsSubsystem;
+import org.firstinspires.ftc.teamcode.Subsystems.Sensors.lightTimeCMD;
 import org.firstinspires.ftc.teamcode.Subsystems.Vision.VisionSubsystem;
-import org.firstinspires.ftc.teamcode.Utilities.Alliance;
+
+import java.util.function.BooleanSupplier;
 
 @Config
 public class turretToBasketCMD extends CommandBase {
 
-    private final TurretSubsystem turretSubsystem;
-    private final VisionSubsystem visionSubsystem;
+    private final TurretSubsystem turretSb;
+    private final VisionSubsystem visionSb;
+    private final SensorsSubsystem sensorsSb;
 
-    boolean isAuto;
-    public turretToBasketCMD(TurretSubsystem turretSb, VisionSubsystem vSb, boolean isAuto) {
-        turretSubsystem = turretSb;
-        visionSubsystem = vSb;
+    Follower follower;
 
-        this.isAuto = isAuto;
-        addRequirements(turretSubsystem);
+    double newTurretTargetRelative = 0;
+
+    BooleanSupplier isManual;
+    BooleanSupplier isClose;
+
+    Gamepad gamepad;
+
+    enum distanceTurrret {
+        CLOSE,
+        FAR
     }
+
+    public static int farZoneAngle = 30;
+    public static int closeZoneAngle = 45;
+
+    double goalHeading = 0;
+
+    distanceTurrret distanceStatus = distanceTurrret.FAR;
+
+    ElapsedTime waitAimTimer;
+    ElapsedTime angleAimOffset;
+
+    /*
+    public turretToBasketCMD(TurretSubsystem turretSb, VisionSubsystem vSb, Follower fllw) {
+        this.turretSb = turretSb;
+        this.visionSb = vSb;
+
+        follower = fllw;
+
+        isManual = () -> false;
+
+        waitAimTimer = new ElapsedTime();
+        angleAimOffset = new ElapsedTime();
+
+        addRequirements(this.turretSb);
+    }
+
+     */
+
+    public turretToBasketCMD(TurretSubsystem turretSb, VisionSubsystem vSb, SensorsSubsystem sensorsSb, Follower fllw, BooleanSupplier isManual, BooleanSupplier isClose, Gamepad gamepad) {
+        this.turretSb = turretSb;
+        this.visionSb = vSb;
+        this.sensorsSb = sensorsSb;
+
+        follower = fllw;
+
+        this.gamepad = gamepad;
+
+        this.isManual = isManual;
+        this.isClose = isClose;
+
+        waitAimTimer = new ElapsedTime();
+        angleAimOffset = new ElapsedTime();
+
+        addRequirements(turretSb);
+    }
+
 
     @Override
     public void execute() {
-        Double tA = visionSubsystem.getAllianceTA();
+        Double tA = visionSb.getAllianceTA();
 
-        Double tX = visionSubsystem.getAllianceTX();
+        Double tX = visionSb.getAllianceTX();
 
-        if(tX != null && tA != null) {
-            if (tA < 50) {
-                if (!isAuto) {
-                    switch (visionSubsystem.alliance) {
+        double robotHeading = Math.toDegrees(follower.poseTracker.getPose().getHeading());
 
-                        case RED:
-                            tX += 5.5;
-                            break;
+        turretSb.turretAbsolutepos = wrapAngle(robotHeading - turretSb.turretPRelative);
 
-                        case BLUE:
-                            tX -= 5.5;
-                            break;
-                    }
-                }
+        if (visionSb.alliance == RED) {
+            goalHeading = isClose.getAsBoolean() ? (90 - closeZoneAngle) : (90 - farZoneAngle);
+        } else {
+            goalHeading = isClose.getAsBoolean() ? (90 + closeZoneAngle) : (90 + farZoneAngle);
+        }
+
+        if (gamepad.right_bumper || gamepad.left_bumper) {
+            turretSb.realIsManual = true;
+
+        } else {
+            turretSb.realIsManual = isManual.getAsBoolean();
+
+        }
+
+        if (turretSb.realIsManual) {
+            if (gamepad.right_bumper) {
+                turretSb.turretTarget += manualIncrement;
+
+            } else if (gamepad.left_bumper) {
+                turretSb.turretTarget -= manualIncrement;
+
             }
 
-            double llTargt = turretSubsystem.llPidf.calculate(tX);
-            turretSubsystem.turretTarget -= llTargt;
+        } else {
+            if (tX != null && tA != null) {
 
-            FtcDashboard.getInstance().getTelemetry().addData("llTurretTarget", llTargt);
+                if (tA < 50) {
+                    if (!visionSb.isAuto) {
+                        switch (visionSb.alliance) {
+                            case RED:
+                                tX += furtherCorrection;
+                                break;
+
+                            case BLUE:
+                                tX -= furtherCorrection;
+                                break;
+                        }
+                    }
+                }
+
+
+                double llTarget = turretSb.llPidf.calculate(tX);
+                turretSb.turretTarget -= llTarget;
+
+                turretSb.telemetry.addData("llTarget", llTarget);
+
+                waitAimTimer.reset();
+
+            } else if (waitAimTimer.seconds() > 0.3 && angleAimOffset.seconds() > 0.8){
+
+                double error = wrapAngle(goalHeading - turretSb.turretAbsolutepos);
+
+                turretSb.turretTarget -= error;
+
+                angleAimOffset.reset();
+                waitAimTimer.reset();
+            }
 
         }
     }
 
+    private double wrapAngle(double angle) {
+        while (angle > 180) angle -= 360;
+        while (angle < -180) angle += 360;
+        return angle;
+    }
 }

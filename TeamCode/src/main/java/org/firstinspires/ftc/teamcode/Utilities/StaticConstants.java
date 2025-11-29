@@ -10,11 +10,8 @@ public class StaticConstants extends OpModeControlPluginConfig {
 
     //TURRET
 
-    public static double shoootVsint1 = 28, shoootVsint2 = 36, shoootVsint3 = 45.5, shoootVsint4 = 75, shoootVsint5 = 120;
-    public static double shoootVsout1 = 1430, shoootVsout2 = 1400, shoootVsout3 = 1300, shoootVsout4 = 1225, shoootVsout5 = 1100;
-
-    public static double shoootPosint1 = 0, shoootPosint2 = 0, shoootPosint3 = 0, shoootPosint4 = 0;
-    public static double shoootPosout1 = 0, shoootPosout2 = 0, shoootPosout3 = 0, shoootPosout4 = 0;
+    public static double shoootVsint0 = 24.5, shoootVsint1 = 28.5, shoootVsint2 = 38, shoootVsint3 = 65, shoootVsint4 = 100, shoootVsint5 = 130;
+    public static double shoootVsout0 = 1520, shoootVsout1 = 1465, shoootVsout2 = 1400, shoootVsout3 = 1300, shoootVsout4 = 1230, shoootVsout5 = 1150;
 
     //SERVOS
 

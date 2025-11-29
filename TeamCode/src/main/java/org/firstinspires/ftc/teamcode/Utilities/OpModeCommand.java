@@ -22,6 +22,7 @@ import com.seattlesolvers.solverslib.command.SequentialCommandGroup;
 import com.seattlesolvers.solverslib.command.Subsystem;
 import com.seattlesolvers.solverslib.command.WaitCommand;
 
+import org.firstinspires.ftc.teamcode.Subsystems.Sensors.SensorsSubsystem;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 import org.firstinspires.ftc.teamcode.pedroPathing.PedroSubsystem;
 import org.firstinspires.ftc.teamcode.Subsystems.Intake.IntakeSubsystem;
@@ -46,20 +47,24 @@ public abstract class OpModeCommand extends OpMode {
 
     public final Alliance currentAliance;
 
+    public final boolean isAuto;
+
     public TelemetryManager telemetryM;
 
     public VisionSubsystem visionSb;
     public PedroSubsystem pedroSb;
     public IntakeSubsystem intakeSb;
     public SorterSubsystem sorterSb;
+    public SensorsSubsystem sensorsSb;
     public LiftingSubsystem liftingSubsystem;
     public ShooterSubsystem shooterSb;
     public TurretSubsystem turretSb;
 
     public IMU imu;
 
-    public OpModeCommand(Alliance alliance) {
+    public OpModeCommand(Alliance alliance, boolean isAuto) {
         this.currentAliance = alliance;
+        this.isAuto = isAuto;
     }
 
     //reinicia la lista de comandos
@@ -97,10 +102,11 @@ public abstract class OpModeCommand extends OpMode {
                 pedroSb = new PedroSubsystem(follower, telemetry),
                 intakeSb = new IntakeSubsystem(hardwareMap),
                 sorterSb = new SorterSubsystem(hardwareMap, telemetry),
-                turretSb = new TurretSubsystem(hardwareMap, telemetry, true),
+                sensorsSb = new SensorsSubsystem(hardwareMap, telemetry),
+                turretSb = new TurretSubsystem(hardwareMap, telemetry),
                 //liftingSubsystem = new LiftingSubsystem(hardwareMap),
                 shooterSb = new ShooterSubsystem(hardwareMap, telemetry, true),
-                visionSb = new VisionSubsystem(hardwareMap, currentAliance)
+                visionSb = new VisionSubsystem(hardwareMap, currentAliance, isAuto)
         );
 
 
@@ -132,7 +138,7 @@ public abstract class OpModeCommand extends OpMode {
 
     @Override
     public void loop() {
-        telemetry.addData("Heading", Math.toDegrees(follower.getHeading()));
+        telemetry.addData("Heading", Math.toDegrees(follower.poseTracker.getPose().getHeading()));
 
         FtcDashboard.getInstance().getTelemetry().update();
         run();
@@ -145,29 +151,6 @@ public abstract class OpModeCommand extends OpMode {
     public abstract void initialize();
 
 
-    //COMANDS
-
-    public Command cyclesShootCMD(BooleanSupplier booleano) {
-
-        return new ParallelCommandGroup(
-                new turretToBasketCMD(turretSb, visionSb, false).asProxy().interruptOn(booleano),
-                new shooterToBasketCMD(shooterSb, visionSb),
-
-                new SequentialCommandGroup(
-                        new WaitCommand(waitAimTimer - 50),
-                        new moveIntakeCMD(intakeSb, 1)
-                ),
-
-                new SequentialCommandGroup(
-                        new WaitCommand(waitAimTimer),
-                        new horizontalBlockerCMD(sorterSb, blockerHFreePos).asProxy(),
-                        new WaitCommand(artifacToArtifactTimer)
-                )
-
-        )
-
-                ;
-    }
 
     public Command startCMD() {
                 return new SequentialCommandGroup(
