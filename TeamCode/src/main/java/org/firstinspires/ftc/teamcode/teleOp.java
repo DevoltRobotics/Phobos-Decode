@@ -56,7 +56,7 @@ public abstract class teleOp extends OpModeCommand {
 
         ///CHASSIS
 
-        //CommandScheduler.getInstance().setDefaultCommand(pedroSb, pedroSb.fieldCentricCmd(gamepad1));
+        CommandScheduler.getInstance().setDefaultCommand(pedroSb, pedroSb.fieldCentricCmd(gamepad1));
 
         /// GARRA
 
@@ -72,9 +72,8 @@ public abstract class teleOp extends OpModeCommand {
                 garra,
                 GamepadKeys.Button.Y);
 
-        blockerUpButton.whenPressed(
-                new lateralBlockersCMD(sorterSb, blockersUp, blockersUp)
-        );
+        blockerUpButton.whileHeld(new lateralBlockersCMD(sorterSb, blockersUp, blockersUp));
+
 
         Button blockerDownButton = new GamepadButton(
                 garra,
@@ -156,7 +155,7 @@ public abstract class teleOp extends OpModeCommand {
 
         stopShootButton.whenPressed(
                 new ParallelCommandGroup(
-                        new shooterToVelCMD(shooterSb, 1000),
+                        new shooterToVelCMD(shooterSb, 0),
                         new moveIntakeAutonomousCMD(intakeSb, 0),
 
                         new SequentialCommandGroup(

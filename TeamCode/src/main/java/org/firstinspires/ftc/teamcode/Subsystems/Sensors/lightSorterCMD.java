@@ -40,7 +40,11 @@ public class lightSorterCMD extends CommandBase {
 
         }else {
 
-            if (tX != null && tA != null && Math.abs(tX) < 12) {
+            if (sensorsSubsystem.fourDetected){
+                sensorsSubsystem.light.setPosition(0.28);
+
+
+            } else if (tX != null && tA != null && Math.abs(tX) < 12) {
                 if (tA < 50) {
                     if (!visionSb.isAuto) {
                         switch (visionSb.alliance) {
@@ -55,15 +59,12 @@ public class lightSorterCMD extends CommandBase {
                     }
                 }
 
-                if (Math.abs(tX) < 3) {
+                if (Math.abs(tX) < 5) {
                     sensorsSubsystem.light.setPosition(0.65);
 
                 }
 
-            }else if (sensorsSubsystem.fourDetected){
-                sensorsSubsystem.light.setPosition(0.28);
-
-            }  else {
+            } else {
                 sensorsSubsystem.light.setPosition(0);
 
             }

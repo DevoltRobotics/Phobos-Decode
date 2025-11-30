@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.pedroPathing;
 
+import com.acmerobotics.dashboard.config.Config;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.Pose;
 import com.pedropathing.paths.Path;
@@ -11,11 +12,12 @@ import com.seattlesolvers.solverslib.command.SubsystemBase;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
+@Config
 public class PedroSubsystem extends SubsystemBase {
 
     public Follower follower;
 
-    public static double slowModeMultiplier = 0.5;
+    public static double slowModeMultiplier = 0.4;
 
     public Pose EndPose = new Pose();
 
@@ -62,23 +64,18 @@ public class PedroSubsystem extends SubsystemBase {
 
         @Override
         public void execute() {
-            boolean isSlowMode = gamepad.right_trigger > 0.5;
+            double multiplier = 1;
 
-            if (isSlowMode) {
-                follower.setTeleOpDrive(
-                        -gamepad.left_stick_y * slowModeMultiplier,
-                        -gamepad.left_stick_x * slowModeMultiplier,
-                        -gamepad.right_stick_x * slowModeMultiplier,
-                        false // Robot Centric
-                        );
-            }else {
-                follower.setTeleOpDrive(
-                        -gamepad.left_stick_y,
-                        -gamepad.left_stick_x,
-                        -gamepad.right_stick_x,
-                        false
-                );
+            if (gamepad.right_trigger >= 0.5) {
+                multiplier = slowModeMultiplier;
             }
+
+            follower.setTeleOpDrive(
+                    -gamepad.left_stick_y * multiplier,
+                    -gamepad.left_stick_x * multiplier,
+                    -gamepad.right_stick_x * multiplier,
+                    false // Robot Centric
+            );
 
             if(gamepad.yWasPressed()) {
                 follower.setPose(new Pose());

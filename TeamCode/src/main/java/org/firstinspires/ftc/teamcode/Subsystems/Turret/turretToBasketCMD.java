@@ -95,6 +95,8 @@ public class turretToBasketCMD extends CommandBase {
 
         turretSb.turretAbsolutepos = wrapAngle(robotHeading - turretSb.turretPRelative);
 
+        double error = wrapAngle(goalHeading - turretSb.turretAbsolutepos);
+
         if (visionSb.alliance == RED) {
             goalHeading = isClose.getAsBoolean() ? (90 - closeZoneAngle) : (90 - farZoneAngle);
         } else {
@@ -135,7 +137,6 @@ public class turretToBasketCMD extends CommandBase {
                     }
                 }
 
-
                 double llTarget = turretSb.llPidf.calculate(tX);
                 turretSb.turretTarget -= llTarget;
 
@@ -143,16 +144,16 @@ public class turretToBasketCMD extends CommandBase {
 
                 waitAimTimer.reset();
 
-            } else if (waitAimTimer.seconds() > 0.3 && angleAimOffset.seconds() > 0.8){
+            } /*else {
+                double angleTarget = turretSb.anglePidController.calculate(error);
 
-                double error = wrapAngle(goalHeading - turretSb.turretAbsolutepos);
+                turretSb.turretTarget += angleTarget;
 
-                turretSb.turretTarget -= error;
-
-                angleAimOffset.reset();
                 waitAimTimer.reset();
             }
 
+
+           */
         }
     }
 

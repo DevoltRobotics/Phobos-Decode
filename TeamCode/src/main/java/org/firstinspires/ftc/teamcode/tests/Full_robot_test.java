@@ -9,6 +9,7 @@ import static org.firstinspires.ftc.teamcode.Utilities.StaticConstants.shoootVsi
 import static org.firstinspires.ftc.teamcode.Utilities.StaticConstants.shoootVsint3;
 import static org.firstinspires.ftc.teamcode.Utilities.StaticConstants.shoootVsint4;
 import static org.firstinspires.ftc.teamcode.Utilities.StaticConstants.shoootVsint5;
+import static org.firstinspires.ftc.teamcode.Utilities.StaticConstants.shoootVsout0;
 import static org.firstinspires.ftc.teamcode.Utilities.StaticConstants.shoootVsout1;
 import static org.firstinspires.ftc.teamcode.Utilities.StaticConstants.shoootVsout2;
 import static org.firstinspires.ftc.teamcode.Utilities.StaticConstants.shoootVsout3;
@@ -127,6 +128,7 @@ public class Full_robot_test extends OpMode {
                 FtcDashboard.getInstance().getTelemetry()
         );
 
+        vsFunc.add(shoootVsint0, shoootVsout0);
         vsFunc.add(shoootVsint1, shoootVsout1);
         vsFunc.add(shoootVsint2, shoootVsout2);
         vsFunc.add(shoootVsint3, shoootVsout3);

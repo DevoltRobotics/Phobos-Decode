@@ -25,6 +25,10 @@ public class TurretSubsystem extends SubsystemBase {
     public static PIDFCoefficients llPidCoeffs = new PIDFCoefficients(0.043, 0.0, 0.0001, 0);
     public PIDFController llPidf = new PIDFController(llPidCoeffs);
 
+    public static PIDFCoefficients anglePidCoeffs = new PIDFCoefficients(0.043, 0.0, 0.0001, 0);
+    public PIDFController anglePidController = new PIDFController(anglePidCoeffs);
+
+
     public static double turretRatio = (double) 58 / 185;
     public static double turretRatioBtoL = (double) 185 / 58;
 
@@ -69,6 +73,9 @@ public class TurretSubsystem extends SubsystemBase {
     public void periodic() {
         principalTurretController.setCoefficients(principalTurretCoeffs);
 
+        anglePidController.setCoefficients(anglePidCoeffs);
+        anglePidController.setSetPoint(0);
+
         turretP = (turretE.getVoltage() / 3.3) * 360;
 
         if (lastTurretP == null) {
@@ -97,7 +104,6 @@ public class TurretSubsystem extends SubsystemBase {
         principalTurretController.setSetPoint(turretTarget);
 
         pidPower = principalTurretController.calculate(turretPRelative);
-
 
         double targetPower = Range.clip(pidPower, -1, 1);
 
