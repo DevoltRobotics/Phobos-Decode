@@ -81,9 +81,10 @@ public abstract class teleOp extends OpModeCommand {
 
         blockerDownButton.whenPressed(
 
+
                 new ConditionalCommand(
                         new lateralBlockersCMD(sorterSb, 0, 0),
-                        new lateralBlockersCMD(sorterSb, 0, blockersUp),
+                        new lateralBlockersCMD(sorterSb, blockersUp, 0),
                         () -> sensorsSb.sorterMode
 
                 )
@@ -97,7 +98,8 @@ public abstract class teleOp extends OpModeCommand {
 
         prepareShootCloseButton.whenPressed(
                 new ParallelCommandGroup(
-                        new shooterToVelCMD(shooterSb, 1200),
+
+                        new shooterToBasketCMD(shooterSb, visionSb, 1200),
 
                         new InstantCommand(
                                 () -> isTurretManual = false
@@ -114,7 +116,7 @@ public abstract class teleOp extends OpModeCommand {
 
         prepareShootFurtherButton.whenPressed(
                 new ParallelCommandGroup(
-                        new shooterToVelCMD(shooterSb, 1400),
+                        new shooterToBasketCMD(shooterSb, visionSb, 1400),
 
                         new InstantCommand(
                                 () -> isTurretManual = false
@@ -131,7 +133,7 @@ public abstract class teleOp extends OpModeCommand {
 
         shootButton.whenPressed(
                 new ParallelCommandGroup(
-                        new shooterToBasketCMD(shooterSb, visionSb),
+                        new shooterToBasketCMD(shooterSb, visionSb, shooterSb.shooterTarget),
                         new InstantCommand(
                                 () -> {
                                     isTurretManual = false;
@@ -163,7 +165,7 @@ public abstract class teleOp extends OpModeCommand {
 
                                 new ConditionalCommand(
                                         new lateralBlockersCMD(sorterSb, 0, 0),
-                                        new lateralBlockersCMD(sorterSb, 0, blockersUp),
+                                        new lateralBlockersCMD(sorterSb, blockersUp, 0),
                                         () -> sensorsSb.sorterMode
 
                                )
@@ -208,7 +210,7 @@ public abstract class teleOp extends OpModeCommand {
 
                         new ConditionalCommand(
                                 new lateralBlockersCMD(sorterSb, 0, 0),
-                                new lateralBlockersCMD(sorterSb, 0, blockersUp),
+                                new lateralBlockersCMD(sorterSb, blockersUp, 0),
                                 () -> sensorsSb.sorterMode
 
                         )

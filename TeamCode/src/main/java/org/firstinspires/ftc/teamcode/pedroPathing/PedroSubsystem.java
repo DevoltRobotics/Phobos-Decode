@@ -27,7 +27,7 @@ public class PedroSubsystem extends SubsystemBase {
         this.follower = follower;
 
         this.telemetry = telemetry;
-        
+
     }
 
     @Override
@@ -47,6 +47,11 @@ public class PedroSubsystem extends SubsystemBase {
 
     public Command fieldCentricCmd(Gamepad gamepad) {
         return new FieldCentricCmd(gamepad);
+    }
+
+    public Command turnToCmd(Pose pose){
+        return new TurnToCommand(pose);
+
     }
 
     class FieldCentricCmd extends CommandBase {
@@ -77,7 +82,7 @@ public class PedroSubsystem extends SubsystemBase {
                     false // Robot Centric
             );
 
-            if(gamepad.yWasPressed()) {
+            if (gamepad.yWasPressed()) {
                 follower.setPose(new Pose());
             }
         }
@@ -131,56 +136,26 @@ public class PedroSubsystem extends SubsystemBase {
         }
 
 
-        public Command fieldCentricCmd(Gamepad gamepad) {
-            return new FieldCentricCmd(gamepad);
+    }
+
+    class TurnToCommand extends CommandBase {
+
+        Pose pose;
+
+        TurnToCommand(Pose pose) {
+            this.pose = pose;
+            addRequirements(PedroSubsystem.this);
         }
 
+        @Override
+        public void initialize() {
+            follower.turnTo(pose.getHeading());
+        }
 
-        class FieldCentricCmd extends CommandBase {
-            Gamepad gamepad;
-
-            FieldCentricCmd(Gamepad gamepad) {
-                this.gamepad = gamepad;
-                addRequirements(PedroSubsystem.this);
-            }
-
-            @Override
-            public void initialize() {
-                follower.startTeleopDrive();
-            }
-
-            @Override
-            public void execute() {
-
-                boolean slowMode = gamepad.right_trigger > 0.5;
-
-                if (!slowMode) {
-                    follower.setTeleOpDrive(
-                            -gamepad.left_stick_y,
-                            -gamepad.left_stick_x,
-                            -gamepad.right_stick_x,
-                            false // Robot Centric
-                    );
-                }else {
-                    follower.setTeleOpDrive(
-                            -gamepad.left_stick_y * 0.5,
-                            -gamepad.left_stick_x * 0.5,
-                            -gamepad.right_stick_x * 0.5,
-                            false // Robot Centric
-                    );
-
-                }
-            }
-
-            @Override
-            public void end(boolean interrupted) {
-                follower.breakFollowing();
-            }
-
-            @Override
-            public boolean isFinished() {
-                return false;
-            }
+        @Override
+        public boolean isFinished() {
+            return !follower.isBusy();
         }
     }
+
 }

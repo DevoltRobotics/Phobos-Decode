@@ -22,6 +22,9 @@ public class SensorsSubsystem extends SubsystemBase {
     public boolean leftDetected = false;
     public boolean fourDetected = false;
 
+    boolean laserState = false;
+
+
     public Boolean sorterMode = false;
 
     RevColorSensorV3 colorR;
@@ -66,7 +69,7 @@ public class SensorsSubsystem extends SubsystemBase {
             blueInR = colorR.blue();
             blueInL = colorL.blue();
 
-            fourDetected = laserInput.getState();
+            laserState = laserInput.getState();
 
             colorSensorsDelay.reset();
         }
@@ -102,6 +105,9 @@ public class SensorsSubsystem extends SubsystemBase {
 
         telemetry.addData("WhatIsRightArt", rightArtifact);
         telemetry.addData("WhatIsLefttArt", leftArtifact);
+
+
+        fourDetected = (rightDetected || leftDetected) && laserState;
 
 
         if (fourDetected) {

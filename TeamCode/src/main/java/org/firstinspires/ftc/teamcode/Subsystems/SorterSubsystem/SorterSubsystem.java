@@ -19,7 +19,7 @@ public class SorterSubsystem extends SubsystemBase {
 
     //CONSTANTS
 
-    public static double blockersUp = -0.1;
+    public static double blockersUp = -0.13;
 
     public static double blockerHHidePos = 0.41;
     public static double blockerHFreePos = 0.75;

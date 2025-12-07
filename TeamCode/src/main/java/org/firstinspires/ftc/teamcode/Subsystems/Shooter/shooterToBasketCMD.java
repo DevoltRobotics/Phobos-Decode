@@ -29,9 +29,7 @@ public class shooterToBasketCMD extends CommandBase {
     private final ShooterSubsystem shooterSubsystem;
     private final VisionSubsystem visionSubsystem;
 
-    private ElapsedTime stopperTimmer;
-
-    InterpLUT shooterPosLut = new InterpLUT();
+    private double targetEmergency;
 
     public InterpLUT vsFunc = new InterpLUT();
 
@@ -50,15 +48,30 @@ public class shooterToBasketCMD extends CommandBase {
 //generating final equation
         vsFunc.createLUT();
 
+        targetEmergency = 0;
+
         addRequirements(shooterSubsystem);
     }
 
 
-    @Override
-    public void initialize() {
-        stopperTimmer = new ElapsedTime();
-        stopperTimmer.reset();
+    public shooterToBasketCMD(ShooterSubsystem shooterSb, VisionSubsystem vSb, double Target) {
+        shooterSubsystem = shooterSb;
+        visionSubsystem = vSb;
+
+        vsFunc.add(shoootVsint0, shoootVsout0);
+        vsFunc.add(shoootVsint1, shoootVsout1);
+        vsFunc.add(shoootVsint2, shoootVsout2);
+        vsFunc.add(shoootVsint3, shoootVsout3);
+        vsFunc.add(shoootVsint4, shoootVsout4);
+        vsFunc.add(shoootVsint5, shoootVsout5);
+//generating final equation
+        vsFunc.createLUT();
+
+        this.targetEmergency = Target;
+
+        addRequirements(shooterSubsystem);
     }
+
 
     @Override
     public void execute() {
@@ -67,6 +80,12 @@ public class shooterToBasketCMD extends CommandBase {
         if (TargetA != null) {
             double targetA = Range.clip(TargetA, shoootVsint0 + 0.1, shoootVsint5 - 0.1);
             shooterSubsystem.shooterTarget = vsFunc.get(targetA);
+
+            targetEmergency = shooterSubsystem.shooterTarget;
+
+
+        }else {
+            shooterSubsystem.shooterTarget = targetEmergency;
 
         }
 
