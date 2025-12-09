@@ -36,8 +36,8 @@ public class SensorsSubsystem extends SubsystemBase {
     public double blueInR = 0;
     public double blueInL = 0;
 
-    public Artifact rightArtifact = Artifact.Purple;
-    public Artifact leftArtifact = Artifact.Green;
+    public Artifact rightArtifact = null;
+    public Artifact leftArtifact = null;
 
     public Artifact targetArtifact = Artifact.Purple;
 
@@ -83,6 +83,7 @@ public class SensorsSubsystem extends SubsystemBase {
             rightDetected = true;
 
         }else {
+            rightArtifact = null;
             rightDetected = false;
         }
 
@@ -95,6 +96,7 @@ public class SensorsSubsystem extends SubsystemBase {
             leftDetected = true;
 
         }else {
+            leftArtifact = null;
             leftDetected = false;
         }
 

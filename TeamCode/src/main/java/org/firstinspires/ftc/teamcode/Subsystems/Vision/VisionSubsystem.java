@@ -7,7 +7,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.seattlesolvers.solverslib.command.SubsystemBase;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
-import org.firstinspires.ftc.teamcode.Utilities.Alliance;
+import org.firstinspires.ftc.teamcode.Utilities.Aliance;
 import org.firstinspires.ftc.teamcode.Utilities.Pattern;
 
 public class VisionSubsystem extends SubsystemBase {
@@ -24,20 +24,26 @@ public class VisionSubsystem extends SubsystemBase {
 
     public Pattern pattern = Pattern.GPP;
 
-    public final Alliance alliance;
+    public final Aliance alliance;
 
     public boolean isAuto;
 
-    public VisionSubsystem(HardwareMap hMap, Alliance alliance, boolean isAuto) {
+    public Telemetry telemetry;
+
+    public VisionSubsystem(HardwareMap hMap, Aliance alliance, Telemetry telemetry, boolean isAuto) {
         limelight = hMap.get(Limelight3A.class, "limelight");
 
         this.alliance = alliance;
 
         this.isAuto = isAuto;
 
+        this.telemetry = telemetry;
+
         limelight.setPollRateHz(100);
         limelight.start();
         limelight.pipelineSwitch(0);
+
+
 
     }
 
@@ -46,21 +52,22 @@ public class VisionSubsystem extends SubsystemBase {
 
         if (result != null && result.isValid()) {
 
-
             FtcDashboard.getInstance().getTelemetry().addData("LL AprilTag tA", result.getTa());
             FtcDashboard.getInstance().getTelemetry().addData("LL AprilTag tX", result.getTy());
         } else {
             FtcDashboard.getInstance().getTelemetry().addData("Limelight", "No Targets");
         }
+
+        telemetry.addData("Pattern", pattern);
     }
 
     public Double getAllianceTA() {
         if (result != null && result.isValid() && !result.getFiducialResults().isEmpty()) {
             int id = result.getFiducialResults().get(0).getFiducialId();
 
-            if (alliance == Alliance.ANY ||
-                    (alliance == Alliance.RED && id == 24) ||
-                    (alliance == Alliance.BLUE && id == 20)) {
+            if (alliance == Aliance.ANY ||
+                    (alliance == Aliance.RED && id == 24) ||
+                    (alliance == Aliance.BLUE && id == 20)) {
                 return result.getTa() * limelightTaRatio;
             }
         }
@@ -74,9 +81,9 @@ public class VisionSubsystem extends SubsystemBase {
         if (result != null && result.isValid() && !result.getFiducialResults().isEmpty()) {
             int id = result.getFiducialResults().get(0).getFiducialId();
 
-            if (alliance == Alliance.ANY ||
-                    (alliance == Alliance.RED && id == 24) ||
-                    (alliance == Alliance.BLUE && id == 20)) {
+            if (alliance == Aliance.ANY ||
+                    (alliance == Aliance.RED && id == 24) ||
+                    (alliance == Aliance.BLUE && id == 20)) {
                 return result.getTx();
             }
         }
@@ -90,9 +97,9 @@ public class VisionSubsystem extends SubsystemBase {
         if (result != null && result.isValid() && !result.getFiducialResults().isEmpty()) {
             int id = result.getFiducialResults().get(0).getFiducialId();
 
-            if (alliance == Alliance.ANY ||
-                    (alliance == Alliance.RED && id == 24) ||
-                    (alliance == Alliance.BLUE && id == 20)) {
+            if (alliance == Aliance.ANY ||
+                    (alliance == Aliance.RED && id == 24) ||
+                    (alliance == Aliance.BLUE && id == 20)) {
                 return result.getTxNC();
             }
         }

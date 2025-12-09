@@ -13,17 +13,20 @@ public class detectMotifCMD extends CommandBase {
 
     private ElapsedTime timer;
 
+    private double deadTime;
 
-    public detectMotifCMD(VisionSubsystem vSb) {
+
+    public detectMotifCMD(VisionSubsystem vSb, double deadTime) {
         visionSubsystem = vSb;
-        visionSubsystem.limelight.pipelineSwitch(1);
 
+        this.deadTime = deadTime;
         addRequirements(visionSubsystem);
     }
 
 
     @Override
     public void initialize() {
+
         timer = new ElapsedTime();
        }
 
@@ -46,18 +49,11 @@ public class detectMotifCMD extends CommandBase {
                     break;
             }
 
-
         }
-
-    }
-
-    @Override
-    public void end(boolean interrupted) {
-        visionSubsystem.limelight.pipelineSwitch(0);
     }
 
     @Override
     public boolean isFinished() {
-        return timer.seconds() > 1;
+        return timer.seconds() > deadTime;
     }
 }

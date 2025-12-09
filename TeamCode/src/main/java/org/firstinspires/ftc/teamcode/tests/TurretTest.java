@@ -1,20 +1,14 @@
 package org.firstinspires.ftc.teamcode.tests;
 
 import com.acmerobotics.dashboard.config.Config;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.seattlesolvers.solverslib.command.Command;
-import com.seattlesolvers.solverslib.command.CommandScheduler;
 import com.seattlesolvers.solverslib.command.button.Button;
 import com.seattlesolvers.solverslib.command.button.GamepadButton;
 import com.seattlesolvers.solverslib.gamepad.GamepadEx;
 import com.seattlesolvers.solverslib.gamepad.GamepadKeys;
 
-import org.firstinspires.ftc.teamcode.Subsystems.Turret.turretToBasketCMD;
-import org.firstinspires.ftc.teamcode.Utilities.Alliance;
+import org.firstinspires.ftc.teamcode.Utilities.Aliance;
 import org.firstinspires.ftc.teamcode.Utilities.OpModeCommand;
-import org.firstinspires.ftc.teamcode.Subsystems.Turret.turretManaulCMD;
-import org.firstinspires.ftc.teamcode.Subsystems.Turret.turretToPosCMD;
 
 @Config
 @TeleOp
@@ -25,7 +19,7 @@ public class TurretTest extends OpModeCommand {
     public static double turretTargetPos = 50;
 
     public TurretTest() {
-        super(Alliance.RED, false);
+        super(Aliance.RED, false);
     }
 
     @Override

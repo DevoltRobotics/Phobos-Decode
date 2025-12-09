@@ -11,8 +11,7 @@ import com.seattlesolvers.solverslib.gamepad.GamepadEx;
 import com.seattlesolvers.solverslib.gamepad.GamepadKeys;
 
 import org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.lateralBlockersCMD;
-import org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.preSorterCmd;
-import org.firstinspires.ftc.teamcode.Utilities.Alliance;
+import org.firstinspires.ftc.teamcode.Utilities.Aliance;
 import org.firstinspires.ftc.teamcode.Utilities.OpModeCommand;
 
 @Config
@@ -25,7 +24,7 @@ public class SorterComanndTest extends OpModeCommand {
     double angleOffSet;
 
     public SorterComanndTest() {
-        super(Alliance.RED, false);
+        super(Aliance.RED, false);
     }
 
     @Override

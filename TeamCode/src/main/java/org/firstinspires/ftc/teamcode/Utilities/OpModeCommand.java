@@ -1,51 +1,38 @@
 package org.firstinspires.ftc.teamcode.Utilities;
 
-import static org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.SorterSubsystem.waitAimTimer;
-import static org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.SorterSubsystem.artifacToArtifactTimer;
-import static org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.SorterSubsystem.blockerHFreePos;
 import static org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.SorterSubsystem.blockerHHidePos;
 import static org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.SorterSubsystem.blockersUp;
-import static org.firstinspires.ftc.teamcode.Autonomous.DrivePos.startingPoseCloseRed;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.bylazar.telemetry.TelemetryManager;
 import com.pedropathing.follower.Follower;
-import com.pedropathing.geometry.Pose;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.seattlesolvers.solverslib.command.Command;
 import com.seattlesolvers.solverslib.command.CommandScheduler;
-import com.seattlesolvers.solverslib.command.ParallelCommandGroup;
 import com.seattlesolvers.solverslib.command.SequentialCommandGroup;
 import com.seattlesolvers.solverslib.command.Subsystem;
-import com.seattlesolvers.solverslib.command.WaitCommand;
 
 import org.firstinspires.ftc.teamcode.Subsystems.Sensors.SensorsSubsystem;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 import org.firstinspires.ftc.teamcode.pedroPathing.PedroSubsystem;
 import org.firstinspires.ftc.teamcode.Subsystems.Intake.IntakeSubsystem;
-import org.firstinspires.ftc.teamcode.Subsystems.Intake.moveIntakeCMD;
 import org.firstinspires.ftc.teamcode.Subsystems.Lifting.LiftingSubsystem;
 import org.firstinspires.ftc.teamcode.Subsystems.Shooter.ShooterSubsystem;
-import org.firstinspires.ftc.teamcode.Subsystems.Shooter.shooterToBasketCMD;
 import org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.SorterSubsystem;
 import org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.horizontalBlockerCMD;
 import org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.lateralBlockersCMD;
 import org.firstinspires.ftc.teamcode.Subsystems.Turret.TurretSubsystem;
-import org.firstinspires.ftc.teamcode.Subsystems.Turret.turretToBasketCMD;
 import org.firstinspires.ftc.teamcode.Subsystems.Vision.VisionSubsystem;
-import org.firstinspires.ftc.teamcode.Subsystems.Vision.detectMotifCMD;
-
-import java.util.function.BooleanSupplier;
 
 @Config
 public abstract class OpModeCommand extends OpMode {
 
     public Follower follower;
 
-    public final Alliance currentAliance;
+    public final Aliance currentAliance;
 
     public final boolean isAuto;
 
@@ -56,13 +43,13 @@ public abstract class OpModeCommand extends OpMode {
     public IntakeSubsystem intakeSb;
     public SorterSubsystem sorterSb;
     public SensorsSubsystem sensorsSb;
-    public LiftingSubsystem liftingSubsystem;
+    public LiftingSubsystem liftingSb;
     public ShooterSubsystem shooterSb;
     public TurretSubsystem turretSb;
 
     public IMU imu;
 
-    public OpModeCommand(Alliance alliance, boolean isAuto) {
+    public OpModeCommand(Aliance alliance, boolean isAuto) {
         this.currentAliance = alliance;
         this.isAuto = isAuto;
     }
@@ -104,9 +91,9 @@ public abstract class OpModeCommand extends OpMode {
                 sorterSb = new SorterSubsystem(hardwareMap, telemetry),
                 sensorsSb = new SensorsSubsystem(hardwareMap, telemetry),
                 turretSb = new TurretSubsystem(hardwareMap, telemetry),
-                //liftingSubsystem = new LiftingSubsystem(hardwareMap),
+                liftingSb = new LiftingSubsystem(hardwareMap),
                 shooterSb = new ShooterSubsystem(hardwareMap, telemetry, true),
-                visionSb = new VisionSubsystem(hardwareMap, currentAliance, isAuto)
+                visionSb = new VisionSubsystem(hardwareMap, currentAliance, telemetry, isAuto)
         );
 
 

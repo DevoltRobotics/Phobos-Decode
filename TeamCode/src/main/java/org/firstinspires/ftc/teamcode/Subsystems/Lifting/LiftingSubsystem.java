@@ -8,7 +8,9 @@ public class LiftingSubsystem extends SubsystemBase {
 
     DcMotorEx liftingM;
 
-    //PIDFController liftingController = new PIDFController(liftingCoeffs);
+
+    public double power;
+
 
     public LiftingSubsystem(HardwareMap hMap) {
 
@@ -18,7 +20,7 @@ public class LiftingSubsystem extends SubsystemBase {
     @Override
     public void periodic() {
 
-        //liftingM.setPower(liftingController.update(liftingM.getCurrentPosition()));
+        liftingM.setPower(power);
 
     }
 }

@@ -1,7 +1,11 @@
 package org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem;
 
+import static org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.SorterSubsystem.BlockersStatus.closed;
+import static org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.SorterSubsystem.BlockersStatus.oneOpen;
 import static org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.SorterSubsystem.blockersUp;
 
+import com.qualcomm.robotcore.util.ElapsedTime;
+import com.seattlesolvers.solverslib.command.CommandBase;
 import com.seattlesolvers.solverslib.command.ConditionalCommand;
 import com.seattlesolvers.solverslib.command.SequentialCommandGroup;
 import com.seattlesolvers.solverslib.command.WaitCommand;
@@ -11,49 +15,86 @@ import org.firstinspires.ftc.teamcode.Subsystems.Vision.VisionSubsystem;
 import org.firstinspires.ftc.teamcode.Utilities.Artifact;
 import org.firstinspires.ftc.teamcode.Utilities.Pattern;
 
-public class postSorterCmd extends SequentialCommandGroup {
+public class postSorterCmd extends CommandBase {
 
-    public static int firstArtifactWaitTimer = 1000;
-    public static int waitUntilArtifactsTimer = 1400;
+    private final SorterSubsystem sorterSubsystem;
 
-    SorterSubsystem sorterSb;
-    VisionSubsystem visionSb;
+    private final SensorsSubsystem sensorsSb;
 
-    public postSorterCmd(SorterSubsystem sorterSb, SensorsSubsystem sensorsSb, VisionSubsystem visionSb) {
+    private final VisionSubsystem visionSb;
 
-        this.sorterSb = sorterSb;
-        this.visionSb = visionSb;
+    private final ElapsedTime deadTimer;
 
-        switch (visionSb.pattern) {
-            case PPG:
-                addCommands(
+    boolean hasMoved = false;
+    public postSorterCmd(SorterSubsystem sorterSb, SensorsSubsystem sensorsSubsystem, VisionSubsystem visionSubsystem) {
+        sorterSubsystem = sorterSb;
+        sensorsSb = sensorsSubsystem;
 
-                        new ConditionalCommand(
-                                new lateralBlockersCMD(sorterSb, 0, blockersUp),
-                                new lateralBlockersCMD(sorterSb, blockersUp, 0),
-                                () -> sensorsSb.leftArtifact.equals(Artifact.Purple)
-                        ),
+        visionSb = visionSubsystem;
 
-                        new WaitCommand(waitUntilArtifactsTimer)
-                );
-                break;
-            case PGP:
-                addCommands(
-                        new ConditionalCommand(
-                                new lateralBlockersCMD(sorterSb, 0, blockersUp),
-                                new lateralBlockersCMD(sorterSb, blockersUp, 0),
-                                () -> sensorsSb.leftArtifact.equals(Artifact.Green)
-                        ),
 
-                        new WaitCommand(waitUntilArtifactsTimer)
-                );
-                break;
-            case GPP:
+        deadTimer = new ElapsedTime();
 
-                break;
-        }
-
-        addRequirements(this.sorterSb);
+        addRequirements(sorterSubsystem);
     }
 
+    @Override
+    public void execute() {
+
+        if ((sensorsSb.rightDetected || sensorsSb.leftDetected)) {
+
+            switch (visionSb.pattern) {
+
+                case GPP:
+                    if (sensorsSb.rightArtifact.equals(Artifact.Purple)) {
+                        new lateralBlockersCMD(sorterSubsystem, blockersUp, 0).schedule();
+
+                        hasMoved = true;
+                    } else if (sensorsSb.leftArtifact.equals(Artifact.Purple)) {
+                        new lateralBlockersCMD(sorterSubsystem, 0, blockersUp).schedule();
+
+                        hasMoved = true;
+                    }
+
+                    break;
+
+
+                case PGP:
+                    if (sensorsSb.rightArtifact.equals(Artifact.Green)) {
+                        new lateralBlockersCMD(sorterSubsystem, blockersUp, 0).schedule();
+
+                        hasMoved = true;
+                    } else if (sensorsSb.leftArtifact.equals(Artifact.Green)) {
+                        new lateralBlockersCMD(sorterSubsystem, 0, blockersUp).schedule();
+
+                        hasMoved = true;
+                    }
+
+                    break;
+
+                case PPG:
+
+                    if (sensorsSb.rightArtifact.equals(Artifact.Purple)) {
+                        new lateralBlockersCMD(sorterSubsystem, blockersUp, 0).schedule();
+
+                        hasMoved = true;
+                    } else if (sensorsSb.leftArtifact.equals(Artifact.Purple)) {
+                        new lateralBlockersCMD(sorterSubsystem, 0, blockersUp).schedule();
+
+                        hasMoved = true;
+                    }
+
+                    break;
+
+
+            }
+
+        }
+
+    }
+
+    @Override
+    public boolean isFinished() {
+        return deadTimer.seconds() > 300 || hasMoved;
+    }
 }

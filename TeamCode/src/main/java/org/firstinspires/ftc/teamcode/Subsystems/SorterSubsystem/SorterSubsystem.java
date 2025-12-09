@@ -34,8 +34,9 @@ public class SorterSubsystem extends SubsystemBase {
 
     }
 
-    BlockersStatus blockersStatus = BlockersStatus.closed;
+    BlockersStatus blockersStatus = null;
 
+    public boolean isShooting = false;
     public SorterSubsystem(HardwareMap hMap, Telemetry telemetry) {
         blockerR = hMap.servo.get("blcR");
         blockerL = hMap.servo.get("blcL");
@@ -47,15 +48,17 @@ public class SorterSubsystem extends SubsystemBase {
     @Override
     public void periodic() {
 
-        if (blockerR.getPosition() > 0.55 && blockerL.getPosition() < 0.45){
+        if (blockerR.getPosition() < 0.45 && blockerL.getPosition() > 0.55){
             blockersStatus = BlockersStatus.twoOpen;
 
-        }else if (blockerR.getPosition() > 0.55 || blockerL.getPosition() < 0.45){
+        }else if (blockerR.getPosition() < 0.45 || blockerL.getPosition() > 0.55){
             blockersStatus = BlockersStatus.oneOpen;
 
         }else {
             blockersStatus = BlockersStatus.closed;
         }
+
+        telemetry.addData("blokerStatus", blockersStatus);
 
     }
 }

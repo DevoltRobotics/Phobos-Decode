@@ -27,25 +27,29 @@ public class preSorterTeleopCMD extends CommandBase {
     @Override
     public void execute() {
 
-        if (sensorsSb.sorterMode) {
+        if (!sorterSubsystem.isShooting) {
 
-            if (timer.milliseconds() > 600 && sorterSubsystem.blockersStatus.equals(SorterSubsystem.BlockersStatus.oneOpen)) {
-                new lateralBlockersCMD(sorterSubsystem, 0, 0).schedule();
+            if (sensorsSb.sorterMode) {
 
-            }
+                if (timer.milliseconds() > 600 && !sorterSubsystem.blockersStatus.equals(SorterSubsystem.BlockersStatus.closed)) {
+                    new lateralBlockersCMD(sorterSubsystem, 0, 0).schedule();
 
-            if (sensorsSb.rightDetected || sensorsSb.leftDetected) {
-                if (sensorsSb.rightArtifact.equals(sensorsSb.targetArtifact)) {
-                    timer.reset();
-                    new lateralBlockersCMD(sorterSubsystem, blockersUp, 0).schedule();
+                }
 
-                } else if (sensorsSb.leftArtifact.equals(sensorsSb.targetArtifact)) {
-                    timer.reset();
-                    new lateralBlockersCMD(sorterSubsystem, 0, blockersUp).schedule();
+                if (sensorsSb.rightDetected || sensorsSb.leftDetected) {
+                    if (!(sensorsSb.rightArtifact == null) && sensorsSb.rightArtifact.equals(sensorsSb.targetArtifact)) {
+                        timer.reset();
+                        new lateralBlockersCMD(sorterSubsystem, blockersUp, 0).schedule();
 
+                    } else if (!(sensorsSb.leftArtifact == null) && sensorsSb.leftArtifact.equals(sensorsSb.targetArtifact)) {
+                        timer.reset();
+                        new lateralBlockersCMD(sorterSubsystem, 0, blockersUp).schedule();
+
+                    }
                 }
             }
         }
-    }
 
+
+    }
 }
