@@ -7,12 +7,14 @@ import static org.firstinspires.ftc.teamcode.Utilities.StaticConstants.shoootVsi
 import static org.firstinspires.ftc.teamcode.Utilities.StaticConstants.shoootVsint3;
 import static org.firstinspires.ftc.teamcode.Utilities.StaticConstants.shoootVsint4;
 import static org.firstinspires.ftc.teamcode.Utilities.StaticConstants.shoootVsint5;
+import static org.firstinspires.ftc.teamcode.Utilities.StaticConstants.shoootVsint6;
 import static org.firstinspires.ftc.teamcode.Utilities.StaticConstants.shoootVsout0;
 import static org.firstinspires.ftc.teamcode.Utilities.StaticConstants.shoootVsout1;
 import static org.firstinspires.ftc.teamcode.Utilities.StaticConstants.shoootVsout2;
 import static org.firstinspires.ftc.teamcode.Utilities.StaticConstants.shoootVsout3;
 import static org.firstinspires.ftc.teamcode.Utilities.StaticConstants.shoootVsout4;
 import static org.firstinspires.ftc.teamcode.Utilities.StaticConstants.shoootVsout5;
+import static org.firstinspires.ftc.teamcode.Utilities.StaticConstants.shoootVsout6;
 
 import com.pedropathing.follower.Follower;
 import com.qualcomm.hardware.limelightvision.LLResult;
@@ -45,6 +47,7 @@ public class shooterToBasketCMD extends CommandBase {
         vsFunc.add(shoootVsint3, shoootVsout3);
         vsFunc.add(shoootVsint4, shoootVsout4);
         vsFunc.add(shoootVsint5, shoootVsout5);
+        vsFunc.add(shoootVsint6, shoootVsout6);
 //generating final equation
         vsFunc.createLUT();
 
@@ -64,6 +67,7 @@ public class shooterToBasketCMD extends CommandBase {
         vsFunc.add(shoootVsint3, shoootVsout3);
         vsFunc.add(shoootVsint4, shoootVsout4);
         vsFunc.add(shoootVsint5, shoootVsout5);
+        vsFunc.add(shoootVsint6, shoootVsout6);
 //generating final equation
         vsFunc.createLUT();
 
@@ -78,7 +82,7 @@ public class shooterToBasketCMD extends CommandBase {
         TargetA = visionSubsystem.getAllianceTA();
 
         if (TargetA != null) {
-            double targetA = Range.clip(TargetA, shoootVsint0 + 0.1, shoootVsint5 - 0.1);
+            double targetA = Range.clip(TargetA, shoootVsint0 + 0.1, shoootVsint6 - 0.1);
             shooterSubsystem.shooterTarget = vsFunc.get(targetA);
 
             targetEmergency = shooterSubsystem.shooterTarget;

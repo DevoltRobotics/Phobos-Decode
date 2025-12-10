@@ -23,8 +23,8 @@ public class preSorterCmd extends CommandBase {
 
     private final VisionSubsystem visionSb;
 
-
-    private final ElapsedTime deadTimer;
+    private final ElapsedTime deadTimer = new ElapsedTime();
+    private boolean detected = false;
 
     public preSorterCmd(SorterSubsystem sorterSb, SensorsSubsystem sensorsSubsystem, VisionSubsystem visionSubsystem) {
         sorterSubsystem = sorterSb;
@@ -33,9 +33,7 @@ public class preSorterCmd extends CommandBase {
         visionSb = visionSubsystem;
 
 
-        deadTimer = new ElapsedTime();
-
-        addRequirements(sensorsSb);
+        addRequirements(sensorsSb, sorterSubsystem);
     }
 
     @Override
@@ -45,45 +43,30 @@ public class preSorterCmd extends CommandBase {
 
     @Override
     public void execute() {
-
         if ((sensorsSb.rightDetected || sensorsSb.leftDetected) && sorterSubsystem.blockersStatus.equals(closed)) {
 
             switch (visionSb.pattern) {
-
                 case GPP:
                     if (Artifact.Green.equals(sensorsSb.rightArtifact)) {
-                        new lateralBlockersCMD(sorterSubsystem, blockersUp, 0).schedule();
-
+                        sorterSubsystem.setPositions(blockersUp, 0);
+                        detected = true;
+                        cancel();
                     } else if (Artifact.Green.equals(sensorsSb.leftArtifact)) {
-                        new lateralBlockersCMD(sorterSubsystem, 0, blockersUp).schedule();
-
+                        sorterSubsystem.setPositions(blockersUp, 0);
+                        detected = true;
                     }
-
-                    break;
-
-
-                case PGP:
-                    if (Artifact.Purple.equals(sensorsSb.rightArtifact)) {
-                        new lateralBlockersCMD(sorterSubsystem, blockersUp, 0).schedule();
-
-                    } else if (Artifact.Purple.equals(sensorsSb.leftArtifact)) {
-                        new lateralBlockersCMD(sorterSubsystem, 0, blockersUp).schedule();
-
-                    }
-
                     break;
 
                 case PPG:
+                case PGP:
                     if (Artifact.Purple.equals(sensorsSb.rightArtifact)) {
-                        new lateralBlockersCMD(sorterSubsystem, blockersUp, 0).schedule();
-
+                        sorterSubsystem.setPositions(blockersUp, 0);
+                        detected = true;
                     } else if (Artifact.Purple.equals(sensorsSb.leftArtifact)) {
-                        new lateralBlockersCMD(sorterSubsystem, 0, blockersUp).schedule();
-
+                        sorterSubsystem.setPositions(blockersUp, 0);
+                        detected = true;
                     }
-
                     break;
-
 
             }
 
@@ -93,15 +76,13 @@ public class preSorterCmd extends CommandBase {
 
     @Override
     public void end(boolean interrupted) {
-        if (sorterSubsystem.blockersStatus.equals(closed)){
-            new lateralBlockersCMD(sorterSubsystem, blockersUp, 0).schedule();
-
+        if (!detected) {
+            sorterSubsystem.setPositions(blockersUp, 0);
         }
-
     }
 
     @Override
     public boolean isFinished() {
-        return deadTimer.milliseconds() > 200 || sorterSubsystem.blockersStatus.equals(oneOpen);
+        return deadTimer.seconds() > 0.5 || detected;
     }
 }

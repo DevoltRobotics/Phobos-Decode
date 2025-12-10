@@ -58,7 +58,11 @@ public class SorterSubsystem extends SubsystemBase {
             blockersStatus = BlockersStatus.closed;
         }
 
-        telemetry.addData("blokerStatus", blockersStatus);
+        telemetry.addData("blockerStatus", blockersStatus);
+    }
 
+    public void setPositions(double rightPos, double leftPos) {
+        blockerR.setPosition(0.5 + rightPos);
+        blockerL.setPosition(0.5 - leftPos);
     }
 }

@@ -21,9 +21,7 @@ public class lateralBlockersCMD extends CommandBase {
 
     @Override
     public void execute() {
-        sorterSubsystem.blockerR.setPosition(0.5 + rightPos);
-        sorterSubsystem.blockerL.setPosition(0.5 - leftPos);
-
+        sorterSubsystem.setPositions(rightPos, leftPos);
     }
 
     @Override

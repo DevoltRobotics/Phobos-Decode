@@ -16,12 +16,14 @@ import static org.firstinspires.ftc.teamcode.Utilities.StaticConstants.shoootVsi
 import static org.firstinspires.ftc.teamcode.Utilities.StaticConstants.shoootVsint3;
 import static org.firstinspires.ftc.teamcode.Utilities.StaticConstants.shoootVsint4;
 import static org.firstinspires.ftc.teamcode.Utilities.StaticConstants.shoootVsint5;
+import static org.firstinspires.ftc.teamcode.Utilities.StaticConstants.shoootVsint6;
 import static org.firstinspires.ftc.teamcode.Utilities.StaticConstants.shoootVsout0;
 import static org.firstinspires.ftc.teamcode.Utilities.StaticConstants.shoootVsout1;
 import static org.firstinspires.ftc.teamcode.Utilities.StaticConstants.shoootVsout2;
 import static org.firstinspires.ftc.teamcode.Utilities.StaticConstants.shoootVsout3;
 import static org.firstinspires.ftc.teamcode.Utilities.StaticConstants.shoootVsout4;
 import static org.firstinspires.ftc.teamcode.Utilities.StaticConstants.shoootVsout5;
+import static org.firstinspires.ftc.teamcode.Utilities.StaticConstants.shoootVsout6;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Utilities.Pattern;
@@ -63,7 +65,9 @@ public class ShooterSubsystem extends SubsystemBase {
         vsFunc.add(shoootVsint3, shoootVsout3);
         vsFunc.add(shoootVsint4, shoootVsout4);
         vsFunc.add(shoootVsint5, shoootVsout5);
-//generating final equation
+        vsFunc.add(shoootVsint6, shoootVsout6);
+
+        //generating final equation
         vsFunc.createLUT();
 
         this.isBlueAliance = isBlueAliance;

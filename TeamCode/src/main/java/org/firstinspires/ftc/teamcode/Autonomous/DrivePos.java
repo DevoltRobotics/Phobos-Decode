@@ -17,17 +17,17 @@ public class DrivePos {
 
     public static Pose prepareForIntakeFirstCloseRedPose = new Pose(100, 84, Math.toRadians(0));
 
-    public static Pose intakeFirstCloseRedPose = new Pose(114, 84, Math.toRadians(0));
+    public static Pose intakeFirstCloseRedPose = new Pose(118, 84, Math.toRadians(0));
 
-    public static Pose openGateCloseRedPose = new Pose(118, 72, Math.toRadians(270));
-    public static Pose openGateFirstControlPointCloseRedPose = new Pose(104, 88, Math.toRadians(0));
-    public static Pose openGateSecondControlPointCloseRedPose = new Pose(83, 68, Math.toRadians(0));
+    public static Pose openGateCloseRedPose = new Pose(121, 75, Math.toRadians(270));
+    public static Pose openGateFirstControlPointCloseRedPose = new Pose(109, 88, Math.toRadians(0));
+    public static Pose openGateSecondControlPointCloseRedPose = new Pose(89, 68, Math.toRadians(0));
 
     public static Pose launchFirstCloseRedPose = new Pose(90, 90, Math.toRadians(330));
 
-    public static Pose prepareForIntakeSecondCloseRedPose = new Pose(90, 62, Math.toRadians(345));
+    public static Pose prepareForIntakeSecondCloseRedPose = new Pose(90, 54, Math.toRadians(0));
 
-    public static Pose intakeSecondCloseRedPose = new Pose(110, 55, Math.toRadians(345));
+    public static Pose intakeSecondCloseRedPose = new Pose(128, 54, Math.toRadians(0));
 
     public static Pose launchSecondCloseRedPose = new Pose(90, 90, Math.toRadians(350));
     public static Pose launchSecondControlPointCloseRedPose = new Pose(86, 65, Math.toRadians(350));

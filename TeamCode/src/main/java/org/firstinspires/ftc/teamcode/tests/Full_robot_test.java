@@ -9,6 +9,7 @@ import static org.firstinspires.ftc.teamcode.Utilities.StaticConstants.shoootVsi
 import static org.firstinspires.ftc.teamcode.Utilities.StaticConstants.shoootVsint3;
 import static org.firstinspires.ftc.teamcode.Utilities.StaticConstants.shoootVsint4;
 import static org.firstinspires.ftc.teamcode.Utilities.StaticConstants.shoootVsint5;
+import static org.firstinspires.ftc.teamcode.Utilities.StaticConstants.shoootVsint6;
 import static org.firstinspires.ftc.teamcode.Utilities.StaticConstants.shoootVsout0;
 import static org.firstinspires.ftc.teamcode.Utilities.StaticConstants.shoootVsout1;
 import static org.firstinspires.ftc.teamcode.Utilities.StaticConstants.shoootVsout2;
@@ -16,6 +17,7 @@ import static org.firstinspires.ftc.teamcode.Utilities.StaticConstants.shoootVso
 import static org.firstinspires.ftc.teamcode.Utilities.StaticConstants.shoootVsout4;
 
 import static org.firstinspires.ftc.teamcode.Utilities.StaticConstants.shoootVsout5;
+import static org.firstinspires.ftc.teamcode.Utilities.StaticConstants.shoootVsout6;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
@@ -134,6 +136,7 @@ public class Full_robot_test extends OpMode {
         vsFunc.add(shoootVsint3, shoootVsout3);
         vsFunc.add(shoootVsint4, shoootVsout4);
         vsFunc.add(shoootVsint5, shoootVsout5);
+        vsFunc.add(shoootVsint6, shoootVsout6);
         vsFunc.createLUT();
 
     }

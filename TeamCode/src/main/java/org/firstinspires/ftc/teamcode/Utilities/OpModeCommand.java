@@ -116,12 +116,13 @@ public abstract class OpModeCommand extends OpMode {
     public void init_loop() {
         //telemetry.addData("PATTERN", visionSb.alliance);
 
+        if (isAuto){
+            run();
+
+        }
+
     }
 
-    @Override
-    public void start() {
-
-    }
 
     @Override
     public void loop() {

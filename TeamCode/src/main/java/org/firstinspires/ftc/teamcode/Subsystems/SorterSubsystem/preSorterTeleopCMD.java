@@ -19,7 +19,7 @@ public class preSorterTeleopCMD extends CommandBase {
         sorterSubsystem = sorterSb;
         sensorsSb = sensorsSubsystem;
 
-        timer= new ElapsedTime();
+        timer = new ElapsedTime();
 
         addRequirements(sorterSubsystem);
     }
@@ -33,17 +33,18 @@ public class preSorterTeleopCMD extends CommandBase {
 
                 if (timer.milliseconds() > 600 && !sorterSubsystem.blockersStatus.equals(SorterSubsystem.BlockersStatus.closed)) {
                     new lateralBlockersCMD(sorterSubsystem, 0, 0).schedule();
+                    sorterSubsystem.setPositions(0, 0);
 
                 }
 
                 if (sensorsSb.rightDetected || sensorsSb.leftDetected) {
                     if (!(sensorsSb.rightArtifact == null) && sensorsSb.rightArtifact.equals(sensorsSb.targetArtifact)) {
                         timer.reset();
-                        new lateralBlockersCMD(sorterSubsystem, blockersUp, 0).schedule();
+                        sorterSubsystem.setPositions(blockersUp, 0);
 
                     } else if (!(sensorsSb.leftArtifact == null) && sensorsSb.leftArtifact.equals(sensorsSb.targetArtifact)) {
                         timer.reset();
-                        new lateralBlockersCMD(sorterSubsystem, 0, blockersUp).schedule();
+                        sorterSubsystem.setPositions(0, blockersUp);
 
                     }
                 }
