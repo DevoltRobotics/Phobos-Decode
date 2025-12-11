@@ -32,17 +32,16 @@ public class preSorterTeleopCMD extends CommandBase {
             if (sensorsSb.sorterMode) {
 
                 if (timer.milliseconds() > 600 && !sorterSubsystem.blockersStatus.equals(SorterSubsystem.BlockersStatus.closed)) {
-                    new lateralBlockersCMD(sorterSubsystem, 0, 0).schedule();
                     sorterSubsystem.setPositions(0, 0);
 
                 }
 
                 if (sensorsSb.rightDetected || sensorsSb.leftDetected) {
-                    if (!(sensorsSb.rightArtifact == null) && sensorsSb.rightArtifact.equals(sensorsSb.targetArtifact)) {
+                    if (!(sensorsSb.currentRightArtifact == null) && sensorsSb.currentRightArtifact.equals(sensorsSb.targetArtifact)) {
                         timer.reset();
                         sorterSubsystem.setPositions(blockersUp, 0);
 
-                    } else if (!(sensorsSb.leftArtifact == null) && sensorsSb.leftArtifact.equals(sensorsSb.targetArtifact)) {
+                    } else if (!(sensorsSb.currentLeftArtifact == null) && sensorsSb.currentLeftArtifact.equals(sensorsSb.targetArtifact)) {
                         timer.reset();
                         sorterSubsystem.setPositions(0, blockersUp);
 

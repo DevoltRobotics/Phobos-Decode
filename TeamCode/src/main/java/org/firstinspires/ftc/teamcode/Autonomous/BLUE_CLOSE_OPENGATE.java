@@ -5,8 +5,8 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import org.firstinspires.ftc.teamcode.Utilities.Aliance;
 
 @Autonomous
-public class BLUE_CLOSE extends CloseAuto_GLOBAL {
-    public BLUE_CLOSE() {
+public class BLUE_CLOSE_OPENGATE extends CloseOpenGateAuto_GLOBAL {
+    public BLUE_CLOSE_OPENGATE() {
         super(Aliance.BLUE);
     }
 }

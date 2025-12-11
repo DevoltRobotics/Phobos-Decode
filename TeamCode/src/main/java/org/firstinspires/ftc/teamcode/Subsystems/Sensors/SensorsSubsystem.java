@@ -36,8 +36,21 @@ public class SensorsSubsystem extends SubsystemBase {
     public double blueInR = 0;
     public double blueInL = 0;
 
-    public Artifact rightArtifact = null;
-    public Artifact leftArtifact = null;
+    public Artifact currentRightArtifact = null;
+    public Artifact currentLeftArtifact = null;
+
+    public Artifact realRightArtifact = null;
+    public Artifact realleftArtifact = null;
+    public Artifact realThirdArtifact = null;
+
+    public enum RelaseOrder{
+        RL,
+        LR,
+        RR,
+        LL
+    }
+
+    public RelaseOrder relaseOrder;
 
     public Artifact targetArtifact = Artifact.Purple;
 
@@ -75,29 +88,35 @@ public class SensorsSubsystem extends SubsystemBase {
         }
 
         if (greenInR > 100 && greenInR > blueInR) {
-            rightArtifact = Artifact.Green;
+            currentRightArtifact = Artifact.Green;
             rightDetected = true;
 
         } else if (blueInR > 90 && blueInR > greenInR) {
-            rightArtifact = Artifact.Purple;
+            currentRightArtifact = Artifact.Purple;
             rightDetected = true;
 
         }else {
-            rightArtifact = null;
+            currentRightArtifact = null;
             rightDetected = false;
         }
 
         if (greenInL > 190 && greenInL > blueInL) {
-            leftArtifact = Artifact.Green;
+            currentLeftArtifact = Artifact.Green;
             leftDetected = true;
 
         } else if (blueInL > 170 && blueInL > greenInL) {
-            leftArtifact = Artifact.Purple;
+            currentLeftArtifact = Artifact.Purple;
             leftDetected = true;
 
         }else {
-            leftArtifact = null;
+            currentLeftArtifact = null;
             leftDetected = false;
+        }
+
+
+        if (Artifact.Green.equals(realRightArtifact) || Artifact.Green.equals(realleftArtifact)){
+            realThirdArtifact = Artifact.Purple;
+
         }
 
         telemetry.addData("RightGreen", greenInR);
@@ -105,8 +124,8 @@ public class SensorsSubsystem extends SubsystemBase {
         telemetry.addData("RightBlue", blueInR);
         telemetry.addData("LeftBlue", blueInL);
 
-        telemetry.addData("WhatIsRightArt", rightArtifact);
-        telemetry.addData("WhatIsLefttArt", leftArtifact);
+        telemetry.addData("WhatIsRightArt", currentRightArtifact);
+        telemetry.addData("WhatIsLefttArt", currentLeftArtifact);
 
 
         fourDetected = (rightDetected || leftDetected) && laserState;
@@ -120,13 +139,13 @@ public class SensorsSubsystem extends SubsystemBase {
 
         }
 
-
-
         // Display the raw HIGH/LOW signal for reference
         telemetry.addData("Raw (HIGH/LOW)", fourDetected);
 
 
         telemetry.addData("targetArtifact", targetArtifact);
+
+        telemetry.addData("relaseOrder", relaseOrder);
     }
 
 }

@@ -63,15 +63,15 @@ import org.firstinspires.ftc.teamcode.Subsystems.Vision.detectMotifCMD;
 import org.firstinspires.ftc.teamcode.Utilities.Aliance;
 import org.firstinspires.ftc.teamcode.Utilities.OpModeCommand;
 
-public class CloseAuto_GLOBAL extends OpModeCommand {
+public class CloseOpenGateAuto_GLOBAL extends OpModeCommand {
 
     private Path launchPreload, park;
-    private PathChain prepareForIntakeFirst, intakeFirst, launchFirst, prepareForIntakeSecond, intakeSecond, launchSecond, prepareForIntakeThird, intakeThird, launchThird;
+    private PathChain prepareForIntakeFirst, intakeFirst, openGate, launchFirst, prepareForIntakeSecond, intakeSecond, launchSecond, prepareForIntakeThird, intakeThird, launchThird;
 
     private Pose currentStartingPose;
     Command autoCommand;
 
-    public CloseAuto_GLOBAL(Aliance aliance) {
+    public CloseOpenGateAuto_GLOBAL(Aliance aliance) {
         super(aliance, true);
     }
 
@@ -93,9 +93,15 @@ public class CloseAuto_GLOBAL extends OpModeCommand {
 
                     .build();
 
+            openGate = follower.pathBuilder()
+                    .addPath(new BezierCurve(intakeFirstCloseRedPose, openGateFirstControlPointCloseRedPose, openGateSecondControlPointCloseRedPose, openGateCloseRedPose))
+                    .setLinearHeadingInterpolation(intakeFirstCloseRedPose.getHeading(), openGateCloseRedPose.getHeading())
+
+                    .build();
+
             launchFirst = follower.pathBuilder()
-                    .addPath(new BezierLine(intakeFirstCloseRedPose, launchFirstCloseRedPose))
-                    .setLinearHeadingInterpolation(intakeFirstCloseRedPose.getHeading(), launchFirstCloseRedPose.getHeading())
+                    .addPath(new BezierLine(openGateCloseRedPose, launchFirstCloseRedPose))
+                    .setLinearHeadingInterpolation(openGateCloseRedPose.getHeading(), launchFirstCloseRedPose.getHeading())
 
                     .build();
 
@@ -152,9 +158,14 @@ public class CloseAuto_GLOBAL extends OpModeCommand {
                     .setConstantHeadingInterpolation(intakeFirstCloseBluePose.getHeading())
                     .build();
 
+            openGate = follower.pathBuilder()
+                    .addPath(new BezierCurve(intakeFirstCloseBluePose, openGateFirstControlPointCloseBluePose, openGateSecondControlPointCloseBluePose, openGateCloseBluePose))
+                    .setLinearHeadingInterpolation(intakeFirstCloseBluePose.getHeading(), openGateCloseBluePose.getHeading())
+                    .build();
+
             launchFirst = follower.pathBuilder()
-                    .addPath(new BezierLine(intakeFirstCloseBluePose, launchFirstCloseBluePose))
-                    .setLinearHeadingInterpolation(intakeFirstCloseBluePose.getHeading(), launchFirstCloseBluePose.getHeading())
+                    .addPath(new BezierLine(openGateCloseBluePose, launchFirstCloseBluePose))
+                    .setLinearHeadingInterpolation(openGateCloseBluePose.getHeading(), launchFirstCloseBluePose.getHeading())
                     .build();
 
             prepareForIntakeSecond = follower.pathBuilder()
@@ -217,42 +228,35 @@ public class CloseAuto_GLOBAL extends OpModeCommand {
                         ///STARTING_DELAY
                         //new WaitCommand(1),
 
-                        new lateralBlockersCMD(sorterSb, blockersUp, blockersUp),
+                        new lateralBlockersCMD(sorterSb, blockersUp, 0),
                         new horizontalBlockerCMD(sorterSb, blockerHHidePos),
 
                         new ConditionalCommand(
-                                new turretToPosCMD(turretSb, -55),
-                                new turretToPosCMD(turretSb, 55),
+                                new turretToPosCMD(turretSb, -50),
+                                new turretToPosCMD(turretSb, 50),
                                 () -> currentAliance.equals(Aliance.RED)
                         ),
 
                         pedroSb.followPathCmd(launchPreload),
 
-                        new lateralBlockersCMD(sorterSb, 0, 0),
-
-                        new detectMotifCMD(visionSb, 0.4),
+                        new lateralBlockersCMD(sorterSb, 0, blockersUp),
 
                         new shooterToVelCMD(shooterSb, 1230),
 
+                        new detectMotifCMD(visionSb, 0.4),
+
                         new turretToPosCMD(turretSb, 0),
-
-                        new moveIntakeAutonomousCMD(intakeSb, 1),
-                        new preSorterCmd(sorterSb, sensorsSb, visionSb),
-
-                        new WaitCommand(1200),
-
-                        new moveIntakeAutonomousCMD(intakeSb, -0.8),
-                        new WaitCommand(200),
-                        new moveIntakeAutonomousCMD(intakeSb, 0),
-                        new postSorterCmd(sorterSb, sensorsSb, visionSb),
 
                         new horizontalBlockerCMD(sorterSb, blockerHFreePos),
 
+                        new WaitCommand(600),
+
                         new ParallelDeadlineGroup(
-                                new WaitCommand(4000), // deadline
+
+                                new WaitCommand(3800), // deadline
 
                                 new SequentialCommandGroup(
-                                        new WaitCommand(2200),
+                                        new WaitCommand(2000),
                                         new lateralBlockersCMD(sorterSb, blockersUp, blockersUp)
 
                                 ),
@@ -279,19 +283,28 @@ public class CloseAuto_GLOBAL extends OpModeCommand {
                         new moveIntakeAutonomousCMD(intakeSb, 1),
 
                         new InstantCommand(
-                                () -> pedroSb.follower.setMaxPower(0.85)
+                                () -> pedroSb.follower.setMaxPower(0.8)
                         ),
 
                         new ParallelRaceGroup(
                                 pedroSb.followPathCmd(intakeFirst),
-                                new WaitCommand(1200)
+                                new WaitCommand(1150)
                         ),
 
-                        new WaitCommand(300),
+                        new WaitCommand(700),
 
                         new preSorterCmd(sorterSb, sensorsSb, visionSb),
 
-                        new WaitCommand(500),
+                        new InstantCommand(
+                                () -> pedroSb.follower.setMaxPower(1)
+                        ),
+
+                        new ParallelRaceGroup(
+                                pedroSb.followPathCmd(openGate),
+                                new WaitCommand(1900)
+                        ),
+
+                        new WaitCommand(250),
 
                         new InstantCommand(
                                 () -> pedroSb.follower.setMaxPower(1)
@@ -299,8 +312,8 @@ public class CloseAuto_GLOBAL extends OpModeCommand {
 
                         new shooterToVelCMD(shooterSb, 1150),
                         new ConditionalCommand(
-                                new turretToPosCMD(turretSb, -75),
-                                new turretToPosCMD(turretSb, 75),
+                                new turretToPosCMD(turretSb, -70),
+                                new turretToPosCMD(turretSb, 70),
                                 () -> currentAliance.equals(Aliance.RED)
                         ),
                         new ParallelCommandGroup(
@@ -308,11 +321,11 @@ public class CloseAuto_GLOBAL extends OpModeCommand {
                                 pedroSb.followPathCmd(launchFirst),
 
                                 new SequentialCommandGroup(
-                                        new WaitCommand(700),
                                         new moveIntakeAutonomousCMD(intakeSb, -0.8),
-                                        new WaitCommand(200),
+                                        new WaitCommand(250),
                                         new moveIntakeAutonomousCMD(intakeSb, 0),
-                                        new postSorterCmd(sorterSb, sensorsSb, visionSb)
+                                        new postSorterCmd(sorterSb, sensorsSb, visionSb),
+                                        new moveIntakeAutonomousCMD(intakeSb, 1)
 
                                 )
                         ),
@@ -356,8 +369,6 @@ public class CloseAuto_GLOBAL extends OpModeCommand {
                                 new WaitCommand(1600)
                         ),
 
-                        new WaitCommand(300),
-
                         new preSorterCmd(sorterSb, sensorsSb, visionSb),
 
                         new WaitCommand(500),
@@ -366,13 +377,13 @@ public class CloseAuto_GLOBAL extends OpModeCommand {
                                 () -> pedroSb.follower.setMaxPower(1)
                         ),
 
-
                         new shooterToVelCMD(shooterSb, 1150),
                         new ConditionalCommand(
                                 new turretToPosCMD(turretSb, -65),
                                 new turretToPosCMD(turretSb, 65),
                                 () -> currentAliance.equals(Aliance.RED)
                         ),
+
                         new ParallelDeadlineGroup(
 
                                 pedroSb.followPathCmd(launchSecond),
@@ -382,7 +393,9 @@ public class CloseAuto_GLOBAL extends OpModeCommand {
                                         new moveIntakeAutonomousCMD(intakeSb, -0.8),
                                         new WaitCommand(250),
                                         new moveIntakeAutonomousCMD(intakeSb, 0),
-                                        new postSorterCmd(sorterSb, sensorsSb, visionSb)
+                                        new postSorterCmd(sorterSb, sensorsSb, visionSb),
+                                        new moveIntakeAutonomousCMD(intakeSb, 1)
+
 
                                 )
 
@@ -408,6 +421,7 @@ public class CloseAuto_GLOBAL extends OpModeCommand {
                                 new shooterToBasketCMD(shooterSb, visionSb, 1150)
 
                         )
+
 
 
                         /// SECOND_LAUNCHED

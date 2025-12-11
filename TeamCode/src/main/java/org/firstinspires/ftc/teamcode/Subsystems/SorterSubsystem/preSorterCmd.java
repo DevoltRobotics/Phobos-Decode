@@ -1,19 +1,14 @@
 package org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem;
 
 import static org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.SorterSubsystem.BlockersStatus.closed;
-import static org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.SorterSubsystem.BlockersStatus.oneOpen;
 import static org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.SorterSubsystem.blockersUp;
 
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.seattlesolvers.solverslib.command.CommandBase;
-import com.seattlesolvers.solverslib.command.ConditionalCommand;
-import com.seattlesolvers.solverslib.command.SequentialCommandGroup;
-import com.seattlesolvers.solverslib.command.WaitCommand;
 
 import org.firstinspires.ftc.teamcode.Subsystems.Sensors.SensorsSubsystem;
 import org.firstinspires.ftc.teamcode.Subsystems.Vision.VisionSubsystem;
 import org.firstinspires.ftc.teamcode.Utilities.Artifact;
-import org.firstinspires.ftc.teamcode.Utilities.Pattern;
 
 public class preSorterCmd extends CommandBase {
 
@@ -43,29 +38,82 @@ public class preSorterCmd extends CommandBase {
 
     @Override
     public void execute() {
+
+
         if ((sensorsSb.rightDetected || sensorsSb.leftDetected) && sorterSubsystem.blockersStatus.equals(closed)) {
+
+            sensorsSb.realRightArtifact = sensorsSb.currentRightArtifact;
+            sensorsSb.realleftArtifact = sensorsSb.currentLeftArtifact;
 
             switch (visionSb.pattern) {
                 case GPP:
-                    if (Artifact.Green.equals(sensorsSb.rightArtifact)) {
+                    if (Artifact.Green.equals(sensorsSb.currentRightArtifact)) {
                         sorterSubsystem.setPositions(blockersUp, 0);
                         detected = true;
-                        cancel();
-                    } else if (Artifact.Green.equals(sensorsSb.leftArtifact)) {
+
+                        sensorsSb.relaseOrder = SensorsSubsystem.RelaseOrder.RR;
+
+                    } else if (Artifact.Green.equals(sensorsSb.currentLeftArtifact)) {
+                        sorterSubsystem.setPositions(0, blockersUp);
+                        detected = true;
+
+                        sensorsSb.relaseOrder = SensorsSubsystem.RelaseOrder.LL;
+
+                    }
+
+                    break;
+
+                case PGP:
+
+                    if (Artifact.Purple.equals(sensorsSb.currentRightArtifact)) {
                         sorterSubsystem.setPositions(blockersUp, 0);
+                        detected = true;
+
+
+                    } else if (Artifact.Purple.equals(sensorsSb.currentLeftArtifact)) {
+                        sorterSubsystem.setPositions(0, blockersUp);
                         detected = true;
                     }
+
+
+                    if (Artifact.Green.equals(sensorsSb.currentRightArtifact)) {
+                        sensorsSb.relaseOrder = SensorsSubsystem.RelaseOrder.LR;
+                    } else if (Artifact.Green.equals(sensorsSb.currentLeftArtifact)) {
+                        sensorsSb.relaseOrder = SensorsSubsystem.RelaseOrder.RL;
+
+                    }
+
                     break;
 
                 case PPG:
-                case PGP:
-                    if (Artifact.Purple.equals(sensorsSb.rightArtifact)) {
+                    if (Artifact.Purple.equals(sensorsSb.currentRightArtifact)) {
                         sorterSubsystem.setPositions(blockersUp, 0);
+
+                        if (Artifact.Green.equals(sensorsSb.currentLeftArtifact)) {
+                            sensorsSb.relaseOrder = SensorsSubsystem.RelaseOrder.RR;
+
+                        }else {
+                            sensorsSb.relaseOrder = SensorsSubsystem.RelaseOrder.RL;
+
+                        }
+
                         detected = true;
-                    } else if (Artifact.Purple.equals(sensorsSb.leftArtifact)) {
-                        sorterSubsystem.setPositions(blockersUp, 0);
+
+                    } else if (Artifact.Purple.equals(sensorsSb.currentLeftArtifact)) {
+
+                        sorterSubsystem.setPositions(0, blockersUp);
+
+                        if (Artifact.Green.equals(sensorsSb.currentRightArtifact)) {
+                            sensorsSb.relaseOrder = SensorsSubsystem.RelaseOrder.LL;
+
+                        }else {
+                            sensorsSb.relaseOrder = SensorsSubsystem.RelaseOrder.LR;
+
+                        }
+
                         detected = true;
                     }
+
                     break;
 
             }
@@ -83,6 +131,6 @@ public class preSorterCmd extends CommandBase {
 
     @Override
     public boolean isFinished() {
-        return deadTimer.seconds() > 0.5 || detected;
+        return deadTimer.seconds() > 0.4 || detected;
     }
 }
