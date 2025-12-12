@@ -31,7 +31,7 @@ public class preSorterTeleopCMD extends CommandBase {
 
             if (sensorsSb.sorterMode) {
 
-                if (timer.milliseconds() > 600 && !sorterSubsystem.blockersStatus.equals(SorterSubsystem.BlockersStatus.closed)) {
+                if (timer.milliseconds() > 1200 && !sorterSubsystem.blockersStatus.equals(SorterSubsystem.BlockersStatus.closed)) {
                     sorterSubsystem.setPositions(0, 0);
 
                 }

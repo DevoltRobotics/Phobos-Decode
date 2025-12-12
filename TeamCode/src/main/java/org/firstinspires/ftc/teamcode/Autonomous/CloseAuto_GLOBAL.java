@@ -288,8 +288,11 @@ public class CloseAuto_GLOBAL extends OpModeCommand {
 
                         new WaitCommand(300),
 
+                        new moveIntakeAutonomousCMD(intakeSb, 0),
+                        new WaitCommand(100),
                         new preSorterCmd(sorterSb, sensorsSb, visionSb, 0.4),
 
+                        new moveIntakeAutonomousCMD(intakeSb, 1),
                         new WaitCommand(500),
 
                         new InstantCommand(
@@ -358,7 +361,11 @@ public class CloseAuto_GLOBAL extends OpModeCommand {
 
                         new WaitCommand(300),
 
+                        new moveIntakeAutonomousCMD(intakeSb, 0),
+                        new WaitCommand(100),
                         new preSorterCmd(sorterSb, sensorsSb, visionSb, 0.4),
+
+                        new moveIntakeAutonomousCMD(intakeSb, 1),
 
                         new WaitCommand(500),
 

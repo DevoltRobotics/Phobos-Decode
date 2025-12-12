@@ -231,25 +231,16 @@ public class CloseOpenGateAuto_GLOBAL extends OpModeCommand {
                         new lateralBlockersCMD(sorterSb, blockersUp, 0),
                         new horizontalBlockerCMD(sorterSb, blockerHHidePos),
 
-                        new ConditionalCommand(
-                                new turretToPosCMD(turretSb, -50),
-                                new turretToPosCMD(turretSb, 50),
-                                () -> currentAliance.equals(Aliance.RED)
-                        ),
+                        new turretToPosCMD(turretSb, 0),
+                        new shooterToVelCMD(shooterSb, 1230),
 
                         pedroSb.followPathCmd(launchPreload),
 
                         new lateralBlockersCMD(sorterSb, 0, blockersUp),
 
-                        new shooterToVelCMD(shooterSb, 1230),
-
-                        new detectMotifCMD(visionSb, 0.4),
-
-                        new turretToPosCMD(turretSb, 0),
-
                         new horizontalBlockerCMD(sorterSb, blockerHFreePos),
 
-                        new WaitCommand(600),
+                        new WaitCommand(250),
 
                         new ParallelDeadlineGroup(
 
@@ -269,10 +260,26 @@ public class CloseOpenGateAuto_GLOBAL extends OpModeCommand {
 
                         ///PRELOAD_LAUNCHED
 
-                        new moveIntakeAutonomousCMD(intakeSb, 0),
-                        new shooterToVelCMD(shooterSb, 0),
                         new horizontalBlockerCMD(sorterSb, blockerHHidePos),
                         new lateralBlockersCMD(sorterSb, 0, 0),
+
+                        new moveIntakeAutonomousCMD(intakeSb, 0),
+                        new shooterToVelCMD(shooterSb, 0),
+
+                        new ConditionalCommand(
+                                new turretToPosCMD(turretSb, -50),
+                                new turretToPosCMD(turretSb, 50),
+                                () -> currentAliance.equals(Aliance.RED)
+                        ),
+
+                        new WaitCommand(400),
+
+                        new detectMotifCMD(visionSb, 0.4),
+
+                        new InstantCommand(
+                                () -> pedroSb.follower.setMaxPower(1)
+                        ),
+
 
                         new InstantCommand(
                                 () -> pedroSb.follower.setMaxPower(1)
@@ -288,44 +295,56 @@ public class CloseOpenGateAuto_GLOBAL extends OpModeCommand {
 
                         new ParallelRaceGroup(
                                 pedroSb.followPathCmd(intakeFirst),
-                                new WaitCommand(1150)
+                                new WaitCommand(1200)
                         ),
 
-                        new WaitCommand(700),
+                        new WaitCommand(300),
 
+                        new moveIntakeAutonomousCMD(intakeSb, 0),
+                        new WaitCommand(100),
                         new preSorterCmd(sorterSb, sensorsSb, visionSb, 0.4),
+
+                        new moveIntakeAutonomousCMD(intakeSb, 1),
+                        new WaitCommand(500),
 
                         new InstantCommand(
                                 () -> pedroSb.follower.setMaxPower(1)
                         ),
 
                         new ParallelRaceGroup(
-                                pedroSb.followPathCmd(openGate),
+
+                                new ParallelCommandGroup(
+                                        pedroSb.followPathCmd(openGate),
+
+                                        new SequentialCommandGroup(
+                                                new WaitCommand(800),
+                                                new moveIntakeAutonomousCMD(intakeSb, 0)
+                                                )
+                                ),
+
                                 new WaitCommand(1900)
+
                         ),
 
                         new WaitCommand(250),
 
-                        new InstantCommand(
-                                () -> pedroSb.follower.setMaxPower(1)
-                        ),
-
                         new shooterToVelCMD(shooterSb, 1150),
-                        new ConditionalCommand(
-                                new turretToPosCMD(turretSb, -70),
-                                new turretToPosCMD(turretSb, 70),
-                                () -> currentAliance.equals(Aliance.RED)
-                        ),
+
                         new ParallelCommandGroup(
 
                                 pedroSb.followPathCmd(launchFirst),
 
                                 new SequentialCommandGroup(
+                                        new WaitCommand(700),
+                                        new ConditionalCommand(
+                                                new turretToPosCMD(turretSb, -75),
+                                                new turretToPosCMD(turretSb, 75),
+                                                () -> currentAliance.equals(Aliance.RED)
+                                        ),
                                         new moveIntakeAutonomousCMD(intakeSb, -0.8),
-                                        new WaitCommand(250),
+                                        new WaitCommand(200),
                                         new moveIntakeAutonomousCMD(intakeSb, 0),
-                                        new postSorterCmd(sorterSb, sensorsSb, visionSb),
-                                        new moveIntakeAutonomousCMD(intakeSb, 1)
+                                        new postSorterCmd(sorterSb, sensorsSb, visionSb)
 
                                 )
                         ),
@@ -369,7 +388,13 @@ public class CloseOpenGateAuto_GLOBAL extends OpModeCommand {
                                 new WaitCommand(1600)
                         ),
 
+                        new WaitCommand(300),
+
+                        new moveIntakeAutonomousCMD(intakeSb, 0),
+                        new WaitCommand(100),
                         new preSorterCmd(sorterSb, sensorsSb, visionSb, 0.4),
+
+                        new moveIntakeAutonomousCMD(intakeSb, 1),
 
                         new WaitCommand(500),
 
@@ -377,25 +402,23 @@ public class CloseOpenGateAuto_GLOBAL extends OpModeCommand {
                                 () -> pedroSb.follower.setMaxPower(1)
                         ),
 
+
                         new shooterToVelCMD(shooterSb, 1150),
                         new ConditionalCommand(
                                 new turretToPosCMD(turretSb, -65),
                                 new turretToPosCMD(turretSb, 65),
                                 () -> currentAliance.equals(Aliance.RED)
                         ),
-
                         new ParallelDeadlineGroup(
 
                                 pedroSb.followPathCmd(launchSecond),
 
                                 new SequentialCommandGroup(
-                                        new WaitCommand(1000),
-                                        new moveIntakeAutonomousCMD(intakeSb, -0.8),
-                                        new WaitCommand(250),
+                                        new WaitCommand(1200),
+                                        //new moveIntakeAutonomousCMD(intakeSb, -0.8),
+                                        //new WaitCommand(250),
                                         new moveIntakeAutonomousCMD(intakeSb, 0),
-                                        new postSorterCmd(sorterSb, sensorsSb, visionSb),
-                                        new moveIntakeAutonomousCMD(intakeSb, 1)
-
+                                        new postSorterCmd(sorterSb, sensorsSb, visionSb)
 
                                 )
 
@@ -421,7 +444,6 @@ public class CloseOpenGateAuto_GLOBAL extends OpModeCommand {
                                 new shooterToBasketCMD(shooterSb, visionSb, 1150)
 
                         )
-
 
 
                         /// SECOND_LAUNCHED

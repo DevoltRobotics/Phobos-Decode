@@ -2,14 +2,17 @@ package org.firstinspires.ftc.teamcode.Autonomous;
 
 import static org.firstinspires.ftc.teamcode.Autonomous.DrivePos.intakeFirstCloseBluePose;
 import static org.firstinspires.ftc.teamcode.Autonomous.DrivePos.intakeFirstCloseRedPose;
+import static org.firstinspires.ftc.teamcode.Autonomous.DrivePos.intakeFirstFurtherBluePose;
 import static org.firstinspires.ftc.teamcode.Autonomous.DrivePos.intakeFirstFurtherRedPose;
 import static org.firstinspires.ftc.teamcode.Autonomous.DrivePos.intakeSecondCloseBluePose;
 import static org.firstinspires.ftc.teamcode.Autonomous.DrivePos.intakeSecondCloseRedPose;
+import static org.firstinspires.ftc.teamcode.Autonomous.DrivePos.intakeSecondFurtherBluePose;
 import static org.firstinspires.ftc.teamcode.Autonomous.DrivePos.intakeSecondFurtherRedPose;
 import static org.firstinspires.ftc.teamcode.Autonomous.DrivePos.intakeThirdCloseBluePose;
 import static org.firstinspires.ftc.teamcode.Autonomous.DrivePos.intakeThirdCloseRedPose;
 import static org.firstinspires.ftc.teamcode.Autonomous.DrivePos.launchFirstCloseBluePose;
 import static org.firstinspires.ftc.teamcode.Autonomous.DrivePos.launchFirstCloseRedPose;
+import static org.firstinspires.ftc.teamcode.Autonomous.DrivePos.launchFirstFurtherBluePose;
 import static org.firstinspires.ftc.teamcode.Autonomous.DrivePos.launchFirstFurtherRedPose;
 import static org.firstinspires.ftc.teamcode.Autonomous.DrivePos.launchPreloadCloseBluePose;
 import static org.firstinspires.ftc.teamcode.Autonomous.DrivePos.launchPreloadCloseRedPose;
@@ -17,6 +20,7 @@ import static org.firstinspires.ftc.teamcode.Autonomous.DrivePos.launchSecondClo
 import static org.firstinspires.ftc.teamcode.Autonomous.DrivePos.launchSecondCloseRedPose;
 import static org.firstinspires.ftc.teamcode.Autonomous.DrivePos.launchSecondControlPointCloseBluePose;
 import static org.firstinspires.ftc.teamcode.Autonomous.DrivePos.launchSecondControlPointCloseRedPose;
+import static org.firstinspires.ftc.teamcode.Autonomous.DrivePos.launchSecondFurtherBluePose;
 import static org.firstinspires.ftc.teamcode.Autonomous.DrivePos.launchSecondFurtherRedPose;
 import static org.firstinspires.ftc.teamcode.Autonomous.DrivePos.launchThirdCloseBluePose;
 import static org.firstinspires.ftc.teamcode.Autonomous.DrivePos.launchThirdCloseRedPose;
@@ -28,12 +32,17 @@ import static org.firstinspires.ftc.teamcode.Autonomous.DrivePos.openGateSecondC
 import static org.firstinspires.ftc.teamcode.Autonomous.DrivePos.openGateSecondControlPointCloseRedPose;
 import static org.firstinspires.ftc.teamcode.Autonomous.DrivePos.parkCloseBluePose;
 import static org.firstinspires.ftc.teamcode.Autonomous.DrivePos.parkCloseRedPose;
+import static org.firstinspires.ftc.teamcode.Autonomous.DrivePos.parkFurtherBluePose;
+import static org.firstinspires.ftc.teamcode.Autonomous.DrivePos.parkFurtherRedPose;
 import static org.firstinspires.ftc.teamcode.Autonomous.DrivePos.prepareForIntakeFirstCloseBluePose;
 import static org.firstinspires.ftc.teamcode.Autonomous.DrivePos.prepareForIntakeFirstCloseRedPose;
+import static org.firstinspires.ftc.teamcode.Autonomous.DrivePos.prepareForIntakeFirstControlPointFurtherBluePose;
 import static org.firstinspires.ftc.teamcode.Autonomous.DrivePos.prepareForIntakeFirstControlPointFurtherRedPose;
+import static org.firstinspires.ftc.teamcode.Autonomous.DrivePos.prepareForIntakeFirstFurtherBluePose;
 import static org.firstinspires.ftc.teamcode.Autonomous.DrivePos.prepareForIntakeFirstFurtherRedPose;
 import static org.firstinspires.ftc.teamcode.Autonomous.DrivePos.prepareForIntakeSecondCloseBluePose;
 import static org.firstinspires.ftc.teamcode.Autonomous.DrivePos.prepareForIntakeSecondCloseRedPose;
+import static org.firstinspires.ftc.teamcode.Autonomous.DrivePos.prepareForIntakeSecondFurtherBluePose;
 import static org.firstinspires.ftc.teamcode.Autonomous.DrivePos.prepareForIntakeSecondFurtherRedPose;
 import static org.firstinspires.ftc.teamcode.Autonomous.DrivePos.prepareForIntakeThirdCloseBluePose;
 import static org.firstinspires.ftc.teamcode.Autonomous.DrivePos.prepareForIntakeThirdCloseRedPose;
@@ -74,8 +83,8 @@ import org.firstinspires.ftc.teamcode.Utilities.OpModeCommand;
 
 public class FurtherAuto_GLOBAL extends OpModeCommand {
 
-    private Path park;
-    private PathChain prepareForIntakeFirst, intakeFirst, launchFirst, prepareForIntakeSecond, intakeSecond, launchSecond, prepareForIntakeThird, intakeThird, launchThird;
+    private Path park, prepareForIntakeFirst;
+    private PathChain intakeFirst, launchFirst, prepareForIntakeSecond, intakeSecond, launchSecond;
 
     Command autoCommand;
 
@@ -87,28 +96,23 @@ public class FurtherAuto_GLOBAL extends OpModeCommand {
 
         if (currentAliance == Aliance.RED) {
 
-            prepareForIntakeFirst = follower.pathBuilder()
-                    .addPath(new BezierCurve(
-                            startingPoseFurtherRed,
-                            prepareForIntakeFirstControlPointFurtherRedPose,
-                            prepareForIntakeFirstFurtherRedPose))
-                    .setLinearHeadingInterpolation(
-                            startingPoseFurtherRed.getHeading(),
-                            prepareForIntakeFirstFurtherRedPose.getHeading())
-                    .build();
+            prepareForIntakeFirst = new Path(new BezierCurve(startingPoseFurtherRed, prepareForIntakeFirstControlPointFurtherRedPose, prepareForIntakeFirstFurtherRedPose));
+            prepareForIntakeFirst.setLinearHeadingInterpolation(
+                    startingPoseFurtherRed.getHeading(),
+                    prepareForIntakeFirstFurtherRedPose.getHeading());
 
             intakeFirst = follower.pathBuilder()
                     .addPath(new BezierLine(
                             prepareForIntakeFirstFurtherRedPose,
                             intakeFirstFurtherRedPose))
-                    .setConstantHeadingInterpolation(intakeFirstFurtherRedPose.getHeading())
+                    .setLinearHeadingInterpolation(prepareForIntakeFirstFurtherRedPose.getHeading(), intakeFirstFurtherRedPose.getHeading())
                     .build();
 
             launchFirst = follower.pathBuilder()
                     .addPath(new BezierLine(
                             intakeFirstFurtherRedPose,
                             launchFirstFurtherRedPose))
-                    .setConstantHeadingInterpolation(launchFirstFurtherRedPose.getHeading())
+                    .setLinearHeadingInterpolation(intakeFirstFurtherRedPose.getHeading(), launchFirstFurtherRedPose.getHeading())
                     .build();
 
             prepareForIntakeSecond = follower.pathBuilder()
@@ -138,62 +142,66 @@ public class FurtherAuto_GLOBAL extends OpModeCommand {
                             launchSecondFurtherRedPose.getHeading())
                     .build();
 
+            park = new Path(new BezierLine(launchSecondFurtherRedPose, parkFurtherRedPose));
+            park.setLinearHeadingInterpolation(launchSecondFurtherRedPose.getHeading(), parkFurtherRedPose.getHeading());
+
+
         } else {
 
-
-            prepareForIntakeFirst = follower.pathBuilder()
-                    .addPath(new BezierLine(launchPreloadCloseBluePose, prepareForIntakeFirstCloseBluePose))
-                    .setConstantHeadingInterpolation(prepareForIntakeFirstCloseBluePose.getHeading())
-                    .build();
+            prepareForIntakeFirst = new Path(new BezierCurve(startingPoseFurtherBlue, prepareForIntakeFirstControlPointFurtherBluePose, prepareForIntakeFirstFurtherBluePose));
+            prepareForIntakeFirst.setLinearHeadingInterpolation(
+                    startingPoseFurtherBlue.getHeading(),
+                    prepareForIntakeFirstFurtherBluePose.getHeading());
 
             intakeFirst = follower.pathBuilder()
-                    .addPath(new BezierLine(prepareForIntakeFirstCloseBluePose, intakeFirstCloseBluePose))
-                    .setLinearHeadingInterpolation(prepareForIntakeFirstCloseBluePose.getHeading(), intakeFirstCloseBluePose.getHeading())
-
+                    .addPath(new BezierLine(
+                            prepareForIntakeFirstFurtherBluePose,
+                            intakeFirstFurtherBluePose))
+                    .setLinearHeadingInterpolation(
+                            prepareForIntakeFirstFurtherBluePose.getHeading(),
+                            intakeFirstFurtherBluePose.getHeading())
                     .build();
 
-
             launchFirst = follower.pathBuilder()
-                    .addPath(new BezierLine(openGateCloseBluePose, launchFirstCloseBluePose))
-                    .setLinearHeadingInterpolation(openGateCloseBluePose.getHeading(), launchFirstCloseBluePose.getHeading())
-
+                    .addPath(new BezierLine(
+                            intakeFirstFurtherBluePose,
+                            launchFirstFurtherBluePose))
+                    .setLinearHeadingInterpolation(
+                            intakeFirstFurtherBluePose.getHeading(),
+                            launchFirstFurtherBluePose.getHeading())
                     .build();
 
             prepareForIntakeSecond = follower.pathBuilder()
-                    .addPath(new BezierLine(launchFirstCloseBluePose, prepareForIntakeSecondCloseBluePose))
-                    .setLinearHeadingInterpolation(launchFirstCloseBluePose.getHeading(), prepareForIntakeSecondCloseBluePose.getHeading())
+                    .addPath(new BezierLine(
+                            launchFirstFurtherBluePose,
+                            prepareForIntakeSecondFurtherBluePose))
+                    .setLinearHeadingInterpolation(
+                            launchFirstFurtherBluePose.getHeading(),
+                            prepareForIntakeSecondFurtherBluePose.getHeading())
                     .build();
 
             intakeSecond = follower.pathBuilder()
-                    .addPath(new BezierLine(prepareForIntakeSecondCloseBluePose, intakeSecondCloseBluePose))
-                    .setConstantHeadingInterpolation(intakeSecondCloseBluePose.getHeading())
-
+                    .addPath(new BezierLine(
+                            prepareForIntakeSecondFurtherBluePose,
+                            intakeSecondFurtherBluePose))
+                    .setLinearHeadingInterpolation(
+                            prepareForIntakeSecondFurtherBluePose.getHeading(),
+                            intakeSecondFurtherBluePose.getHeading())
                     .build();
 
             launchSecond = follower.pathBuilder()
-                    .addPath(new BezierCurve(intakeSecondCloseBluePose, launchSecondControlPointCloseBluePose, launchSecondCloseBluePose))
-                    .setLinearHeadingInterpolation(intakeSecondCloseBluePose.getHeading(), launchSecondCloseBluePose.getHeading())
-
+                    .addPath(new BezierLine(
+                            intakeSecondFurtherBluePose,
+                            launchSecondFurtherBluePose))
+                    .setLinearHeadingInterpolation(
+                            intakeSecondFurtherBluePose.getHeading(),
+                            launchSecondFurtherBluePose.getHeading())
                     .build();
 
-            prepareForIntakeThird = follower.pathBuilder()
-                    .addPath(new BezierLine(launchSecondCloseBluePose, prepareForIntakeThirdCloseBluePose))
-                    .setLinearHeadingInterpolation(launchSecondCloseBluePose.getHeading(), prepareForIntakeThirdCloseBluePose.getHeading())
-                    .build();
-
-            intakeThird = follower.pathBuilder()
-                    .addPath(new BezierLine(prepareForIntakeThirdCloseBluePose, intakeThirdCloseBluePose))
-                    .setLinearHeadingInterpolation(prepareForIntakeThirdCloseBluePose.getHeading(), intakeThirdCloseBluePose.getHeading())
-
-                    .build();
-
-            launchThird = follower.pathBuilder()
-                    .addPath(new BezierLine(intakeThirdCloseBluePose, launchThirdCloseBluePose))
-                    .setLinearHeadingInterpolation(intakeThirdCloseBluePose.getHeading(), launchThirdCloseBluePose.getHeading())
-                    .build();
-
-            park = new Path(new BezierLine(launchThirdCloseBluePose, parkCloseBluePose));
-            park.setLinearHeadingInterpolation(launchThirdCloseBluePose.getHeading(), parkCloseBluePose.getHeading());
+            park = new Path(new BezierLine(launchSecondFurtherBluePose, parkFurtherBluePose));
+            park.setLinearHeadingInterpolation(
+                    launchSecondFurtherBluePose.getHeading(),
+                    parkFurtherBluePose.getHeading());
 
         }
     }
@@ -209,7 +217,13 @@ public class FurtherAuto_GLOBAL extends OpModeCommand {
         }
 
         new SequentialCommandGroup(
-                new turretToPosCMD(turretSb, -8),
+                new ConditionalCommand(
+                        new turretToPosCMD(turretSb, -8),
+                        new turretToPosCMD(turretSb, 8),
+                        () -> currentAliance.equals(Aliance.RED)
+                ),
+
+                new WaitCommand(400),
                 new lateralBlockersCMD(sorterSb, blockersUp, blockersUp),
                 new WaitCommand(200),
                 new lateralBlockersCMD(sorterSb, 0, 0),
@@ -295,7 +309,12 @@ public class FurtherAuto_GLOBAL extends OpModeCommand {
                         pedroSb.followPathCmd(intakeFirst),
                         new WaitCommand(300),
 
+                        new moveIntakeAutonomousCMD(intakeSb, 0),
+                        new WaitCommand(100),
+
                         new preSorterCmd(sorterSb, sensorsSb, visionSb, 0.4),
+
+                        new moveIntakeAutonomousCMD(intakeSb, 1),
 
                         new shooterToVelCMD(shooterSb, 1400),
 
@@ -357,8 +376,12 @@ public class FurtherAuto_GLOBAL extends OpModeCommand {
 
                         new WaitCommand(300),
 
+                        new moveIntakeAutonomousCMD(intakeSb, 0),
+                        new WaitCommand(100),
+
                         new preSorterCmd(sorterSb, sensorsSb, visionSb, 0.4),
 
+                        new moveIntakeAutonomousCMD(intakeSb, 1),
                         new shooterToVelCMD(shooterSb, 1400),
 
                         new ConditionalCommand(
