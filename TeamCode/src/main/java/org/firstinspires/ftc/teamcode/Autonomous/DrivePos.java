@@ -47,19 +47,18 @@ public class DrivePos {
 
     public static Pose startingPoseFurtherRed = new Pose(87, 8.5, Math.toRadians(90));
 
-    public static Pose prepareForIntakeFirstFurtherRedPose = new Pose(97, 35, Math.toRadians(0));
-    public static Pose prepareForIntakeFirstControlPointFurtherRedPose = new Pose(85, 34, Math.toRadians(0));
+    public static Pose prepareForIntakeFirstFurtherRedPose = new Pose(97, 33, Math.toRadians(0));
+    public static Pose prepareForIntakeFirstControlPointFurtherRedPose = new Pose(85, 32, Math.toRadians(0));
 
+    public static Pose intakeFirstFurtherRedPose = new Pose(132, 32, Math.toRadians(0));
 
-    public static Pose intakeFirstFurtherRedPose = new Pose(124, 35, Math.toRadians(0));
+    public static Pose launchFirstFurtherRedPose = new Pose(94, 14, Math.toRadians(0));
 
-    public static Pose launchFirstFurtherRedPose = new Pose(84, 17, Math.toRadians(0));
+    public static Pose prepareForIntakeSecondFurtherRedPose = new Pose(127, 36, Math.toRadians(290));
 
-    public static Pose prepareForIntakeSecondFurtherRedPose = new Pose(131, 19, Math.toRadians(320));
+    public static Pose intakeSecondFurtherRedPose = new Pose(130, 15, Math.toRadians(270));
 
-    public static Pose intakeSecondFurtherRedPose = new Pose(135, 10, Math.toRadians(270));
-
-    public static Pose launchSecondFurtherRedPose = new Pose(88, 15, Math.toRadians(340));
+    public static Pose launchSecondFurtherRedPose = new Pose(88, 15, Math.toRadians(0));
 
 
 
@@ -96,15 +95,11 @@ public class DrivePos {
     public static Pose openGateFirstControlPointCloseBluePose = openGateFirstControlPointCloseRedPose.mirror();
     public static Pose openGateSecondControlPointCloseBluePose = openGateSecondControlPointCloseRedPose.mirror();
 
-
-    public static Pose openGateControlPointCloseBluePose = openGateFirstControlPointCloseRedPose.mirror();
-
     public static Pose launchFirstCloseBluePose = launchFirstCloseRedPose.mirror();
 
     public static Pose prepareForIntakeSecondCloseBluePose = prepareForIntakeSecondCloseRedPose.mirror();
 
     public static Pose intakeSecondCloseBluePose = intakeSecondCloseRedPose.mirror();
-
 
     public static Pose launchSecondControlPointCloseBluePose = launchSecondControlPointCloseRedPose.mirror();
 

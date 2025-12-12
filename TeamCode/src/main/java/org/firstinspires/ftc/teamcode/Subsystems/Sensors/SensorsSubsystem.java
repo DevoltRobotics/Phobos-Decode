@@ -36,6 +36,12 @@ public class SensorsSubsystem extends SubsystemBase {
     public double blueInR = 0;
     public double blueInL = 0;
 
+    public static int targetBlueRight = 130;
+    public static int targetGreenRight = 160;
+
+    public static int targetBlueLeft = 145;
+    public static int targetGreenLeft = 190;
+
     public Artifact currentRightArtifact = null;
     public Artifact currentLeftArtifact = null;
 
@@ -87,11 +93,11 @@ public class SensorsSubsystem extends SubsystemBase {
             colorSensorsDelay.reset();
         }
 
-        if (greenInR > 100 && greenInR > blueInR) {
+        if (greenInR > targetGreenRight && greenInR > blueInR) {
             currentRightArtifact = Artifact.Green;
             rightDetected = true;
 
-        } else if (blueInR > 90 && blueInR > greenInR) {
+        } else if (blueInR > targetBlueRight && blueInR > greenInR) {
             currentRightArtifact = Artifact.Purple;
             rightDetected = true;
 
@@ -100,11 +106,11 @@ public class SensorsSubsystem extends SubsystemBase {
             rightDetected = false;
         }
 
-        if (greenInL > 190 && greenInL > blueInL) {
+        if (greenInL > targetGreenLeft && greenInL > blueInL) {
             currentLeftArtifact = Artifact.Green;
             leftDetected = true;
 
-        } else if (blueInL > 170 && blueInL > greenInL) {
+        } else if (blueInL > targetBlueLeft && blueInL > greenInL) {
             currentLeftArtifact = Artifact.Purple;
             leftDetected = true;
 
@@ -128,7 +134,7 @@ public class SensorsSubsystem extends SubsystemBase {
         telemetry.addData("WhatIsLefttArt", currentLeftArtifact);
 
 
-        fourDetected = (rightDetected || leftDetected) && laserState;
+        fourDetected = (rightDetected && leftDetected) && laserState;
 
 
         if (fourDetected) {

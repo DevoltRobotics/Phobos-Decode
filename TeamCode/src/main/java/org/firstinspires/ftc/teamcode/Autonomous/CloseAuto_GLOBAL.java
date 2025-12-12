@@ -236,8 +236,7 @@ public class CloseAuto_GLOBAL extends OpModeCommand {
 
                         new turretToPosCMD(turretSb, 0),
 
-                        new moveIntakeAutonomousCMD(intakeSb, 1),
-                        new preSorterCmd(sorterSb, sensorsSb, visionSb),
+                        new preSorterCmd(sorterSb, sensorsSb, visionSb, 0.4),
 
                         new WaitCommand(1200),
 
@@ -279,7 +278,7 @@ public class CloseAuto_GLOBAL extends OpModeCommand {
                         new moveIntakeAutonomousCMD(intakeSb, 1),
 
                         new InstantCommand(
-                                () -> pedroSb.follower.setMaxPower(0.85)
+                                () -> pedroSb.follower.setMaxPower(0.8)
                         ),
 
                         new ParallelRaceGroup(
@@ -289,26 +288,27 @@ public class CloseAuto_GLOBAL extends OpModeCommand {
 
                         new WaitCommand(300),
 
-                        new preSorterCmd(sorterSb, sensorsSb, visionSb),
+                        new preSorterCmd(sorterSb, sensorsSb, visionSb, 0.4),
 
                         new WaitCommand(500),
 
                         new InstantCommand(
-                                () -> pedroSb.follower.setMaxPower(1)
+                                () -> pedroSb.follower.setMaxPower(0.95)
                         ),
 
                         new shooterToVelCMD(shooterSb, 1150),
-                        new ConditionalCommand(
-                                new turretToPosCMD(turretSb, -75),
-                                new turretToPosCMD(turretSb, 75),
-                                () -> currentAliance.equals(Aliance.RED)
-                        ),
+
                         new ParallelCommandGroup(
 
                                 pedroSb.followPathCmd(launchFirst),
 
                                 new SequentialCommandGroup(
                                         new WaitCommand(700),
+                                        new ConditionalCommand(
+                                                new turretToPosCMD(turretSb, -75),
+                                                new turretToPosCMD(turretSb, 75),
+                                                () -> currentAliance.equals(Aliance.RED)
+                                        ),
                                         new moveIntakeAutonomousCMD(intakeSb, -0.8),
                                         new WaitCommand(200),
                                         new moveIntakeAutonomousCMD(intakeSb, 0),
@@ -358,7 +358,7 @@ public class CloseAuto_GLOBAL extends OpModeCommand {
 
                         new WaitCommand(300),
 
-                        new preSorterCmd(sorterSb, sensorsSb, visionSb),
+                        new preSorterCmd(sorterSb, sensorsSb, visionSb, 0.4),
 
                         new WaitCommand(500),
 
@@ -378,9 +378,9 @@ public class CloseAuto_GLOBAL extends OpModeCommand {
                                 pedroSb.followPathCmd(launchSecond),
 
                                 new SequentialCommandGroup(
-                                        new WaitCommand(1000),
-                                        new moveIntakeAutonomousCMD(intakeSb, -0.8),
-                                        new WaitCommand(250),
+                                        new WaitCommand(1200),
+                                        //new moveIntakeAutonomousCMD(intakeSb, -0.8),
+                                        //new WaitCommand(250),
                                         new moveIntakeAutonomousCMD(intakeSb, 0),
                                         new postSorterCmd(sorterSb, sensorsSb, visionSb)
 

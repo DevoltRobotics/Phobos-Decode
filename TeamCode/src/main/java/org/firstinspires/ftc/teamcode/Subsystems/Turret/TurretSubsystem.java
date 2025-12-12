@@ -34,7 +34,9 @@ public class TurretSubsystem extends SubsystemBase {
 
     public boolean realIsManual;
 
-    public static double furtherCorrection = 2.5;
+    public static double furtherCorrectionAuto = 2;
+
+    public static double furtherCorrection = 3;
 
     public static double manualIncrement = 2.5;
 

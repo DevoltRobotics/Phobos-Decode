@@ -20,13 +20,16 @@ public class preSorterCmd extends CommandBase {
 
     private final ElapsedTime deadTimer = new ElapsedTime();
     private boolean detected = false;
+    
+    private double deadTime;
 
-    public preSorterCmd(SorterSubsystem sorterSb, SensorsSubsystem sensorsSubsystem, VisionSubsystem visionSubsystem) {
+    public preSorterCmd(SorterSubsystem sorterSb, SensorsSubsystem sensorsSubsystem, VisionSubsystem visionSubsystem, double deadTime) {
         sorterSubsystem = sorterSb;
         sensorsSb = sensorsSubsystem;
 
         visionSb = visionSubsystem;
 
+        this.deadTime = deadTime;
 
         addRequirements(sensorsSb, sorterSubsystem);
     }
@@ -131,6 +134,6 @@ public class preSorterCmd extends CommandBase {
 
     @Override
     public boolean isFinished() {
-        return deadTimer.seconds() > 0.4 || detected;
+        return deadTimer.seconds() > deadTime || detected;
     }
 }

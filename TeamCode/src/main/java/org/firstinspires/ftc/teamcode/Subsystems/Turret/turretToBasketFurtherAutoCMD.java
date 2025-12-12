@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.Subsystems.Turret;
 
 import static org.firstinspires.ftc.teamcode.Subsystems.Turret.TurretSubsystem.furtherCorrection;
+import static org.firstinspires.ftc.teamcode.Subsystems.Turret.TurretSubsystem.furtherCorrectionAuto;
 
 import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -9,14 +10,14 @@ import com.seattlesolvers.solverslib.command.CommandBase;
 import org.firstinspires.ftc.teamcode.Subsystems.Vision.VisionSubsystem;
 
 @Config
-public class turretToBasketCMD extends CommandBase {
+public class turretToBasketFurtherAutoCMD extends CommandBase {
 
     private final TurretSubsystem turretSb;
     private final VisionSubsystem visionSb;
 
     ElapsedTime deadTimer;
 
-    public turretToBasketCMD(TurretSubsystem turretSb, VisionSubsystem vSb) {
+    public turretToBasketFurtherAutoCMD(TurretSubsystem turretSb, VisionSubsystem vSb) {
         this.turretSb = turretSb;
         this.visionSb = vSb;
 
@@ -39,11 +40,11 @@ public class turretToBasketCMD extends CommandBase {
                 if (!visionSb.isAuto) {
                     switch (visionSb.alliance) {
                         case RED:
-                            tX -= furtherCorrection;
+                            tX -= furtherCorrectionAuto;
                             break;
 
                         case BLUE:
-                            tX += furtherCorrection;
+                            tX += furtherCorrectionAuto;
                             break;
                     }
                 }

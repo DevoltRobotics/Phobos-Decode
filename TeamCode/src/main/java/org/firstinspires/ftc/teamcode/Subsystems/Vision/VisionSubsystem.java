@@ -42,13 +42,9 @@ public class VisionSubsystem extends SubsystemBase {
         limelight.setPollRateHz(100);
         limelight.start();
 
-        if (alliance == Aliance.RED) {
-            limelight.pipelineSwitch(0);
+        limelight.pipelineSwitch(0);
 
-        } else {
-            limelight.pipelineSwitch(1);
 
-        }
 
 
     }

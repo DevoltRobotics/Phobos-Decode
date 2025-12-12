@@ -293,7 +293,7 @@ public class CloseOpenGateAuto_GLOBAL extends OpModeCommand {
 
                         new WaitCommand(700),
 
-                        new preSorterCmd(sorterSb, sensorsSb, visionSb),
+                        new preSorterCmd(sorterSb, sensorsSb, visionSb, 0.4),
 
                         new InstantCommand(
                                 () -> pedroSb.follower.setMaxPower(1)
@@ -369,7 +369,7 @@ public class CloseOpenGateAuto_GLOBAL extends OpModeCommand {
                                 new WaitCommand(1600)
                         ),
 
-                        new preSorterCmd(sorterSb, sensorsSb, visionSb),
+                        new preSorterCmd(sorterSb, sensorsSb, visionSb, 0.4),
 
                         new WaitCommand(500),
 

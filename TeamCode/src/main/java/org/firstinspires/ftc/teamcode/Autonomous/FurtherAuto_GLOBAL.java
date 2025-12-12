@@ -50,9 +50,11 @@ import com.pedropathing.geometry.BezierLine;
 import com.pedropathing.paths.Path;
 import com.pedropathing.paths.PathChain;
 import com.seattlesolvers.solverslib.command.Command;
+import com.seattlesolvers.solverslib.command.ConditionalCommand;
 import com.seattlesolvers.solverslib.command.InstantCommand;
 import com.seattlesolvers.solverslib.command.ParallelCommandGroup;
 import com.seattlesolvers.solverslib.command.ParallelDeadlineGroup;
+import com.seattlesolvers.solverslib.command.ParallelRaceGroup;
 import com.seattlesolvers.solverslib.command.SequentialCommandGroup;
 import com.seattlesolvers.solverslib.command.WaitCommand;
 
@@ -64,6 +66,7 @@ import org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.lateralBlockers
 import org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.postSorterCmd;
 import org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.preSorterCmd;
 import org.firstinspires.ftc.teamcode.Subsystems.Turret.turretToBasketCMD;
+import org.firstinspires.ftc.teamcode.Subsystems.Turret.turretToBasketFurtherAutoCMD;
 import org.firstinspires.ftc.teamcode.Subsystems.Turret.turretToPosCMD;
 import org.firstinspires.ftc.teamcode.Subsystems.Vision.detectMotifCMD;
 import org.firstinspires.ftc.teamcode.Utilities.Aliance;
@@ -105,7 +108,7 @@ public class FurtherAuto_GLOBAL extends OpModeCommand {
                     .addPath(new BezierLine(
                             intakeFirstFurtherRedPose,
                             launchFirstFurtherRedPose))
-                    .setConstantHeadingInterpolation(intakeFirstFurtherRedPose.getHeading())
+                    .setConstantHeadingInterpolation(launchFirstFurtherRedPose.getHeading())
                     .build();
 
             prepareForIntakeSecond = follower.pathBuilder()
@@ -204,11 +207,13 @@ public class FurtherAuto_GLOBAL extends OpModeCommand {
             follower.setStartingPose(startingPoseFurtherBlue);
 
         }
-        createPaths();
 
         new SequentialCommandGroup(
-                new turretToPosCMD(turretSb, -20),
+                new turretToPosCMD(turretSb, -8),
                 new lateralBlockersCMD(sorterSb, blockersUp, blockersUp),
+                new WaitCommand(200),
+                new lateralBlockersCMD(sorterSb, 0, 0),
+
                 new horizontalBlockerCMD(sorterSb, blockerHHidePos),
 
                 new WaitCommand(300),
@@ -217,47 +222,53 @@ public class FurtherAuto_GLOBAL extends OpModeCommand {
 
         ).schedule();
 
-
         createPaths();
 
         autoCommand =
                 new SequentialCommandGroup(
 
-                        new shooterToVelCMD(shooterSb, 1400),
+                        new shooterToVelCMD(shooterSb, 1440),
 
-                        new lateralBlockersCMD(sorterSb, 0, 0),
+                        new ParallelRaceGroup(
+
+                                new SequentialCommandGroup(
+
+                                        new horizontalBlockerCMD(sorterSb, blockerHHidePos),
+                                        new preSorterCmd(sorterSb, sensorsSb, visionSb, 0.4),
+
+                                        new moveIntakeAutonomousCMD(intakeSb, 1),
+
+                                        new WaitCommand(1200),
+
+                                        new moveIntakeAutonomousCMD(intakeSb, -0.6),
+                                        new WaitCommand(150),
+                                        new postSorterCmd(sorterSb, sensorsSb, visionSb),
+                                        new moveIntakeAutonomousCMD(intakeSb, 1)
+
+                                ),
+
+                                new SequentialCommandGroup(
+                                        new ConditionalCommand(
+                                                new turretToPosCMD(turretSb, 22),
+                                                new turretToPosCMD(turretSb, -22),
+                                                () -> currentAliance.equals(Aliance.RED)
+                                        ),
+                                        new WaitCommand(400)
+                                )
+                        ),
+
+                        new WaitCommand(1400),
+
                         new horizontalBlockerCMD(sorterSb, blockerHFreePos),
 
-                        new WaitCommand(300),
-                        new moveIntakeAutonomousCMD(intakeSb, 1),
-                        new preSorterCmd(sorterSb, sensorsSb, visionSb),
-
-
-                        ///STARTING_DELAY
-
-                        new turretToPosCMD(turretSb, 25),
-
-                        new WaitCommand(800),
-
                         new ParallelDeadlineGroup(
-
                                 new WaitCommand(4000), // deadline
 
                                 new SequentialCommandGroup(
-                                        new horizontalBlockerCMD(sorterSb, blockerHFreePos),
-                                        new WaitCommand(2000),
+                                        new WaitCommand(2200),
                                         new lateralBlockersCMD(sorterSb, blockersUp, blockersUp)
 
-                                ),
-
-                                new SequentialCommandGroup(
-                                        new WaitCommand(200),
-                                        new moveIntakeAutonomousCMD(intakeSb, 1)
-                                ),
-
-                                new turretToBasketCMD(turretSb, visionSb),
-                                new shooterToBasketCMD(shooterSb, visionSb, 1150)
-
+                                )
                         ),
 
                         ///PRELOAD_LAUNCHED
@@ -267,100 +278,47 @@ public class FurtherAuto_GLOBAL extends OpModeCommand {
                         new horizontalBlockerCMD(sorterSb, blockerHHidePos),
                         new lateralBlockersCMD(sorterSb, 0, 0),
 
+                        new InstantCommand(
+                                () -> pedroSb.follower.setMaxPower(0.8)
+                        ),
+
                         pedroSb.followPathCmd(prepareForIntakeFirst),
 
-                        new InstantCommand(
-                                () -> pedroSb.follower.setMaxPower(0.6)
-                        ),
-
                         new moveIntakeAutonomousCMD(intakeSb, 1),
 
-                        pedroSb.followPathCmd(intakeFirst),
-                        new WaitCommand(700),
-
-                        new preSorterCmd(sorterSb, sensorsSb, visionSb),
-
-                        new InstantCommand(
-                                () -> {
-                                    pedroSb.follower.setMaxPower(0.7);
-
-                                }
-                        ),
-
-                        new ParallelCommandGroup(
-
-                                pedroSb.followPathCmd(launchFirst),
-
-                                new shooterToVelCMD(shooterSb, 1150),
-                                new turretToPosCMD(turretSb, -70),
-
-                                new SequentialCommandGroup(
-                                        new postSorterCmd(sorterSb, sensorsSb, visionSb),
-                                        new WaitCommand(400),
-
-                                        new moveIntakeAutonomousCMD(intakeSb, 0)
-                                )
-                        ),
-
-
-                        new ParallelDeadlineGroup(
-
-                                new WaitCommand(4000), // deadline
-
-                                new SequentialCommandGroup(
-                                        new horizontalBlockerCMD(sorterSb, blockerHFreePos),
-                                        new WaitCommand(2000),
-                                        new lateralBlockersCMD(sorterSb, blockersUp, blockersUp)
-
-                                ),
-
-                                new SequentialCommandGroup(
-                                        new WaitCommand(200),
-                                        new moveIntakeAutonomousCMD(intakeSb, 1)
-                                ),
-
-                                new turretToBasketCMD(turretSb, visionSb),
-                                new shooterToBasketCMD(shooterSb, visionSb, 1150)
-
-                        ),
-
-
-                        ///FIRST_LAUNCHED
-
-
-                        new moveIntakeAutonomousCMD(intakeSb, 0),
-                        new shooterToVelCMD(shooterSb, 0),
-                        pedroSb.followPathCmd(prepareForIntakeSecond),
-
-                        new InstantCommand(
-                                () -> pedroSb.follower.setMaxPower(0.6)
-                        ),
-
-                        new moveIntakeAutonomousCMD(intakeSb, 1),
-
-                        pedroSb.followPathCmd(intakeSecond),
-
-                        new WaitCommand(700),
-
-                        new preSorterCmd(sorterSb, sensorsSb, visionSb),
+                        new lateralBlockersCMD(sorterSb, 0, 0),
 
                         new InstantCommand(
                                 () -> pedroSb.follower.setMaxPower(0.7)
                         ),
 
-                        new ParallelCommandGroup(
+                        pedroSb.followPathCmd(intakeFirst),
+                        new WaitCommand(300),
 
-                                pedroSb.followPathCmd(launchSecond),
+                        new preSorterCmd(sorterSb, sensorsSb, visionSb, 0.4),
+
+                        new shooterToVelCMD(shooterSb, 1400),
+
+                        new ConditionalCommand(
+                                new turretToPosCMD(turretSb, -72),
+                                new turretToPosCMD(turretSb, 72),
+                                () -> currentAliance.equals(Aliance.RED)
+                        ),
+
+                        new WaitCommand(400),
+
+                        new InstantCommand(
+                                () -> pedroSb.follower.setMaxPower(0.8)
+                        ),
+
+                        new ParallelCommandGroup(
+                                pedroSb.followPathCmd(launchFirst),
 
                                 new SequentialCommandGroup(
-                                        new postSorterCmd(sorterSb, sensorsSb, visionSb),
-                                        new WaitCommand(400),
-                                        new moveIntakeAutonomousCMD(intakeSb, 0)
+                                        new WaitCommand(900),
+                                        new postSorterCmd(sorterSb, sensorsSb, visionSb)
 
-                                ),
-
-                                new shooterToVelCMD(shooterSb, 1150),
-                                new turretToPosCMD(turretSb, -70)
+                                )
                         ),
 
                         new ParallelDeadlineGroup(
@@ -377,11 +335,65 @@ public class FurtherAuto_GLOBAL extends OpModeCommand {
                                 new SequentialCommandGroup(
                                         new WaitCommand(200),
                                         new moveIntakeAutonomousCMD(intakeSb, 1)
+                                )
+                        ),
+
+
+                        ///FIRST_LAUNCHED
+
+                        new moveIntakeAutonomousCMD(intakeSb, 0),
+                        new shooterToVelCMD(shooterSb, 0),
+                        new horizontalBlockerCMD(sorterSb, blockerHHidePos),
+                        new lateralBlockersCMD(sorterSb, 0, 0),
+
+                        pedroSb.followPathCmd(prepareForIntakeSecond),
+
+                        new moveIntakeAutonomousCMD(intakeSb, 1),
+
+                        new ParallelRaceGroup(
+                                pedroSb.followPathCmd(intakeSecond),
+                                new WaitCommand(1500)
+                        ),
+
+                        new WaitCommand(300),
+
+                        new preSorterCmd(sorterSb, sensorsSb, visionSb, 0.4),
+
+                        new shooterToVelCMD(shooterSb, 1400),
+
+                        new ConditionalCommand(
+                                new turretToPosCMD(turretSb, -72),
+                                new turretToPosCMD(turretSb, 72),
+                                () -> currentAliance.equals(Aliance.RED)
+                        ),
+
+                        new WaitCommand(400),
+
+                        new ParallelCommandGroup(
+                                pedroSb.followPathCmd(launchSecond),
+
+                                new SequentialCommandGroup(
+                                        new WaitCommand(900),
+                                        new postSorterCmd(sorterSb, sensorsSb, visionSb)
+
+                                )
+                        ),
+
+                        new ParallelDeadlineGroup(
+
+                                new WaitCommand(4000), // deadline
+
+                                new SequentialCommandGroup(
+                                        new horizontalBlockerCMD(sorterSb, blockerHFreePos),
+                                        new WaitCommand(2000),
+                                        new lateralBlockersCMD(sorterSb, blockersUp, blockersUp)
+
                                 ),
 
-                                new turretToBasketCMD(turretSb, visionSb),
-                                new shooterToBasketCMD(shooterSb, visionSb, 1150)
-
+                                new SequentialCommandGroup(
+                                        new WaitCommand(200),
+                                        new moveIntakeAutonomousCMD(intakeSb, 1)
+                                )
                         )
 
                         /*
@@ -464,33 +476,45 @@ public class FurtherAuto_GLOBAL extends OpModeCommand {
                         )
 
 
-                         */
+
 
 
                         ///PARK
+
+
+                   v
+                         */
                 );
 
 
 
 
-/*
+
+                        /*
+
         autoCommand =
                 new SequentialCommandGroup(
+
+                        new InstantCommand(
+                                () -> pedroSb.follower.setMaxPower(0.8)
+                        ),
+
                         pedroSb.followPathCmd(prepareForIntakeFirst),
 
                         new InstantCommand(
-                                () -> pedroSb.follower.setMaxPower(0.65)
+                                () -> pedroSb.follower.setMaxPower(0.7)
                         ),
+
                         pedroSb.followPathCmd(intakeFirst),
 
                         new InstantCommand(
-                                () -> pedroSb.follower.setMaxPower(0.85)
+                                () -> pedroSb.follower.setMaxPower(0.8)
                         ),
 
                         pedroSb.followPathCmd(launchFirst),
 
                         new InstantCommand(
-                                () -> pedroSb.follower.setMaxPower(0.65)
+                                () -> pedroSb.follower.setMaxPower(0.8)
                         ),
 
                         pedroSb.followPathCmd(prepareForIntakeSecond),
@@ -498,7 +522,7 @@ public class FurtherAuto_GLOBAL extends OpModeCommand {
                         pedroSb.followPathCmd(intakeSecond),
 
                         new InstantCommand(
-                                () -> pedroSb.follower.setMaxPower(0.85)
+                                () -> pedroSb.follower.setMaxPower(0.8)
                         ),
 
                         pedroSb.followPathCmd(launchSecond)
@@ -506,8 +530,7 @@ public class FurtherAuto_GLOBAL extends OpModeCommand {
                 );
 
 
-
- */
+                         */
 
 
     }
