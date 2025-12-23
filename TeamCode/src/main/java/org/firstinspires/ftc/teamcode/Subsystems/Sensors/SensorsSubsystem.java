@@ -45,9 +45,6 @@ public class SensorsSubsystem extends SubsystemBase {
     public Artifact currentRightArtifact = null;
     public Artifact currentLeftArtifact = null;
 
-    public Artifact realRightArtifact = null;
-    public Artifact realleftArtifact = null;
-    public Artifact realThirdArtifact = null;
 
     public enum RelaseOrder{
         RL,
@@ -117,12 +114,6 @@ public class SensorsSubsystem extends SubsystemBase {
         }else {
             currentLeftArtifact = null;
             leftDetected = false;
-        }
-
-
-        if (Artifact.Green.equals(realRightArtifact) || Artifact.Green.equals(realleftArtifact)){
-            realThirdArtifact = Artifact.Purple;
-
         }
 
         telemetry.addData("RightGreen", greenInR);

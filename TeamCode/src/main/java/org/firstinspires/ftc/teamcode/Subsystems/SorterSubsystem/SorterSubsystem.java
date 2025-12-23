@@ -15,9 +15,14 @@ public class SorterSubsystem extends SubsystemBase {
 
     Servo blockerH;
 
+    Servo ramp;
+
     public Telemetry telemetry;
 
     //CONSTANTS
+
+    public static double upRampPos = 0.8;
+    public static double downRampPos = 0.5;
 
     public static double blockersUp = -0.13;
 
@@ -42,6 +47,8 @@ public class SorterSubsystem extends SubsystemBase {
         blockerL = hMap.servo.get("blcL");
         blockerH = hMap.servo.get("blcH");
 
+        ramp = hMap.servo.get("ramp");
+
         this.telemetry = telemetry;
     }
 
@@ -64,5 +71,9 @@ public class SorterSubsystem extends SubsystemBase {
     public void setPositions(double rightPos, double leftPos) {
         blockerR.setPosition(0.5 + rightPos);
         blockerL.setPosition(0.5 - leftPos);
+    }
+
+    public void setRampPos(double Pos) {
+        ramp.setPosition(Pos);
     }
 }

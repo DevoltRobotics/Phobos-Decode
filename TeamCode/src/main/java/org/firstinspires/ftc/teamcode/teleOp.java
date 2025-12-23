@@ -4,6 +4,8 @@ import static org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.SorterSu
 import static org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.SorterSubsystem.blockerHFreePos;
 import static org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.SorterSubsystem.blockerHHidePos;
 import static org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.SorterSubsystem.blockersUp;
+import static org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.SorterSubsystem.downRampPos;
+import static org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.SorterSubsystem.upRampPos;
 import static org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.SorterSubsystem.waitAimTimer;
 
 import com.acmerobotics.dashboard.config.Config;
@@ -29,6 +31,7 @@ import org.firstinspires.ftc.teamcode.Subsystems.Shooter.shooterToVelCMD;
 import org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.horizontalBlockerCMD;
 import org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.lateralBlockersCMD;
 import org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.preSorterTeleopCMD;
+import org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.rampCMD;
 import org.firstinspires.ftc.teamcode.Subsystems.Turret.turretDefaultTeleopCMD;
 import org.firstinspires.ftc.teamcode.Utilities.Aliance;
 import org.firstinspires.ftc.teamcode.Utilities.Artifact;
@@ -64,8 +67,8 @@ public abstract class teleOp extends OpModeCommand {
         Trigger intakeIn = new Trigger(() -> gamepad2.right_trigger >= 0.5);
         Trigger intakeOut = new Trigger(() -> gamepad2.left_trigger >= 0.5);
 
-        intakeIn.whileActiveOnce(new moveIntakeCMD(intakeSb, 1));
-        intakeOut.whileActiveOnce(new moveIntakeCMD(intakeSb, -0.7));
+        intakeIn.whileActiveOnce(new moveIntakeCMD(intakeSb, 1, 0.8));
+        intakeOut.whileActiveOnce(new moveIntakeCMD(intakeSb, -0.7, -1));
 
         CommandScheduler.getInstance().setDefaultCommand(liftingSb, new moveLiftCMD(liftingSb, gamepad2));
 
@@ -141,7 +144,14 @@ public abstract class teleOp extends OpModeCommand {
 
         shootButton.whenPressed(
                 new ParallelCommandGroup(
-                        new shooterToBasketCMD(shooterSb, visionSb, shooterSb.shooterTarget),
+
+                        new ConditionalCommand(
+                                new shooterToBasketCMD(shooterSb, visionSb, 1250),
+                                new shooterToBasketCMD(shooterSb, visionSb,  1450),
+
+                                ()-> isClose
+
+                                ),
                         new InstantCommand(
                                 () -> {
                                     isTurretManual = false;
@@ -228,6 +238,13 @@ public abstract class teleOp extends OpModeCommand {
                         new ConditionalCommand(
                                 new lateralBlockersCMD(sorterSb, 0, 0),
                                 new lateralBlockersCMD(sorterSb, blockersUp, 0),
+                                () -> sensorsSb.sorterMode
+
+                        ),
+
+                        new ConditionalCommand(
+                                new rampCMD(sorterSb, upRampPos),
+                                new rampCMD(sorterSb, downRampPos),
                                 () -> sensorsSb.sorterMode
 
                         )

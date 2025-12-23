@@ -62,6 +62,8 @@ public class Full_robot_test extends OpMode {
     DcMotorEx shooterMDown;
     DcMotorEx intakeM;
 
+    CRServo starS;
+
     Servo blockerR;
     Servo blockerL;
 
@@ -113,6 +115,8 @@ public class Full_robot_test extends OpMode {
         shooterMDown = hardwareMap.get(DcMotorEx.class, "shdown");
         intakeM = hardwareMap.get(DcMotorEx.class, "in");
 
+        starS = hardwareMap.get(CRServo.class, "star");
+
         hood = hardwareMap.get(Servo.class, "hood");
 
         blockerR = hardwareMap.get(Servo.class, "blcR");
@@ -155,6 +159,7 @@ public class Full_robot_test extends OpMode {
         follower.update();
         telemetryM.update();
 
+        /*
             //Make the last parameter false for field-centric
             //In case the drivers want to use a "slowMode" you can scale the vectors
             //This is the normal version to use in the TeleOp
@@ -171,6 +176,8 @@ public class Full_robot_test extends OpMode {
                     -gamepad1.right_stick_x * slowModeMultiplier,
                     false // Robot Centric
             );
+
+         */
 
         //Slow Mode
 
@@ -225,10 +232,17 @@ public class Full_robot_test extends OpMode {
 
         if (gamepad2.right_trigger > 0.5){
             intakeM.setPower(-1);
+            starS.setPower(-1);
+            fr.setPower(1);
         }else if (gamepad2.left_trigger > 0.5){
             intakeM.setPower(1);
+            starS.setPower(1);
+            fr.setPower(-1);
         }else {
             intakeM.setPower(0);
+            starS.setPower(0);
+            fr.setPower(0);
+
         }
 
         if (gamepad2.a) {

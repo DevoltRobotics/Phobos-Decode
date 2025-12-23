@@ -2,29 +2,42 @@ package org.firstinspires.ftc.teamcode.Subsystems.Intake;
 
 import com.seattlesolvers.solverslib.command.CommandBase;
 
-import org.firstinspires.ftc.teamcode.Subsystems.Turret.TurretSubsystem;
-
 public class moveIntakeCMD extends CommandBase {
 
     private final IntakeSubsystem intakeSubsystem;
 
-    private double power;
+    private double inPower;
+    private double transPower;
 
     public moveIntakeCMD(IntakeSubsystem intakeSb, double powerTarget) {
         intakeSubsystem = intakeSb;
-        power = powerTarget;
+        inPower = powerTarget;
+
+        transPower = powerTarget;
+
+        addRequirements(intakeSubsystem);
+    }
+
+    public moveIntakeCMD(IntakeSubsystem intakeSb, double powerTarget, double transferTarget) {
+        intakeSubsystem = intakeSb;
+        inPower = powerTarget;
+
+        transPower = transferTarget;
 
         addRequirements(intakeSubsystem);
     }
 
     @Override
     public void execute() {
-        intakeSubsystem.power = power;
+        intakeSubsystem.intakePower = inPower;
+
+        intakeSubsystem.transferPower = transPower;
     }
 
 
     @Override
     public void end(boolean interruptible) {
-        intakeSubsystem.power = 0;
+        intakeSubsystem.intakePower = 0;
+        intakeSubsystem.transferPower = 0;
     }
 }

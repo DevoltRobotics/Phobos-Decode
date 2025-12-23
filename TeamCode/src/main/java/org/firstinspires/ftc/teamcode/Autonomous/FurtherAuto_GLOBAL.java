@@ -83,7 +83,7 @@ import org.firstinspires.ftc.teamcode.Utilities.OpModeCommand;
 
 public class FurtherAuto_GLOBAL extends OpModeCommand {
 
-    private Path park, prepareForIntakeFirst;
+    private Path prepareForIntakeFirst, park;
     private PathChain intakeFirst, launchFirst, prepareForIntakeSecond, intakeSecond, launchSecond;
 
     Command autoCommand;
@@ -232,7 +232,7 @@ public class FurtherAuto_GLOBAL extends OpModeCommand {
 
                 new WaitCommand(300),
 
-                new detectMotifCMD(visionSb, 4000)
+                new detectMotifCMD(visionSb, 500)
 
         ).schedule();
 
@@ -241,14 +241,14 @@ public class FurtherAuto_GLOBAL extends OpModeCommand {
         autoCommand =
                 new SequentialCommandGroup(
 
-                        new shooterToVelCMD(shooterSb, 1440),
+                        new shooterToVelCMD(shooterSb, 1430),
 
                         new ParallelRaceGroup(
 
                                 new SequentialCommandGroup(
 
                                         new horizontalBlockerCMD(sorterSb, blockerHHidePos),
-                                        new preSorterCmd(sorterSb, sensorsSb, visionSb, 0.4),
+                                        new preSorterCmd(sorterSb, sensorsSb, visionSb, 0.3),
 
                                         new moveIntakeAutonomousCMD(intakeSb, 1),
 
@@ -271,7 +271,7 @@ public class FurtherAuto_GLOBAL extends OpModeCommand {
                                 )
                         ),
 
-                        new WaitCommand(1400),
+                        new WaitCommand(1450),
 
                         new horizontalBlockerCMD(sorterSb, blockerHFreePos),
 
@@ -306,17 +306,21 @@ public class FurtherAuto_GLOBAL extends OpModeCommand {
                                 () -> pedroSb.follower.setMaxPower(0.7)
                         ),
 
-                        pedroSb.followPathCmd(intakeFirst),
+                        new ParallelRaceGroup(
+                                pedroSb.followPathCmd(intakeFirst),
+                                new WaitCommand(2300)
+                        ),
+
                         new WaitCommand(300),
 
                         new moveIntakeAutonomousCMD(intakeSb, 0),
                         new WaitCommand(100),
 
-                        new preSorterCmd(sorterSb, sensorsSb, visionSb, 0.4),
+                        new preSorterCmd(sorterSb, sensorsSb, visionSb, 0.3),
 
                         new moveIntakeAutonomousCMD(intakeSb, 1),
 
-                        new shooterToVelCMD(shooterSb, 1400),
+                        new shooterToVelCMD(shooterSb, 1380),
 
                         new ConditionalCommand(
                                 new turretToPosCMD(turretSb, -72),
@@ -327,7 +331,7 @@ public class FurtherAuto_GLOBAL extends OpModeCommand {
                         new WaitCommand(400),
 
                         new InstantCommand(
-                                () -> pedroSb.follower.setMaxPower(0.8)
+                                () -> pedroSb.follower.setMaxPower(0.9)
                         ),
 
                         new ParallelCommandGroup(
@@ -335,7 +339,10 @@ public class FurtherAuto_GLOBAL extends OpModeCommand {
 
                                 new SequentialCommandGroup(
                                         new WaitCommand(900),
-                                        new postSorterCmd(sorterSb, sensorsSb, visionSb)
+                                        new moveIntakeAutonomousCMD(intakeSb, -0.6),
+                                        new WaitCommand(150),
+                                        new postSorterCmd(sorterSb, sensorsSb, visionSb),
+                                        new moveIntakeAutonomousCMD(intakeSb, 1)
 
                                 )
                         ),
@@ -356,7 +363,6 @@ public class FurtherAuto_GLOBAL extends OpModeCommand {
                                         new moveIntakeAutonomousCMD(intakeSb, 1)
                                 )
                         ),
-
 
                         ///FIRST_LAUNCHED
 
@@ -371,7 +377,7 @@ public class FurtherAuto_GLOBAL extends OpModeCommand {
 
                         new ParallelRaceGroup(
                                 pedroSb.followPathCmd(intakeSecond),
-                                new WaitCommand(1500)
+                                new WaitCommand(2200)
                         ),
 
                         new WaitCommand(300),
@@ -379,14 +385,14 @@ public class FurtherAuto_GLOBAL extends OpModeCommand {
                         new moveIntakeAutonomousCMD(intakeSb, 0),
                         new WaitCommand(100),
 
-                        new preSorterCmd(sorterSb, sensorsSb, visionSb, 0.4),
+                        new preSorterCmd(sorterSb, sensorsSb, visionSb, 0.3),
 
                         new moveIntakeAutonomousCMD(intakeSb, 1),
-                        new shooterToVelCMD(shooterSb, 1400),
+                        new shooterToVelCMD(shooterSb, 1380),
 
                         new ConditionalCommand(
-                                new turretToPosCMD(turretSb, -72),
-                                new turretToPosCMD(turretSb, 72),
+                                new turretToPosCMD(turretSb, -70),
+                                new turretToPosCMD(turretSb, 70),
                                 () -> currentAliance.equals(Aliance.RED)
                         ),
 
@@ -397,7 +403,10 @@ public class FurtherAuto_GLOBAL extends OpModeCommand {
 
                                 new SequentialCommandGroup(
                                         new WaitCommand(900),
-                                        new postSorterCmd(sorterSb, sensorsSb, visionSb)
+                                        new moveIntakeAutonomousCMD(intakeSb, -0.6),
+                                        new WaitCommand(150),
+                                        new postSorterCmd(sorterSb, sensorsSb, visionSb),
+                                        new moveIntakeAutonomousCMD(intakeSb, 1)
 
                                 )
                         ),
@@ -417,96 +426,26 @@ public class FurtherAuto_GLOBAL extends OpModeCommand {
                                         new WaitCommand(200),
                                         new moveIntakeAutonomousCMD(intakeSb, 1)
                                 )
-                        )
-
-                        /*
+                        ),
 
                         /// SECOND_LAUNCHED
 
-                        new moveIntakeAutonomousCMD(intakeSb, 0),
                         new shooterToVelCMD(shooterSb, 0),
-                        pedroSb.followPathCmd(prepareForIntakeThird),
+                        new turretToPosCMD(turretSb, 0),
+                        new moveIntakeAutonomousCMD(intakeSb, 0),
+
+                        new horizontalBlockerCMD(sorterSb, blockerHHidePos),
+                        new lateralBlockersCMD(sorterSb, 0, 0),
 
                         new InstantCommand(
-                                () -> pedroSb.follower.setMaxPower(0.5)
+                                () -> pedroSb.follower.setMaxPower(1)
                         ),
 
-                        new ParallelCommandGroup(
-
-                                pedroSb.followPathCmd(intakeThird),
-                                new moveIntakeAutonomousCMD(intakeSb, 1),
-                                new preSorterCmd(sorterSb, sensorsSb, visionSb)
-
-                        ),
-
-                        new WaitCommand(1500),
-
-                        new InstantCommand(
-                                () -> pedroSb.follower.setMaxPower(0.85)
-                        ),
-
-                        new ParallelCommandGroup(
-
-                                pedroSb.followPathCmd(launchThird),
-
-                                new SequentialCommandGroup(
-                                        new postSorterCmd(sorterSb, sensorsSb, visionSb),
-                                        new WaitCommand(400),
-                                        new moveIntakeAutonomousCMD(intakeSb, 0)
-
-                                ),
-
-                                new shooterToVelCMD(shooterSb, 1230),
-                                new turretToPosCMD(turretSb, -70)
-                        ),
-
-                        new ParallelDeadlineGroup(
-
-                                new WaitCommand(3000), // deadline
-
-                                new SequentialCommandGroup(
-                                        new WaitCommand(400),
-                                        new horizontalBlockerCMD(sorterSb, blockerHFreePos),
-                                        new WaitCommand(1800),
-                                        new lateralBlockersCMD(sorterSb, blockersUp, blockersUp)
-
-                                ),
-
-                                new SequentialCommandGroup(
-                                        new WaitCommand(600),
-                                        new moveIntakeAutonomousCMD(intakeSb, 1)
-                                ),
-
-                                new turretToBasketCMD(turretSb, visionSb),
-                                new shooterToBasketCMD(shooterSb, visionSb)
-
-                        ),
-
-                        ///THIRD_LAUNCHED
-
-                        new ParallelCommandGroup(
-                                pedroSb.followPathCmd(park),
-                                new shooterToVelCMD(shooterSb, 0),
-                                new turretToPosCMD(turretSb, 0),
-                                new moveIntakeAutonomousCMD(intakeSb, 0),
-
-
-                            new SequentialCommandGroup(
-                                        new horizontalBlockerCMD(sorterSb, blockerHHidePos),
-                                        new lateralBlockersCMD(sorterSb, 0, 0)
-
-                                )
-                        )
-
-
-
-
+                        pedroSb.followPathCmd(park)
 
                         ///PARK
 
 
-                   v
-                         */
                 );
 
 
@@ -560,6 +499,7 @@ public class FurtherAuto_GLOBAL extends OpModeCommand {
 
     @Override
     public void start() {
+        visionSb.getCurrentCommand().cancel();
         autoCommand.schedule();
 
     }

@@ -127,7 +127,7 @@ public class PedroSubsystem extends SubsystemBase {
 
         @Override
         public void initialize() {
-            follower.followPath(path, true);
+            follower.followPath(path);
 
         }
 

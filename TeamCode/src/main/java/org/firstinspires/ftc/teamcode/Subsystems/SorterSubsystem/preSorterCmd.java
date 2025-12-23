@@ -20,7 +20,7 @@ public class preSorterCmd extends CommandBase {
 
     private final ElapsedTime deadTimer = new ElapsedTime();
     private boolean detected = false;
-    
+
     private double deadTime;
 
     public preSorterCmd(SorterSubsystem sorterSb, SensorsSubsystem sensorsSubsystem, VisionSubsystem visionSubsystem, double deadTime) {
@@ -37,6 +37,8 @@ public class preSorterCmd extends CommandBase {
     @Override
     public void initialize() {
         deadTimer.reset();
+
+        sensorsSb.relaseOrder = null;
     }
 
     @Override
@@ -45,57 +47,41 @@ public class preSorterCmd extends CommandBase {
 
         if ((sensorsSb.rightDetected || sensorsSb.leftDetected) && sorterSubsystem.blockersStatus.equals(closed)) {
 
-            sensorsSb.realRightArtifact = sensorsSb.currentRightArtifact;
-            sensorsSb.realleftArtifact = sensorsSb.currentLeftArtifact;
-
             switch (visionSb.pattern) {
                 case GPP:
                     if (Artifact.Green.equals(sensorsSb.currentRightArtifact)) {
                         sorterSubsystem.setPositions(blockersUp, 0);
-                        detected = true;
 
                         sensorsSb.relaseOrder = SensorsSubsystem.RelaseOrder.RR;
 
+                        detected = true;
                     } else if (Artifact.Green.equals(sensorsSb.currentLeftArtifact)) {
                         sorterSubsystem.setPositions(0, blockersUp);
-                        detected = true;
 
                         sensorsSb.relaseOrder = SensorsSubsystem.RelaseOrder.LL;
 
+                        detected = true;
+                    } else if (Artifact.Purple.equals(sensorsSb.currentRightArtifact)) {
+                        sorterSubsystem.setPositions(0, blockersUp);
+
+                        sensorsSb.relaseOrder = SensorsSubsystem.RelaseOrder.LL;
+
+                        detected = true;
+
+                    } else if (Artifact.Purple.equals(sensorsSb.currentLeftArtifact)) {
+                        sorterSubsystem.setPositions(blockersUp, 0);
+
+                        sensorsSb.relaseOrder = SensorsSubsystem.RelaseOrder.RR;
+                        detected = true;
                     }
 
                     break;
 
                 case PGP:
-
-                    if (Artifact.Purple.equals(sensorsSb.currentRightArtifact)) {
-                        sorterSubsystem.setPositions(blockersUp, 0);
-                        detected = true;
-
-
-                    } else if (Artifact.Purple.equals(sensorsSb.currentLeftArtifact)) {
-                        sorterSubsystem.setPositions(0, blockersUp);
-                        detected = true;
-                    }
-
-
-                    if (Artifact.Green.equals(sensorsSb.currentRightArtifact)) {
-                        sensorsSb.relaseOrder = SensorsSubsystem.RelaseOrder.LR;
-                    } else if (Artifact.Green.equals(sensorsSb.currentLeftArtifact)) {
-                        sensorsSb.relaseOrder = SensorsSubsystem.RelaseOrder.RL;
-
-                    }
-
-                    break;
-
-                case PPG:
                     if (Artifact.Purple.equals(sensorsSb.currentRightArtifact)) {
                         sorterSubsystem.setPositions(blockersUp, 0);
 
                         if (Artifact.Green.equals(sensorsSb.currentLeftArtifact)) {
-                            sensorsSb.relaseOrder = SensorsSubsystem.RelaseOrder.RR;
-
-                        }else {
                             sensorsSb.relaseOrder = SensorsSubsystem.RelaseOrder.RL;
 
                         }
@@ -103,18 +89,63 @@ public class preSorterCmd extends CommandBase {
                         detected = true;
 
                     } else if (Artifact.Purple.equals(sensorsSb.currentLeftArtifact)) {
-
                         sorterSubsystem.setPositions(0, blockersUp);
 
                         if (Artifact.Green.equals(sensorsSb.currentRightArtifact)) {
-                            sensorsSb.relaseOrder = SensorsSubsystem.RelaseOrder.LL;
-
-                        }else {
                             sensorsSb.relaseOrder = SensorsSubsystem.RelaseOrder.LR;
 
                         }
 
                         detected = true;
+
+                    }else if (Artifact.Green.equals(sensorsSb.currentRightArtifact)) {
+
+                        sorterSubsystem.setPositions(0, blockersUp);
+                        sensorsSb.relaseOrder = SensorsSubsystem.RelaseOrder.LR;
+
+                        detected = true;
+
+                    }else if (Artifact.Green.equals(sensorsSb.currentLeftArtifact)) {
+
+                        sorterSubsystem.setPositions(blockersUp, 0);
+                        sensorsSb.relaseOrder = SensorsSubsystem.RelaseOrder.RL;
+
+                        detected = true;
+                    }
+
+                    break;
+
+                case PPG:
+
+                    if (Artifact.Green.equals(sensorsSb.currentRightArtifact)) {
+
+                        sorterSubsystem.setPositions(0, blockersUp);
+                        sensorsSb.relaseOrder = SensorsSubsystem.RelaseOrder.LL;
+
+                        detected = true;
+
+                    }else if (Artifact.Green.equals(sensorsSb.currentLeftArtifact)) {
+
+                        sorterSubsystem.setPositions(blockersUp, 0);
+                        sensorsSb.relaseOrder = SensorsSubsystem.RelaseOrder.RR;
+
+                        detected = true;
+
+                    } else if (Artifact.Purple.equals(sensorsSb.currentRightArtifact)) {
+                        sorterSubsystem.setPositions(blockersUp, 0);
+
+                        if (Artifact.Purple.equals(sensorsSb.currentLeftArtifact)) {
+                            sensorsSb.relaseOrder = SensorsSubsystem.RelaseOrder.RL;
+
+                        }
+
+                        detected = true;
+
+                    } else if (Artifact.Purple.equals(sensorsSb.currentLeftArtifact)) {
+                        sorterSubsystem.setPositions(0, blockersUp);
+
+                        detected = true;
+
                     }
 
                     break;
