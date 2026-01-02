@@ -50,11 +50,6 @@ public class turretToBasketFurtherAutoCMD extends CommandBase {
                 }
             }
 
-            double llTarget = turretSb.llPidf.calculate(tX);
-            turretSb.turretTarget -= llTarget;
-
-            turretSb.telemetry.addData("llTarget", llTarget);
-
             deadTimer.reset();
 
         }

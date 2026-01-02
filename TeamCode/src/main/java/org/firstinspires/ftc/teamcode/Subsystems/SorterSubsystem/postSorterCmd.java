@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem;
 
-import static org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.SorterSubsystem.BlockersStatus.closed;
 import static org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.SorterSubsystem.blockersUp;
 
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -8,7 +7,6 @@ import com.seattlesolvers.solverslib.command.CommandBase;
 
 import org.firstinspires.ftc.teamcode.Subsystems.Sensors.SensorsSubsystem;
 import org.firstinspires.ftc.teamcode.Subsystems.Vision.VisionSubsystem;
-import org.firstinspires.ftc.teamcode.Utilities.Artifact;
 
 public class postSorterCmd extends CommandBase {
 
@@ -43,13 +41,13 @@ public class postSorterCmd extends CommandBase {
             switch (sensorsSb.relaseOrder) {
                 case RL:
                 case LL:
-                    sorterSubsystem.setPositions(0, blockersUp);
+                    sorterSubsystem.setLateralPositions(0, blockersUp);
 
                     break;
 
                 case LR:
                 case RR:
-                    sorterSubsystem.setPositions(blockersUp, 0);
+                    sorterSubsystem.setLateralPositions(blockersUp, 0);
 
                     break;
 

@@ -12,6 +12,7 @@ import com.pedropathing.ftc.localization.constants.PinpointConstants;
 import com.pedropathing.ftc.localization.localizers.PinpointLocalizer;
 import com.pedropathing.paths.PathConstraints;
 import com.qualcomm.hardware.gobilda.GoBildaPinpointDriver;
+import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
@@ -29,6 +30,7 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.teamcode.PoseEstimate.VisionPinpointLocalizer;
 
 public class Constants {
     public static FollowerConstants followerConstants = new FollowerConstants()
@@ -53,7 +55,7 @@ public class Constants {
 
 
     public static MecanumConstants driveConstants = new MecanumConstants()
-            .maxPower(0.85)
+            .maxPower(1)
             .useBrakeModeInTeleOp(true)
             .rightFrontMotorName("fr")
             .rightRearMotorName("br")
@@ -91,11 +93,11 @@ public class Constants {
             1
     );
 
-    public static Follower createFollower(HardwareMap hardwareMap) {
-        return new FollowerBuilder( followerConstants, hardwareMap)
+    public static Follower createFollower(HardwareMap hardwareMap, Limelight3A limelight) {
+        return new FollowerBuilder(followerConstants, hardwareMap)
                 .pathConstraints(pathConstraints)
                 .mecanumDrivetrain(driveConstants)
-                .pinpointLocalizer(localizerConstants)
+                .setLocalizer(new VisionPinpointLocalizer(limelight, new PinpointLocalizer(hardwareMap, localizerConstants)))
                 .build();
 
     }

@@ -14,7 +14,7 @@ public class LiftingSubsystem extends SubsystemBase {
 
     public LiftingSubsystem(HardwareMap hMap) {
 
-        liftingM = hMap.get(DcMotorEx.class, "lift");
+        //liftingM = hMap.get(DcMotorEx.class, "lift");
     }
 
     @Override

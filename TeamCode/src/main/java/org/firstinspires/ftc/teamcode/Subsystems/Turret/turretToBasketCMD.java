@@ -1,68 +1,62 @@
 package org.firstinspires.ftc.teamcode.Subsystems.Turret;
 
-import static org.firstinspires.ftc.teamcode.Subsystems.Turret.TurretSubsystem.furtherCorrection;
-
 import com.acmerobotics.dashboard.config.Config;
+import com.pedropathing.follower.Follower;
+import com.pedropathing.geometry.Pose;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.seattlesolvers.solverslib.command.CommandBase;
 
-import org.firstinspires.ftc.teamcode.Subsystems.Vision.VisionSubsystem;
+import org.firstinspires.ftc.teamcode.Utilities.Aliance;
 
 @Config
 public class turretToBasketCMD extends CommandBase {
 
     private final TurretSubsystem turretSb;
-    private final VisionSubsystem visionSb;
 
-    ElapsedTime deadTimer;
+    private final Aliance aliance;
+    private final Follower follower;
+    private final ElapsedTime deadTimer;
 
-    public turretToBasketCMD(TurretSubsystem turretSb, VisionSubsystem vSb) {
+    double goalX = 0;
+    double goalY = 140;
+
+
+    public turretToBasketCMD(TurretSubsystem turretSb, Aliance alliance, Follower follower) {
         this.turretSb = turretSb;
-        this.visionSb = vSb;
+        this.aliance = alliance;
 
+        this.follower = follower;
 
         deadTimer = new ElapsedTime();
 
         addRequirements(turretSb);
     }
 
+    @Override
+    public void initialize() {
+        goalX = aliance.equals(Aliance.RED) ? 140 : 4;
+    }
 
     @Override
     public void execute() {
-        Double tA = visionSb.getAllianceTA();
 
-        Double tX = visionSb.getAllianceTX();
+        double robotX = follower.getPose().getX();
+        double robotY = follower.getPose().getY();
+        double robotHeading = Math.toDegrees(turretSb.follower.getPose().getHeading());
 
-        if (tX != null && tA != null) {
+        double angleToGoal = Math.toDegrees(Math.atan2(goalY - robotY, goalX - robotX));
 
-            if (tA < 50) {
-                if (!visionSb.isAuto) {
-                    switch (visionSb.alliance) {
-                        case RED:
-                            tX -= furtherCorrection;
-                            break;
+        double turretTargetRelative = wrapAngle(robotHeading - angleToGoal);
 
-                        case BLUE:
-                            tX += furtherCorrection;
-                            break;
-                    }
-                }
-            }
-
-            double llTarget = turretSb.llPidf.calculate(tX);
-            turretSb.turretTarget -= llTarget;
-
-            turretSb.telemetry.addData("llTarget", llTarget);
-
-            deadTimer.reset();
-
-        }
+        turretSb.setTarget((int) turretTargetRelative);
     }
 
-    @Override
-    public boolean isFinished() {
-        return deadTimer.seconds() > 1 || visionSb.result.getTx() > 2;
+    private double wrapAngle(double angle) {
+        while (angle > 180) angle -= 360;
+        while (angle < -180) angle += 360;
+        return angle;
     }
+
 }
 
 

@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode.Subsystems.Shooter;
 
-import static org.firstinspires.ftc.teamcode.Subsystems.Vision.VisionSubsystem.limelightTaRatio;
 import static org.firstinspires.ftc.teamcode.Utilities.StaticConstants.shoootVsint0;
 import static org.firstinspires.ftc.teamcode.Utilities.StaticConstants.shoootVsint1;
 import static org.firstinspires.ftc.teamcode.Utilities.StaticConstants.shoootVsint2;
@@ -15,83 +14,78 @@ import static org.firstinspires.ftc.teamcode.Utilities.StaticConstants.shoootVso
 import static org.firstinspires.ftc.teamcode.Utilities.StaticConstants.shoootVsout4;
 import static org.firstinspires.ftc.teamcode.Utilities.StaticConstants.shoootVsout5;
 import static org.firstinspires.ftc.teamcode.Utilities.StaticConstants.shoootVsout6;
+import static org.firstinspires.ftc.teamcode.pedroPathing.Tuning.follower;
 
-import com.pedropathing.follower.Follower;
-import com.qualcomm.hardware.limelightvision.LLResult;
-import com.qualcomm.hardware.limelightvision.Limelight3A;
-import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 import com.seattlesolvers.solverslib.command.CommandBase;
 import com.seattlesolvers.solverslib.util.InterpLUT;
 
 import org.firstinspires.ftc.teamcode.Subsystems.Vision.VisionSubsystem;
+import org.firstinspires.ftc.teamcode.Utilities.Aliance;
 
 public class shooterToBasketCMD extends CommandBase {
 
+    public static InterpLUT vsFunc = new InterpLUT();
+
+    public static InterpLUT distanceFunc = new InterpLUT();
+
+    Aliance aliance;
+    private double goalX = 0;
+    double goalY = 140;
+
+    /*static {
+        vsFunc.add(shoootVsint0, shoootVsout0);
+        vsFunc.add(shoootVsint1, shoootVsout1);
+        vsFunc.add(shoootVsint2, shoootVsout2);
+        vsFunc.add(shoootVsint3, shoootVsout3);
+        vsFunc.add(shoootVsint4, shoootVsout4);
+        vsFunc.add(shoootVsint5, shoootVsout5);
+        vsFunc.add(shoootVsint6, shoootVsout6);
+//generating final equation
+        vsFunc.createLUT();
+    }*/
+
+    static {
+        distanceFunc.add(shoootVsint0, shoootVsout0);
+        distanceFunc.add(shoootVsint1, shoootVsout1);
+        distanceFunc.add(shoootVsint2, shoootVsout2);
+        distanceFunc.add(shoootVsint3, shoootVsout3);
+        distanceFunc.add(shoootVsint4, shoootVsout4);
+        distanceFunc.add(shoootVsint5, shoootVsout5);
+        distanceFunc.add(shoootVsint6, shoootVsout6);
+
+        distanceFunc.createLUT();
+    }
     private final ShooterSubsystem shooterSubsystem;
-    private final VisionSubsystem visionSubsystem;
 
     private double targetEmergency;
 
-    public InterpLUT vsFunc = new InterpLUT();
-
-    Double TargetA = shoootVsint2;
-
-    public shooterToBasketCMD(ShooterSubsystem shooterSb, VisionSubsystem vSb) {
+    public shooterToBasketCMD(ShooterSubsystem shooterSb, Aliance aliance) {
         shooterSubsystem = shooterSb;
-        visionSubsystem = vSb;
 
-        vsFunc.add(shoootVsint0, shoootVsout0);
-        vsFunc.add(shoootVsint1, shoootVsout1);
-        vsFunc.add(shoootVsint2, shoootVsout2);
-        vsFunc.add(shoootVsint3, shoootVsout3);
-        vsFunc.add(shoootVsint4, shoootVsout4);
-        vsFunc.add(shoootVsint5, shoootVsout5);
-        vsFunc.add(shoootVsint6, shoootVsout6);
-//generating final equation
-        vsFunc.createLUT();
-
-        targetEmergency = 0;
+        this.aliance = aliance;
 
         addRequirements(shooterSubsystem);
     }
 
-
-    public shooterToBasketCMD(ShooterSubsystem shooterSb, VisionSubsystem vSb, double Target) {
-        shooterSubsystem = shooterSb;
-        visionSubsystem = vSb;
-
-        vsFunc.add(shoootVsint0, shoootVsout0);
-        vsFunc.add(shoootVsint1, shoootVsout1);
-        vsFunc.add(shoootVsint2, shoootVsout2);
-        vsFunc.add(shoootVsint3, shoootVsout3);
-        vsFunc.add(shoootVsint4, shoootVsout4);
-        vsFunc.add(shoootVsint5, shoootVsout5);
-        vsFunc.add(shoootVsint6, shoootVsout6);
-//generating final equation
-        vsFunc.createLUT();
-
-        this.targetEmergency = Target;
-
-        addRequirements(shooterSubsystem);
+    @Override
+    public void initialize() {
+        goalX = aliance.equals(Aliance.RED) ? 140 : 4;
     }
-
 
     @Override
     public void execute() {
-        TargetA = visionSubsystem.getAllianceTA();
 
-        if (TargetA != null) {
-            double targetA = Range.clip(TargetA, shoootVsint0 + 0.1, shoootVsint6 - 0.1);
-            shooterSubsystem.shooterTarget = vsFunc.get(targetA);
+        double robotX = follower.getPose().getX();
+        double robotY = follower.getPose().getY();
 
-            targetEmergency = shooterSubsystem.shooterTarget;
+        double dx = goalX - robotX;
+        double dy = goalY - robotY;
 
+        double distanceToGoal = Math.hypot(dx, dy); // distance in field units
 
-        }else {
-            shooterSubsystem.shooterTarget = targetEmergency;
+        shooterSubsystem.shooterTarget = distanceFunc.get(distanceToGoal);
 
-        }
 
     }
 

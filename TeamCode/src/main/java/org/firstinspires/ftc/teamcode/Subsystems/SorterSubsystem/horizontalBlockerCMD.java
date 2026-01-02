@@ -6,7 +6,7 @@ public class horizontalBlockerCMD extends CommandBase {
 
     private final SorterSubsystem sorterSubsystem;
 
-    private double targetPos;
+    private final double targetPos;
 
     public horizontalBlockerCMD(SorterSubsystem sorterSb, double target) {
         sorterSubsystem = sorterSb;
@@ -18,7 +18,7 @@ public class horizontalBlockerCMD extends CommandBase {
     @Override
     public void execute() {
 
-        sorterSubsystem.blockerH.setPosition(targetPos);
+        sorterSubsystem.setHorizontalPos(targetPos);
     }
 
     @Override

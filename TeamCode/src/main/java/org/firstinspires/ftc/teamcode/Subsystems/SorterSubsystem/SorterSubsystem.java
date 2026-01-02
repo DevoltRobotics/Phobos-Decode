@@ -24,7 +24,7 @@ public class SorterSubsystem extends SubsystemBase {
     public static double upRampPos = 0.8;
     public static double downRampPos = 0.5;
 
-    public static double blockersUp = -0.13;
+    public static double blockersUp = -0.35;
 
     public static double blockerHHidePos = 0.41;
     public static double blockerHFreePos = 0.75;
@@ -68,9 +68,13 @@ public class SorterSubsystem extends SubsystemBase {
         telemetry.addData("blockerStatus", blockersStatus);
     }
 
-    public void setPositions(double rightPos, double leftPos) {
+    public void setLateralPositions(double rightPos, double leftPos) {
         blockerR.setPosition(0.5 + rightPos);
         blockerL.setPosition(0.5 - leftPos);
+    }
+
+    public void setHorizontalPos(double Pos) {
+        blockerH.setPosition(Pos);
     }
 
     public void setRampPos(double Pos) {

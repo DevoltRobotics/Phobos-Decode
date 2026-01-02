@@ -6,19 +6,35 @@ public class moveIntakeAutonomousCMD extends CommandBase {
 
     private final IntakeSubsystem intakeSubsystem;
 
-    private double power;
+    private double inPower;
+
+    private double transPower;
 
     public moveIntakeAutonomousCMD(IntakeSubsystem intakeSb, double powerTarget) {
         intakeSubsystem = intakeSb;
-        power = powerTarget;
+        inPower = powerTarget;
+
+        transPower = powerTarget;
+
+
+        addRequirements(intakeSubsystem);
+    }
+
+    public moveIntakeAutonomousCMD(IntakeSubsystem intakeSb, double inTarget, double transTarget) {
+        intakeSubsystem = intakeSb;
+        inPower = inTarget;
+
+        transPower = transTarget;
 
         addRequirements(intakeSubsystem);
     }
 
     @Override
     public void execute() {
-        intakeSubsystem.intakePower = power;
+        intakeSubsystem.intakePower = inPower;
+        intakeSubsystem.transferPower = transPower;
     }
+
 
 
     @Override

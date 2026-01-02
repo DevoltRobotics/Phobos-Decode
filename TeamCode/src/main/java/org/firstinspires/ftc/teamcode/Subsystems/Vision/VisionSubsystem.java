@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.Subsystems.Vision;
 
 import com.acmerobotics.dashboard.FtcDashboard;
+import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -30,19 +31,19 @@ public class VisionSubsystem extends SubsystemBase {
 
     public Telemetry telemetry;
 
-    public VisionSubsystem(HardwareMap hMap, Aliance alliance, Telemetry telemetry, boolean isAuto) {
+    public VisionSubsystem(HardwareMap hMap, Aliance alliance, boolean isAuto) {
         limelight = hMap.get(Limelight3A.class, "limelight");
 
         this.alliance = alliance;
 
         this.isAuto = isAuto;
 
-        this.telemetry = telemetry;
+        //this.telemetry = telemetry;
 
         limelight.setPollRateHz(100);
         limelight.start();
 
-        limelight.pipelineSwitch(0);
+        limelight.pipelineSwitch(2);
 
 
 
@@ -51,7 +52,7 @@ public class VisionSubsystem extends SubsystemBase {
 
     public void periodic(){
         result = limelight.getLatestResult();
-
+/*
         if (result != null && result.isValid()) {
 
             FtcDashboard.getInstance().getTelemetry().addData("LL AprilTag tA", result.getTa());
@@ -60,7 +61,11 @@ public class VisionSubsystem extends SubsystemBase {
             FtcDashboard.getInstance().getTelemetry().addData("Limelight", "No Targets");
         }
 
-        telemetry.addData("Pattern", pattern);
+        //telemetry.addData("Pattern", pattern);
+
+        telemetry.update();
+
+ */
     }
 
     public Double getAllianceTA() {

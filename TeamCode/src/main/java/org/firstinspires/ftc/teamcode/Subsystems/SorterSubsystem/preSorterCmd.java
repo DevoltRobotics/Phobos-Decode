@@ -50,26 +50,26 @@ public class preSorterCmd extends CommandBase {
             switch (visionSb.pattern) {
                 case GPP:
                     if (Artifact.Green.equals(sensorsSb.currentRightArtifact)) {
-                        sorterSubsystem.setPositions(blockersUp, 0);
+                        sorterSubsystem.setLateralPositions(blockersUp, 0);
 
                         sensorsSb.relaseOrder = SensorsSubsystem.RelaseOrder.RR;
 
                         detected = true;
                     } else if (Artifact.Green.equals(sensorsSb.currentLeftArtifact)) {
-                        sorterSubsystem.setPositions(0, blockersUp);
+                        sorterSubsystem.setLateralPositions(0, blockersUp);
 
                         sensorsSb.relaseOrder = SensorsSubsystem.RelaseOrder.LL;
 
                         detected = true;
                     } else if (Artifact.Purple.equals(sensorsSb.currentRightArtifact)) {
-                        sorterSubsystem.setPositions(0, blockersUp);
+                        sorterSubsystem.setLateralPositions(0, blockersUp);
 
                         sensorsSb.relaseOrder = SensorsSubsystem.RelaseOrder.LL;
 
                         detected = true;
 
                     } else if (Artifact.Purple.equals(sensorsSb.currentLeftArtifact)) {
-                        sorterSubsystem.setPositions(blockersUp, 0);
+                        sorterSubsystem.setLateralPositions(blockersUp, 0);
 
                         sensorsSb.relaseOrder = SensorsSubsystem.RelaseOrder.RR;
                         detected = true;
@@ -79,7 +79,7 @@ public class preSorterCmd extends CommandBase {
 
                 case PGP:
                     if (Artifact.Purple.equals(sensorsSb.currentRightArtifact)) {
-                        sorterSubsystem.setPositions(blockersUp, 0);
+                        sorterSubsystem.setLateralPositions(blockersUp, 0);
 
                         if (Artifact.Green.equals(sensorsSb.currentLeftArtifact)) {
                             sensorsSb.relaseOrder = SensorsSubsystem.RelaseOrder.RL;
@@ -89,7 +89,7 @@ public class preSorterCmd extends CommandBase {
                         detected = true;
 
                     } else if (Artifact.Purple.equals(sensorsSb.currentLeftArtifact)) {
-                        sorterSubsystem.setPositions(0, blockersUp);
+                        sorterSubsystem.setLateralPositions(0, blockersUp);
 
                         if (Artifact.Green.equals(sensorsSb.currentRightArtifact)) {
                             sensorsSb.relaseOrder = SensorsSubsystem.RelaseOrder.LR;
@@ -100,14 +100,14 @@ public class preSorterCmd extends CommandBase {
 
                     }else if (Artifact.Green.equals(sensorsSb.currentRightArtifact)) {
 
-                        sorterSubsystem.setPositions(0, blockersUp);
+                        sorterSubsystem.setLateralPositions(0, blockersUp);
                         sensorsSb.relaseOrder = SensorsSubsystem.RelaseOrder.LR;
 
                         detected = true;
 
                     }else if (Artifact.Green.equals(sensorsSb.currentLeftArtifact)) {
 
-                        sorterSubsystem.setPositions(blockersUp, 0);
+                        sorterSubsystem.setLateralPositions(blockersUp, 0);
                         sensorsSb.relaseOrder = SensorsSubsystem.RelaseOrder.RL;
 
                         detected = true;
@@ -119,20 +119,20 @@ public class preSorterCmd extends CommandBase {
 
                     if (Artifact.Green.equals(sensorsSb.currentRightArtifact)) {
 
-                        sorterSubsystem.setPositions(0, blockersUp);
+                        sorterSubsystem.setLateralPositions(0, blockersUp);
                         sensorsSb.relaseOrder = SensorsSubsystem.RelaseOrder.LL;
 
                         detected = true;
 
                     }else if (Artifact.Green.equals(sensorsSb.currentLeftArtifact)) {
 
-                        sorterSubsystem.setPositions(blockersUp, 0);
+                        sorterSubsystem.setLateralPositions(blockersUp, 0);
                         sensorsSb.relaseOrder = SensorsSubsystem.RelaseOrder.RR;
 
                         detected = true;
 
                     } else if (Artifact.Purple.equals(sensorsSb.currentRightArtifact)) {
-                        sorterSubsystem.setPositions(blockersUp, 0);
+                        sorterSubsystem.setLateralPositions(blockersUp, 0);
 
                         if (Artifact.Purple.equals(sensorsSb.currentLeftArtifact)) {
                             sensorsSb.relaseOrder = SensorsSubsystem.RelaseOrder.RL;
@@ -142,7 +142,7 @@ public class preSorterCmd extends CommandBase {
                         detected = true;
 
                     } else if (Artifact.Purple.equals(sensorsSb.currentLeftArtifact)) {
-                        sorterSubsystem.setPositions(0, blockersUp);
+                        sorterSubsystem.setLateralPositions(0, blockersUp);
 
                         detected = true;
 
@@ -159,7 +159,7 @@ public class preSorterCmd extends CommandBase {
     @Override
     public void end(boolean interrupted) {
         if (!detected) {
-            sorterSubsystem.setPositions(blockersUp, 0);
+            sorterSubsystem.setLateralPositions(blockersUp, 0);
         }
     }
 

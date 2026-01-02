@@ -31,6 +31,11 @@ public class IntakeSubsystem extends SubsystemBase {
         intakeS.setDirection(DcMotorSimple.Direction.REVERSE);
 
         transferM = hMap.dcMotor.get("trans");
+
+        intakeM.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
+        transferM.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
     }
 
     @Override

@@ -92,7 +92,7 @@ public class Full_robot_test extends OpMode {
     @Override
     public void init() {
         startingPose = new Pose(0, 0,0 );
-        follower = Constants.createFollower(hardwareMap);
+        //follower = Constants.createFollower(hardwareMap);
         follower.setStartingPose(startingPose);
         follower.update();
         telemetryM = PanelsTelemetry.INSTANCE.getTelemetry();

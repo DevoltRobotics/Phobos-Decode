@@ -1,7 +1,5 @@
 package org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem;
 
-import static org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.SorterSubsystem.blockersUp;
-
 import com.seattlesolvers.solverslib.command.CommandBase;
 
 public class lateralBlockersCMD extends CommandBase {
@@ -21,7 +19,7 @@ public class lateralBlockersCMD extends CommandBase {
 
     @Override
     public void execute() {
-        sorterSubsystem.setPositions(rightPos, leftPos);
+        sorterSubsystem.setLateralPositions(rightPos, leftPos);
     }
 
     @Override

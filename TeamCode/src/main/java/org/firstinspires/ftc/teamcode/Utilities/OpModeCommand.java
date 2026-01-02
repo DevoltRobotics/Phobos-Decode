@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.Utilities;
 
 import static org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.SorterSubsystem.blockerHHidePos;
 import static org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.SorterSubsystem.blockersUp;
+import static org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.SorterSubsystem.upRampPos;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
@@ -16,6 +17,7 @@ import com.seattlesolvers.solverslib.command.SequentialCommandGroup;
 import com.seattlesolvers.solverslib.command.Subsystem;
 
 import org.firstinspires.ftc.teamcode.Subsystems.Sensors.SensorsSubsystem;
+import org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.rampCMD;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 import org.firstinspires.ftc.teamcode.pedroPathing.PedroSubsystem;
 import org.firstinspires.ftc.teamcode.Subsystems.Intake.IntakeSubsystem;
@@ -43,7 +45,7 @@ public abstract class OpModeCommand extends OpMode {
     public IntakeSubsystem intakeSb;
     public SorterSubsystem sorterSb;
     public SensorsSubsystem sensorsSb;
-    public LiftingSubsystem liftingSb;
+    //public LiftingSubsystem liftingSb;
     public ShooterSubsystem shooterSb;
     public TurretSubsystem turretSb;
 
@@ -81,19 +83,23 @@ public abstract class OpModeCommand extends OpMode {
                 FtcDashboard.getInstance().getTelemetry()
         );
 
-        follower = Constants.createFollower(hardwareMap);
+        register(
+                visionSb = new VisionSubsystem(hardwareMap, currentAliance, isAuto)
+
+        );
+
+        follower = Constants.createFollower(hardwareMap, visionSb.limelight);
+
         follower.update();
 
-
         register(
-                pedroSb = new PedroSubsystem(follower, telemetry),
+                pedroSb = new PedroSubsystem(follower, telemetry, telemetryM),
                 intakeSb = new IntakeSubsystem(hardwareMap),
                 sorterSb = new SorterSubsystem(hardwareMap, telemetry),
                 sensorsSb = new SensorsSubsystem(hardwareMap, telemetry),
-                turretSb = new TurretSubsystem(hardwareMap, telemetry),
-                liftingSb = new LiftingSubsystem(hardwareMap),
-                shooterSb = new ShooterSubsystem(hardwareMap, telemetry, true),
-                visionSb = new VisionSubsystem(hardwareMap, currentAliance, telemetry, isAuto)
+                turretSb = new TurretSubsystem(hardwareMap, follower, telemetry, currentAliance),
+                //liftingSb = new LiftingSubsystem(hardwareMap),
+                shooterSb = new ShooterSubsystem(hardwareMap, telemetry)
         );
 
 
@@ -116,7 +122,7 @@ public abstract class OpModeCommand extends OpMode {
     public void init_loop() {
         //telemetry.addData("PATTERN", visionSb.alliance);
 
-        if (isAuto){
+        if (isAuto) {
             run();
 
         }
@@ -128,6 +134,7 @@ public abstract class OpModeCommand extends OpMode {
     public void loop() {
         telemetry.addData("Heading", Math.toDegrees(follower.poseTracker.getPose().getHeading()));
 
+        telemetryM.update();
         FtcDashboard.getInstance().getTelemetry().update();
         run();
     }
@@ -139,11 +146,11 @@ public abstract class OpModeCommand extends OpMode {
     public abstract void initialize();
 
 
-
     public Command startCMD() {
-                return new SequentialCommandGroup(
-                        new horizontalBlockerCMD(sorterSb, blockerHHidePos),
-                        new lateralBlockersCMD(sorterSb, 0, blockersUp)
-                );
+        return new SequentialCommandGroup(
+                new horizontalBlockerCMD(sorterSb, blockerHHidePos),
+                new lateralBlockersCMD(sorterSb, 0, blockersUp),
+                new rampCMD(sorterSb, upRampPos)
+        );
     }
 }

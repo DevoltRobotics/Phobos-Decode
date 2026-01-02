@@ -1,6 +1,11 @@
 package org.firstinspires.ftc.teamcode.pedroPathing;
 
+import static org.firstinspires.ftc.teamcode.pedroPathing.Tuning.follower;
+import static org.firstinspires.ftc.teamcode.pedroPathing.Tuning.telemetryM;
+
 import com.acmerobotics.dashboard.config.Config;
+import com.bylazar.configurables.annotations.Configurable;
+import com.bylazar.telemetry.TelemetryManager;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.Pose;
 import com.pedropathing.paths.Path;
@@ -12,6 +17,7 @@ import com.seattlesolvers.solverslib.command.SubsystemBase;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
+@Configurable
 @Config
 public class PedroSubsystem extends SubsystemBase {
 
@@ -23,15 +29,24 @@ public class PedroSubsystem extends SubsystemBase {
 
     Telemetry telemetry;
 
-    public PedroSubsystem(Follower follower, Telemetry telemetry) {
+    TelemetryManager telemetryM;
+
+    public PedroSubsystem(Follower follower, Telemetry telemetry, TelemetryManager telemetryM) {
         this.follower = follower;
 
         this.telemetry = telemetry;
-
+        this.telemetryM = telemetryM;
     }
 
     @Override
     public void periodic() {
+
+
+        telemetryM.debug("x:" + follower.getPose().getX());
+        telemetryM.debug("y:" + follower.getPose().getY());
+        telemetryM.debug("heading:" + follower.getPose().getHeading());
+        telemetryM.debug("total heading:" + follower.getTotalHeading());
+        telemetryM.update(telemetry);
         follower.update();
 
         EndPose = follower.getPose();
@@ -49,7 +64,7 @@ public class PedroSubsystem extends SubsystemBase {
         return new FieldCentricCmd(gamepad);
     }
 
-    public Command turnToCmd(Pose pose){
+    public Command turnToCmd(Pose pose) {
         return new TurnToCommand(pose);
 
     }
@@ -64,6 +79,7 @@ public class PedroSubsystem extends SubsystemBase {
 
         @Override
         public void initialize() {
+
             follower.startTeleopDrive();
         }
 
@@ -71,9 +87,11 @@ public class PedroSubsystem extends SubsystemBase {
         public void execute() {
             double multiplier = 1;
 
-            if (gamepad.right_trigger >= 0.5) {
+            if (gamepad.right_trigger >= 0.8) {
                 multiplier = slowModeMultiplier;
             }
+
+
 
             follower.setTeleOpDrive(
                     -gamepad.left_stick_y * multiplier,
@@ -83,7 +101,7 @@ public class PedroSubsystem extends SubsystemBase {
             );
 
             if (gamepad.yWasPressed()) {
-                follower.setPose(new Pose());
+                follower.setPose(new Pose(0, 0, 0));
             }
         }
 

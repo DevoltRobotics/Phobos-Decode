@@ -262,8 +262,8 @@ public class CloseAuto_GLOBAL extends OpModeCommand {
 
                                 new moveIntakeAutonomousCMD(intakeSb, 1),
 
-                                new turretToBasketCMD(turretSb, visionSb),
-                                new shooterToBasketCMD(shooterSb, visionSb, 1150)
+                                new turretToBasketCMD(turretSb, currentAliance, follower)
+                                //new shooterToBasketCMD(shooterSb, visionSb, 1150)
                         ),
 
                         ///PRELOAD_LAUNCHED
@@ -341,8 +341,8 @@ public class CloseAuto_GLOBAL extends OpModeCommand {
                                         new moveIntakeAutonomousCMD(intakeSb, 1)
                                 ),
 
-                                new turretToBasketCMD(turretSb, visionSb),
-                                new shooterToBasketCMD(shooterSb, visionSb, 1150)
+                                new turretToBasketCMD(turretSb, currentAliance, follower)
+                                //new shooterToBasketCMD(shooterSb, visionSb, 1150)
 
                         ),
 
@@ -419,8 +419,8 @@ public class CloseAuto_GLOBAL extends OpModeCommand {
                                         new moveIntakeAutonomousCMD(intakeSb, 1)
                                 ),
 
-                                new turretToBasketCMD(turretSb, visionSb),
-                                new shooterToBasketCMD(shooterSb, visionSb, 1150)
+                                new turretToBasketCMD(turretSb, currentAliance, follower)
+                                //new shooterToBasketCMD(shooterSb, visionSb, 1150)
 
                         ),
 

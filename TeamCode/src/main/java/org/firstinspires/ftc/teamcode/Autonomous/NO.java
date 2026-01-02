@@ -254,8 +254,8 @@ public class NO extends OpModeCommand {
 
                                 new moveIntakeAutonomousCMD(intakeSb, 1),
 
-                                new turretToBasketCMD(turretSb, visionSb),
-                                new shooterToBasketCMD(shooterSb, visionSb, 1150)
+                                new turretToBasketCMD(turretSb, currentAliance, follower),
+                                //new shooterToBasketCMD(shooterSb, visionSb, 1150)
                         ),
 
                         ///PRELOAD_LAUNCHED
@@ -364,8 +364,8 @@ public class NO extends OpModeCommand {
                                         new moveIntakeAutonomousCMD(intakeSb, 1)
                                 ),
 
-                                new turretToBasketCMD(turretSb, visionSb),
-                                new shooterToBasketCMD(shooterSb, visionSb, 1150)
+                                new turretToBasketCMD(turretSb, currentAliance, follower),
+                                //new shooterToBasketCMD(shooterSb, visionSb, 1150)
 
                         ),
 
@@ -440,8 +440,8 @@ public class NO extends OpModeCommand {
                                         new moveIntakeAutonomousCMD(intakeSb, 1)
                                 ),
 
-                                new turretToBasketCMD(turretSb, visionSb),
-                                new shooterToBasketCMD(shooterSb, visionSb, 1150)
+                                new turretToBasketCMD(turretSb, currentAliance, follower),
+                                //new shooterToBasketCMD(shooterSb, visionSb, 1150)
 
                         ),
 

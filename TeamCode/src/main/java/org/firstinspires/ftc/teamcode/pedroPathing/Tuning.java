@@ -7,6 +7,8 @@ import static org.firstinspires.ftc.teamcode.pedroPathing.Tuning.follower;
 import static org.firstinspires.ftc.teamcode.pedroPathing.Tuning.stopRobot;
 import static org.firstinspires.ftc.teamcode.pedroPathing.Tuning.telemetryM;
 
+import android.preference.PreferenceGroup;
+
 import com.bylazar.configurables.PanelsConfigurables;
 import com.bylazar.configurables.annotations.Configurable;
 import com.bylazar.configurables.annotations.IgnoreConfigurable;
@@ -24,6 +26,12 @@ import com.pedropathing.telemetry.SelectableOpMode;
 import com.pedropathing.util.*;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.seattlesolvers.solverslib.command.CommandScheduler;
+import com.seattlesolvers.solverslib.command.Subsystem;
+
+import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.teamcode.Subsystems.Vision.VisionSubsystem;
+import org.firstinspires.ftc.teamcode.Utilities.Aliance;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,6 +47,9 @@ import java.util.List;
 public class Tuning extends SelectableOpMode {
     public static Follower follower;
 
+    public VisionSubsystem visionSb;
+
+
     @IgnoreConfigurable
     static PoseHistory poseHistory;
 
@@ -49,6 +60,8 @@ public class Tuning extends SelectableOpMode {
     static ArrayList<String> changes = new ArrayList<>();
 
     public Tuning() {
+
+
         super("Select a Tuning OpMode", s -> {
             s.folder("Localization", l -> {
                 l.add("Localization Test", LocalizationTest::new);
@@ -75,15 +88,27 @@ public class Tuning extends SelectableOpMode {
                 p.add("Circle", Circle::new);
             });
         });
+
+
+
     }
 
+    public void register(Subsystem... subsystems) {
+        CommandScheduler.getInstance().registerSubsystem(subsystems);
+    }
     @Override
     public void onSelect() {
+
+        register(
+                visionSb = new VisionSubsystem(hardwareMap, Aliance.RED, true)
+
+        );
+
         if (follower == null) {
-            follower = Constants.createFollower(hardwareMap);
+            follower = Constants.createFollower(hardwareMap, visionSb.limelight);
             PanelsConfigurables.INSTANCE.refreshClass(this);
         } else {
-            follower = Constants.createFollower(hardwareMap);
+            follower = Constants.createFollower(hardwareMap, visionSb.limelight);
         }
 
         follower.setStartingPose(new Pose());
@@ -139,6 +164,7 @@ class LocalizationTest extends OpMode {
         telemetryM.debug("This will print your robot's position to telemetry while "
                 + "allowing robot control through a basic mecanum drive on gamepad 1.");
         telemetryM.update(telemetry);
+
         follower.update();
         drawOnlyCurrent();
     }
@@ -163,6 +189,8 @@ class LocalizationTest extends OpMode {
         telemetryM.debug("heading:" + follower.getPose().getHeading());
         telemetryM.debug("total heading:" + follower.getTotalHeading());
         telemetryM.update(telemetry);
+
+        CommandScheduler.getInstance().run();
 
         draw();
     }
