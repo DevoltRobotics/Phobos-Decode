@@ -1,19 +1,24 @@
 package org.firstinspires.ftc.teamcode.Subsystems.Vision;
 
-import com.acmerobotics.dashboard.FtcDashboard;
-import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
+import static org.firstinspires.ftc.teamcode.PoseEstimate.ConversionUtil.from3DToPedro;
+
+import com.qualcomm.hardware.gobilda.GoBildaPinpointDriver;
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.seattlesolvers.solverslib.command.SubsystemBase;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
+import org.firstinspires.ftc.teamcode.PoseEstimate.wpilib.Units;
+import org.firstinspires.ftc.teamcode.PoseEstimate.wpilib.geometry.Pose2d;
 import org.firstinspires.ftc.teamcode.Utilities.Aliance;
 import org.firstinspires.ftc.teamcode.Utilities.Pattern;
 
 public class VisionSubsystem extends SubsystemBase {
 
-    public Limelight3A limelight;
+    public Limelight3A ll;
 
     public static int limelightTaRatio = 100;
 
@@ -31,8 +36,10 @@ public class VisionSubsystem extends SubsystemBase {
 
     public Telemetry telemetry;
 
-    public VisionSubsystem(HardwareMap hMap, Aliance alliance, boolean isAuto) {
-        limelight = hMap.get(Limelight3A.class, "limelight");
+    GoBildaPinpointDriver pinpoint;
+
+    public VisionSubsystem(HardwareMap hMap, Aliance alliance, boolean isAuto, GoBildaPinpointDriver pinpoint) {
+        ll = hMap.get(Limelight3A.class, "limelight");
 
         this.alliance = alliance;
 
@@ -40,32 +47,30 @@ public class VisionSubsystem extends SubsystemBase {
 
         //this.telemetry = telemetry;
 
-        limelight.setPollRateHz(100);
-        limelight.start();
+        ll.setPollRateHz(100);
+        ll.start();
 
-        limelight.pipelineSwitch(2);
-
-
-
+        ll.pipelineSwitch(2);
 
     }
 
     public void periodic(){
-        result = limelight.getLatestResult();
-/*
-        if (result != null && result.isValid()) {
+        result = ll.getLatestResult();
 
-            FtcDashboard.getInstance().getTelemetry().addData("LL AprilTag tA", result.getTa());
-            FtcDashboard.getInstance().getTelemetry().addData("LL AprilTag tX", result.getTy());
-        } else {
-            FtcDashboard.getInstance().getTelemetry().addData("Limelight", "No Targets");
+        ll.updateRobotOrientation(pinpoint.getHeading(AngleUnit.DEGREES));
+
+        if (result != null) {
+            if (result.isValid()) {
+                Pose3D botpose = result.getBotpose_MT2();
+
+                Pose2d mtPose = from3DToPedro(botpose, pinpoint.getHeading(AngleUnit.DEGREES));
+
+                telemetry.addData("mtPoseX", mtPose.getX());
+                telemetry.addData("mtPoseY", mtPose.getY());
+                telemetry.addData("mtPoseHeading", mtPose.getRotation().getDegrees());
+
+            }
         }
-
-        //telemetry.addData("Pattern", pattern);
-
-        telemetry.update();
-
- */
     }
 
     public Double getAllianceTA() {

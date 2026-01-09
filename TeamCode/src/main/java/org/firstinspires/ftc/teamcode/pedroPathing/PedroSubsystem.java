@@ -42,11 +42,13 @@ public class PedroSubsystem extends SubsystemBase {
     public void periodic() {
 
 
-        telemetryM.debug("x:" + follower.getPose().getX());
+/*        telemetryM.debug("x:" + follower.getPose().getX());
         telemetryM.debug("y:" + follower.getPose().getY());
         telemetryM.debug("heading:" + follower.getPose().getHeading());
         telemetryM.debug("total heading:" + follower.getTotalHeading());
-        telemetryM.update(telemetry);
+        //telemetryM.update(telemetry);
+
+ */
         follower.update();
 
         EndPose = follower.getPose();

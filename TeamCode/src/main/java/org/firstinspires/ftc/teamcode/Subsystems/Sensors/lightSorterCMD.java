@@ -6,18 +6,22 @@ import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.seattlesolvers.solverslib.command.CommandBase;
 
+import org.firstinspires.ftc.teamcode.Subsystems.Shooter.ShooterSubsystem;
+import org.firstinspires.ftc.teamcode.Subsystems.Turret.TurretSubsystem;
 import org.firstinspires.ftc.teamcode.Subsystems.Vision.VisionSubsystem;
 import org.firstinspires.ftc.teamcode.Utilities.Artifact;
 
 public class lightSorterCMD extends CommandBase {
 
     private final SensorsSubsystem sensorsSubsystem;
-    private final VisionSubsystem visionSb;
+    private final TurretSubsystem turretSb;
+    private final ShooterSubsystem shooterSb;
 
-    public lightSorterCMD(SensorsSubsystem sensorsSb, VisionSubsystem visionSb) {
+    public lightSorterCMD(SensorsSubsystem sensorsSb, TurretSubsystem turretSb, ShooterSubsystem shooterSb) {
         sensorsSubsystem = sensorsSb;
-        this.visionSb = visionSb;
 
+        this.turretSb = turretSb;
+        this.shooterSb = shooterSb;
 
         addRequirements(sensorsSubsystem);
     }
@@ -26,11 +30,12 @@ public class lightSorterCMD extends CommandBase {
     @Override
     public void execute() {
 
-        Double tX = visionSb.getAllianceTX();
-        Double tA = visionSb.getAllianceTA();
-
         if (sensorsSubsystem.sorterMode) {
-            if (sensorsSubsystem.targetArtifact == Artifact.Purple) {
+            if (sensorsSubsystem.fourDetected) {
+                sensorsSubsystem.light.setPosition(0.28);
+
+
+            } else if (sensorsSubsystem.targetArtifact == Artifact.Purple) {
                 sensorsSubsystem.light.setPosition(0.7);
 
             } else {
@@ -38,40 +43,23 @@ public class lightSorterCMD extends CommandBase {
 
             }
 
-        }else {
+        } else {
 
-            if (sensorsSubsystem.fourDetected){
-                sensorsSubsystem.light.setPosition(0.28);
-
-
-            } else if (tX != null && tA != null && Math.abs(tX) < 12) {
-                if (tA < 50) {
-                    if (!visionSb.isAuto) {
-                        switch (visionSb.alliance) {
-                            case RED:
-                                tX += furtherCorrection;
-                                break;
-
-                            case BLUE:
-                                tX -= furtherCorrection;
-                                break;
-                        }
-                    }
-                }
-
-                if (Math.abs(tX) < 5) {
-                    sensorsSubsystem.light.setPosition(0.65);
-
-                }
+            if (sensorsSubsystem.laserState) {
+                sensorsSubsystem.light.setPosition(0.33);
 
             } else {
                 sensorsSubsystem.light.setPosition(0);
 
             }
 
+
         }
 
 
     }
 
+
 }
+
+

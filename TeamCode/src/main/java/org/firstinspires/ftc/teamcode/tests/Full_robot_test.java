@@ -51,7 +51,8 @@ public class Full_robot_test extends OpMode {
 
     public static double provitionalShooterTarget = 1400;
 
-    CRServo capstaneSr;
+    CRServo turretS1;
+    CRServo turretS2;
 
     DcMotorEx fr;
     DcMotorEx br;
@@ -91,15 +92,10 @@ public class Full_robot_test extends OpMode {
 
     @Override
     public void init() {
-        startingPose = new Pose(0, 0,0 );
-        //follower = Constants.createFollower(hardwareMap);
-        follower.setStartingPose(startingPose);
-        follower.update();
-        telemetryM = PanelsTelemetry.INSTANCE.getTelemetry();
-
         //pinpoint = hardwareMap.get(SensorGoBildaPinpoint.class, "pinpoint");
 
-        capstaneSr = hardwareMap.get(CRServo.class, "trt");
+        turretS1 = hardwareMap.get(CRServo.class, "trt1");
+        turretS2 = hardwareMap.get(CRServo.class, "trt2");
 
         blockerH = hardwareMap.get(Servo.class, "blcH");
 
@@ -124,8 +120,14 @@ public class Full_robot_test extends OpMode {
 
         limelight3A = hardwareMap.get(Limelight3A.class, "limelight");
 
-        limelight3A.pipelineSwitch(0);
+        limelight3A.pipelineSwitch(2);
         limelight3A.start();
+
+        startingPose = new Pose(0, 0,0 );
+        follower = Constants.createFollower(hardwareMap, limelight3A);
+        follower.setStartingPose(startingPose);
+        follower.update();
+        telemetryM = PanelsTelemetry.INSTANCE.getTelemetry();
 
         shooterMUp.setDirection(DcMotorSimple.Direction.REVERSE);
 
@@ -220,13 +222,18 @@ public class Full_robot_test extends OpMode {
         }
 
         if (gamepad2.right_bumper) {
-            capstaneSr.setPower(1);
+            turretS1.setPower(1);
+            turretS2.setPower(1);
 
         } else if (gamepad2.left_bumper) {
-            capstaneSr.setPower(-1);
+            turretS1.setPower(-1);
+            turretS2.setPower(-1);
+
 
         } else {
-            capstaneSr.setPower(0);
+            turretS1.setPower(0);
+            turretS2.setPower(0);
+
 
         }
 

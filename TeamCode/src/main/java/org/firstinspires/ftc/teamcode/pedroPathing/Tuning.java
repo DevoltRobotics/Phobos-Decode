@@ -7,8 +7,6 @@ import static org.firstinspires.ftc.teamcode.pedroPathing.Tuning.follower;
 import static org.firstinspires.ftc.teamcode.pedroPathing.Tuning.stopRobot;
 import static org.firstinspires.ftc.teamcode.pedroPathing.Tuning.telemetryM;
 
-import android.preference.PreferenceGroup;
-
 import com.bylazar.configurables.PanelsConfigurables;
 import com.bylazar.configurables.annotations.Configurable;
 import com.bylazar.configurables.annotations.IgnoreConfigurable;
@@ -17,7 +15,6 @@ import com.bylazar.field.PanelsField;
 import com.bylazar.field.Style;
 import com.bylazar.telemetry.PanelsTelemetry;
 import com.bylazar.telemetry.TelemetryManager;
-import com.pedropathing.ErrorCalculator;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.*;
 import com.pedropathing.math.*;
@@ -29,9 +26,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.seattlesolvers.solverslib.command.CommandScheduler;
 import com.seattlesolvers.solverslib.command.Subsystem;
 
-import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Subsystems.Vision.VisionSubsystem;
-import org.firstinspires.ftc.teamcode.Utilities.Aliance;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -100,15 +95,14 @@ public class Tuning extends SelectableOpMode {
     public void onSelect() {
 
         register(
-                visionSb = new VisionSubsystem(hardwareMap, Aliance.RED, true)
+                //visionSb = new VisionSubsystem(hardwareMap, Aliance.RED, true)
 
         );
-
         if (follower == null) {
-            follower = Constants.createFollower(hardwareMap, visionSb.limelight);
+            follower = Constants.createFollower(hardwareMap, visionSb.ll);
             PanelsConfigurables.INSTANCE.refreshClass(this);
         } else {
-            follower = Constants.createFollower(hardwareMap, visionSb.limelight);
+            follower = Constants.createFollower(hardwareMap, visionSb.ll);
         }
 
         follower.setStartingPose(new Pose());

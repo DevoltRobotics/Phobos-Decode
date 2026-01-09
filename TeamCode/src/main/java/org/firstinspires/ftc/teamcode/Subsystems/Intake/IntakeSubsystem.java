@@ -10,10 +10,10 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 public class IntakeSubsystem extends SubsystemBase {
 
-    DcMotor intakeM;
-    CRServo intakeS;
+    public DcMotor  intakeM;
+    public CRServo intakeS;
 
-    DcMotor transferM;
+    public DcMotor transferM;
 
     public double intakePower = 0;
     public double transferPower = 0;

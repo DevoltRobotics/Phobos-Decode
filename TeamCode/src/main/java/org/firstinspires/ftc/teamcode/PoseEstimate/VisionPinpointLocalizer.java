@@ -14,6 +14,7 @@ import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
@@ -33,16 +34,19 @@ public class VisionPinpointLocalizer implements Localizer {
     PinpointOdometry odometry = new PinpointOdometry(kinematics, Rotation2d.kZero, new PinpointPositions(), Pose2d.kZero);
     PinpointPoseEstimator estimator = new PinpointPoseEstimator(odometry,
             VecBuilder.fill(0.05, 0.05, Units.degreesToRadians(5)),
-            VecBuilder.fill(0.5, 0.5, Units.degreesToRadians(30))
+            VecBuilder.fill(0.3, 0.3, 9999999)
     );
 
     Limelight3A ll;
     PinpointLocalizer localizer;
 
-    public VisionPinpointLocalizer(Limelight3A ll, PinpointLocalizer localizer) {
+    Telemetry telemetry;
+    public VisionPinpointLocalizer(Limelight3A ll, PinpointLocalizer localizer, Telemetry telemetry) {
         this.localizer = localizer;
 
         this.ll = ll;
+
+        this.telemetry = telemetry;
     }
 
     @Override
@@ -83,14 +87,19 @@ public class VisionPinpointLocalizer implements Localizer {
         estimator.update(Rotation2d.fromRadians(localizer.getPose().getHeading()), positions);
 
         ll.updateRobotOrientation(Units.radiansToDegrees(localizer.getPose().getHeading()));
+
         LLResult result = ll.getLatestResult();
         if (result != null) {
             if (result.isValid()) {
                 Pose3D botpose = result.getBotpose_MT2();
 
-                Pose2d mtPose = from3DToPedro(botpose, localizer.getPose().getHeading());
+                Pose2d mtPose = from3DToPedro(botpose, Units.radiansToDegrees(localizer.getPose().getHeading()));
 
-                estimator.setVisionMeasurementStdDevs(VecBuilder.fill(.7, .7, 9999999));
+                telemetry.addData("mtPoseX", mtPose.getX());
+                telemetry.addData("mtPoseY", mtPose.getY());
+                telemetry.addData("mtPoseHeading", mtPose.getRotation().getDegrees());
+
+                estimator.setVisionMeasurementStdDevs(VecBuilder.fill(.3, .3, 9999999));
                 estimator.addVisionMeasurement(mtPose, result.getTimestamp());
             }
         }

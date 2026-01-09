@@ -216,8 +216,7 @@ public class NO extends OpModeCommand {
         }
 
 
-        createPaths();
-
+        createPaths();/*
         autoCommand =
                 new SequentialCommandGroup(
 
@@ -254,7 +253,7 @@ public class NO extends OpModeCommand {
 
                                 new moveIntakeAutonomousCMD(intakeSb, 1),
 
-                                new turretToBasketCMD(turretSb, currentAliance, follower),
+                                new turretToBasketCMD(turretSb, currentAliance, follower)
                                 //new shooterToBasketCMD(shooterSb, visionSb, 1150)
                         ),
 
@@ -364,7 +363,7 @@ public class NO extends OpModeCommand {
                                         new moveIntakeAutonomousCMD(intakeSb, 1)
                                 ),
 
-                                new turretToBasketCMD(turretSb, currentAliance, follower),
+                                new turretToBasketCMD(turretSb, currentAliance, follower)
                                 //new shooterToBasketCMD(shooterSb, visionSb, 1150)
 
                         ),
@@ -440,7 +439,7 @@ public class NO extends OpModeCommand {
                                         new moveIntakeAutonomousCMD(intakeSb, 1)
                                 ),
 
-                                new turretToBasketCMD(turretSb, currentAliance, follower),
+                                new turretToBasketCMD(turretSb, currentAliance, follower)
                                 //new shooterToBasketCMD(shooterSb, visionSb, 1150)
 
                         ),

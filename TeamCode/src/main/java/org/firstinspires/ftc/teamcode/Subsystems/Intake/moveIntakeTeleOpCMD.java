@@ -2,14 +2,14 @@ package org.firstinspires.ftc.teamcode.Subsystems.Intake;
 
 import com.seattlesolvers.solverslib.command.CommandBase;
 
-public class moveIntakeCMD extends CommandBase {
+public class moveIntakeTeleOpCMD extends CommandBase {
 
     private final IntakeSubsystem intakeSubsystem;
 
     private double inPower;
     private double transPower;
 
-    public moveIntakeCMD(IntakeSubsystem intakeSb, double powerTarget) {
+    public moveIntakeTeleOpCMD(IntakeSubsystem intakeSb, double powerTarget) {
         intakeSubsystem = intakeSb;
         inPower = powerTarget;
 
@@ -18,7 +18,7 @@ public class moveIntakeCMD extends CommandBase {
         addRequirements(intakeSubsystem);
     }
 
-    public moveIntakeCMD(IntakeSubsystem intakeSb, double powerTarget, double transferTarget) {
+    public moveIntakeTeleOpCMD(IntakeSubsystem intakeSb, double powerTarget, double transferTarget) {
         intakeSubsystem = intakeSb;
         inPower = powerTarget;
 

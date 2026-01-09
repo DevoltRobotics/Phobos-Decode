@@ -20,23 +20,19 @@ public class ConversionUtil {
 
     public static Pose WPIToPedro(Pose2d pose){
 
-        Pose2D inFTCPose = new Pose2D(DistanceUnit.METER, pose.getX(), pose.getY(), AngleUnit.RADIANS, pose.getRotation().getRadians());
-
-        Pose ftcStandard = PoseConverter.pose2DToPose(inFTCPose, InvertedFTCCoordinates.INSTANCE);
-
-        return ftcStandard.getAsCoordinateSystem(PedroCoordinates.INSTANCE);
+        return new Pose(pose.getX(), pose.getY(), pose.getRotation().getRadians());
     }
-
     public static Pose2d from3DToPedro(Pose3D pose3d, double heading){
         Pose2D convertedPose = new Pose2D(
-                DistanceUnit.METER,
-                pose3d.getPosition().x,
-                pose3d.getPosition().y,
-                AngleUnit.RADIANS,
+                DistanceUnit.INCH,
+                pose3d.getPosition().x * 39.37,
+                pose3d.getPosition().y * 39.37,
+                AngleUnit.DEGREES,
                 heading
         );
 
         Pose ftcStandard = PoseConverter.pose2DToPose(convertedPose, InvertedFTCCoordinates.INSTANCE);
+
         Pose pedroStandard = ftcStandard.getAsCoordinateSystem(PedroCoordinates.INSTANCE);
 
         return

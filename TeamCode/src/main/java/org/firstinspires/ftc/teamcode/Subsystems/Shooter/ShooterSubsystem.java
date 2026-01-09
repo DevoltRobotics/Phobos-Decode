@@ -39,18 +39,13 @@ public class ShooterSubsystem extends SubsystemBase {
 
     public static double shooterkV = 0.000565;
     public static PIDFCoefficients shooterCoeffs = new PIDFCoefficients(0.01, 0.0, 0.0, 0);
-    PIDFController shooterController = new PIDFController(shooterCoeffs);
-
+    PIDFController shooterController;
     Telemetry telemetry;
-
-    public boolean isBlueAliance;
 
     public double shooterTarget = 0;
 
     //CONSTANTS
-
-    public static int standarShooterVel = 0;
-
+    
     public ShooterSubsystem(HardwareMap hMap, Telemetry telemetry) {
 
         shooterMDown = hMap.get(DcMotorEx.class, "shdown");
@@ -60,6 +55,11 @@ public class ShooterSubsystem extends SubsystemBase {
 
         shooterMDown.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         shooterMUp.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
+        shooterMDown.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        shooterMUp.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+        shooterController = new PIDFController(shooterCoeffs);
 
         this.telemetry = telemetry;
     }
@@ -72,18 +72,10 @@ public class ShooterSubsystem extends SubsystemBase {
 
         shooterController.setSetPoint(shooterTarget);
 
-        double velocityError = shooterTarget - motorVel;
         double shooterTargetPwr = (shooterkV * shooterTarget) + shooterController.calculate(motorVel);
 
         shooterMUp.setPower(shooterTargetPwr);
         shooterMDown.setPower(shooterTargetPwr);
-
-        /*telemetry.addData("upsVelocity", motorVel);
-        telemetry.addData("shooterTarget", shooterTarget);
-        telemetry.addData("vError", velocityError);
-        telemetry.addData("ta", targetdistance);
-
-         */
     }
 
 

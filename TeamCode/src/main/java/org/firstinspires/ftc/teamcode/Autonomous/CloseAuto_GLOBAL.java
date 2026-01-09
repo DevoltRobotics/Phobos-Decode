@@ -203,8 +203,7 @@ public class CloseAuto_GLOBAL extends OpModeCommand {
         }
 
 
-        createPaths();
-
+        createPaths();/*
         autoCommand =
                 new SequentialCommandGroup(
 
@@ -224,6 +223,8 @@ public class CloseAuto_GLOBAL extends OpModeCommand {
                                 () -> currentAliance.equals(Aliance.RED)
                         ),
 
+
+
                         pedroSb.followPathCmd(launchPreload),
 
                         new lateralBlockersCMD(sorterSb, 0, 0),
@@ -232,7 +233,7 @@ public class CloseAuto_GLOBAL extends OpModeCommand {
 
                         new shooterToVelCMD(shooterSb, 1230),
 
-                        new turretToPosCMD(turretSb, 0),
+                        //new turretToPosCMD(turretSb, 0),
 
                         new preSorterCmd(sorterSb, sensorsSb, visionSb, 0.4),
 
@@ -260,10 +261,10 @@ public class CloseAuto_GLOBAL extends OpModeCommand {
 
                                 ),
 
-                                new moveIntakeAutonomousCMD(intakeSb, 1),
+                                new moveIntakeAutonomousCMD(intakeSb, 1)
 
                                 new turretToBasketCMD(turretSb, currentAliance, follower)
-                                //new shooterToBasketCMD(shooterSb, visionSb, 1150)
+                                new shooterToBasketCMD(shooterSb, visionSb, 1150)
                         ),
 
                         ///PRELOAD_LAUNCHED
@@ -318,6 +319,8 @@ public class CloseAuto_GLOBAL extends OpModeCommand {
                                                 new turretToPosCMD(turretSb, 75),
                                                 () -> currentAliance.equals(Aliance.RED)
                                         ),
+
+
                                         new moveIntakeAutonomousCMD(intakeSb, -0.6),
                                         new WaitCommand(150),
                                         new moveIntakeAutonomousCMD(intakeSb, 0),
@@ -339,9 +342,9 @@ public class CloseAuto_GLOBAL extends OpModeCommand {
                                 new SequentialCommandGroup(
                                         new WaitCommand(200),
                                         new moveIntakeAutonomousCMD(intakeSb, 1)
-                                ),
+                                )
 
-                                new turretToBasketCMD(turretSb, currentAliance, follower)
+                                //new turretToBasketCMD(turretSb, currentAliance, follower)
                                 //new shooterToBasketCMD(shooterSb, visionSb, 1150)
 
                         ),
@@ -388,6 +391,8 @@ public class CloseAuto_GLOBAL extends OpModeCommand {
                                 () -> currentAliance.equals(Aliance.RED)
 
                         ),
+
+
                         new ParallelDeadlineGroup(
 
                                 pedroSb.followPathCmd(launchSecond),
@@ -417,9 +422,9 @@ public class CloseAuto_GLOBAL extends OpModeCommand {
                                 new SequentialCommandGroup(
                                         new WaitCommand(200),
                                         new moveIntakeAutonomousCMD(intakeSb, 1)
-                                ),
+                                )
 
-                                new turretToBasketCMD(turretSb, currentAliance, follower)
+                                //new turretToBasketCMD(turretSb, currentAliance, follower)
                                 //new shooterToBasketCMD(shooterSb, visionSb, 1150)
 
                         ),
@@ -430,7 +435,7 @@ public class CloseAuto_GLOBAL extends OpModeCommand {
                         new horizontalBlockerCMD(sorterSb, blockerHHidePos),
                         new lateralBlockersCMD(sorterSb, 0, 0),
 
-                        new turretToPosCMD(turretSb, 0),
+                        //new turretToPosCMD(turretSb, 0),
 
                         pedroSb.followPathCmd(park),
 
@@ -439,6 +444,8 @@ public class CloseAuto_GLOBAL extends OpModeCommand {
                         /// SECOND_LAUNCHED
 
                 );
+
+
 
 
 

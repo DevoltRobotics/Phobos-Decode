@@ -14,78 +14,55 @@ import static org.firstinspires.ftc.teamcode.Utilities.StaticConstants.shoootVso
 import static org.firstinspires.ftc.teamcode.Utilities.StaticConstants.shoootVsout4;
 import static org.firstinspires.ftc.teamcode.Utilities.StaticConstants.shoootVsout5;
 import static org.firstinspires.ftc.teamcode.Utilities.StaticConstants.shoootVsout6;
-import static org.firstinspires.ftc.teamcode.pedroPathing.Tuning.follower;
 
 import com.qualcomm.robotcore.util.Range;
 import com.seattlesolvers.solverslib.command.CommandBase;
 import com.seattlesolvers.solverslib.util.InterpLUT;
 
-import org.firstinspires.ftc.teamcode.Subsystems.Vision.VisionSubsystem;
-import org.firstinspires.ftc.teamcode.Utilities.Aliance;
+import org.firstinspires.ftc.teamcode.Subsystems.Turret.TurretSubsystem;
 
 public class shooterToBasketCMD extends CommandBase {
 
-    public static InterpLUT vsFunc = new InterpLUT();
-
-    public static InterpLUT distanceFunc = new InterpLUT();
-
-    Aliance aliance;
-    private double goalX = 0;
-    double goalY = 140;
-
-    /*static {
-        vsFunc.add(shoootVsint0, shoootVsout0);
-        vsFunc.add(shoootVsint1, shoootVsout1);
-        vsFunc.add(shoootVsint2, shoootVsout2);
-        vsFunc.add(shoootVsint3, shoootVsout3);
-        vsFunc.add(shoootVsint4, shoootVsout4);
-        vsFunc.add(shoootVsint5, shoootVsout5);
-        vsFunc.add(shoootVsint6, shoootVsout6);
-//generating final equation
-        vsFunc.createLUT();
-    }*/
+    public static InterpLUT distanceLUT = new InterpLUT();
 
     static {
-        distanceFunc.add(shoootVsint0, shoootVsout0);
-        distanceFunc.add(shoootVsint1, shoootVsout1);
-        distanceFunc.add(shoootVsint2, shoootVsout2);
-        distanceFunc.add(shoootVsint3, shoootVsout3);
-        distanceFunc.add(shoootVsint4, shoootVsout4);
-        distanceFunc.add(shoootVsint5, shoootVsout5);
-        distanceFunc.add(shoootVsint6, shoootVsout6);
+        distanceLUT.add(0, 0);
+        distanceLUT.add(shoootVsint0, shoootVsout0);
+        distanceLUT.add(shoootVsint1, shoootVsout1);
+        distanceLUT.add(shoootVsint2, shoootVsout2);
+        distanceLUT.add(shoootVsint3, shoootVsout3);
+        distanceLUT.add(shoootVsint4, shoootVsout4);
+        distanceLUT.add(shoootVsint5, shoootVsout5);
+        distanceLUT.add(shoootVsint6, shoootVsout6);
+        distanceLUT.add(1000000000, 1000000000);
 
-        distanceFunc.createLUT();
-    }
-    private final ShooterSubsystem shooterSubsystem;
 
-    private double targetEmergency;
-
-    public shooterToBasketCMD(ShooterSubsystem shooterSb, Aliance aliance) {
-        shooterSubsystem = shooterSb;
-
-        this.aliance = aliance;
-
-        addRequirements(shooterSubsystem);
+        distanceLUT.createLUT();
     }
 
-    @Override
-    public void initialize() {
-        goalX = aliance.equals(Aliance.RED) ? 140 : 4;
+    double distance;
+
+    private final ShooterSubsystem shooterSb;
+
+    private final TurretSubsystem turretSb;
+
+    public shooterToBasketCMD(ShooterSubsystem shooterSb, TurretSubsystem turretSb) {
+        this.shooterSb = shooterSb;
+        this.turretSb = turretSb;
+
+        addRequirements(this.shooterSb);
     }
 
     @Override
     public void execute() {
 
-        double robotX = follower.getPose().getX();
-        double robotY = follower.getPose().getY();
+        distance = turretSb.getDistanceToGoal();
 
-        double dx = goalX - robotX;
-        double dy = goalY - robotY;
+        double velocity = distanceLUT.get(distance);
 
-        double distanceToGoal = Math.hypot(dx, dy); // distance in field units
+        shooterSb.shooterTarget = (Range.clip(velocity, 1150,1600));
 
-        shooterSubsystem.shooterTarget = distanceFunc.get(distanceToGoal);
-
+        shooterSb.shooterTarget = distanceLUT.get(distance);
 
     }
 

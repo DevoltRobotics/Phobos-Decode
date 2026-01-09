@@ -72,7 +72,9 @@ public class Constants {
 
             ;
 
-    public static PinpointConstants localizerConstants = new PinpointConstants()
+
+
+    /*public static PinpointConstants localizerConstants = new PinpointConstants()
             .forwardPodY(1)
             .strafePodX(-1.5)
             .distanceUnit(DistanceUnit.INCH)
@@ -81,6 +83,29 @@ public class Constants {
             .encoderResolution(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD)
             .forwardEncoderDirection(GoBildaPinpointDriver.EncoderDirection.FORWARD)
             .strafeEncoderDirection(GoBildaPinpointDriver.EncoderDirection.FORWARD);
+
+
+     */
+
+
+    public static DriveEncoderConstants localizerConstants = new DriveEncoderConstants()
+            .rightFrontMotorName("fr")
+            .rightRearMotorName("fr")
+            .leftRearMotorName("br")
+            .leftFrontMotorName("bl")
+            .leftFrontEncoderDirection(Encoder.FORWARD)
+            .leftRearEncoderDirection(Encoder.FORWARD)
+            .rightFrontEncoderDirection(Encoder.FORWARD)
+            .rightRearEncoderDirection(Encoder.FORWARD)
+            .robotWidth(13.5)
+            .robotLength(11)
+
+            .forwardTicksToInches(-1.34)
+            //.strafeTicksToInches()
+
+            ;
+
+
 
     public static PathConstraints pathConstraints = new PathConstraints(
             0.995,
@@ -94,11 +119,18 @@ public class Constants {
     );
 
     public static Follower createFollower(HardwareMap hardwareMap, Limelight3A limelight) {
+
         return new FollowerBuilder(followerConstants, hardwareMap)
                 .pathConstraints(pathConstraints)
                 .mecanumDrivetrain(driveConstants)
-                .setLocalizer(new VisionPinpointLocalizer(limelight, new PinpointLocalizer(hardwareMap, localizerConstants)))
+                //.setLocalizer(new VisionPinpointLocalizer(limelight, new PinpointLocalizer(hardwareMap, localizerConstants)))
+                .driveEncoderLocalizer(localizerConstants)
                 .build();
+
+
+
+
+
 
     }
 

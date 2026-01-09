@@ -2,16 +2,13 @@ package org.firstinspires.ftc.teamcode.Subsystems.Turret;
 
 import com.acmerobotics.dashboard.config.Config;
 import com.pedropathing.follower.Follower;
-import com.pedropathing.geometry.Pose;
-import com.qualcomm.robotcore.util.ElapsedTime;
-import com.seattlesolvers.solverslib.command.CommandBase;
 
 import org.firstinspires.ftc.teamcode.Utilities.Aliance;
 
 @Config
-public class turretToBasketCMD extends turretToPosCMD {
+public class turretHoldCMD extends turretToPosCMD {
 
-    public turretToBasketCMD(TurretSubsystem turretSb) {
+    public turretHoldCMD(TurretSubsystem turretSb) {
         super(turretSb, 0d, false);
         addRequirements(turretSb);
     }
@@ -19,7 +16,7 @@ public class turretToBasketCMD extends turretToPosCMD {
     @Override
     public void execute() {
 
-        targetPos = (turretSb.getTurretToGoalAngle()) + 3.5;
+        targetPos = turretSb.getCurrentPosition();
         super.execute();
     }
 

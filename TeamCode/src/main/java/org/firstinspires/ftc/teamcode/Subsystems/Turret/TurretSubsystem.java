@@ -4,16 +4,16 @@ package org.firstinspires.ftc.teamcode.Subsystems.Turret;
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.pedropathing.follower.Follower;
-import com.qualcomm.robotcore.hardware.AnalogInput;
+import com.pedropathing.geometry.Pose;
 import com.qualcomm.robotcore.hardware.CRServo;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
-import com.qualcomm.robotcore.util.Range;
 import com.seattlesolvers.solverslib.command.SubsystemBase;
 import com.seattlesolvers.solverslib.controller.PIDFController;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.teamcode.Utilities.Aliance;
 
 @Config
@@ -22,22 +22,26 @@ public class TurretSubsystem extends SubsystemBase {
     public CRServo turretS1;
     public CRServo turretS2;
 
-    public AnalogInput turretE;
+    public DcMotor turretE;
 
-    public static PIDFCoefficients principalTurretCoeffs = new PIDFCoefficients(0.02, 0.0, 0.00045, 0);
-    public PIDFController principalTurretController = new PIDFController(principalTurretCoeffs);
+    public static PIDFCoefficients principalTurretCoeffs = new PIDFCoefficients(0.017, 0.0, 0.00056, 0.002);
 
-    //public static PIDFCoefficients llPidCoeffs = new PIDFCoefficients(0.043, 0.0, 0.0001, 0);
-    //public PIDFController llPidf = new PIDFController(llPidCoeffs);
+    public PIDFController turretPid;
 
-    public static PIDFCoefficients anglePidCoeffs = new PIDFCoefficients(0.043, 0.0, 0.0001, 0);
-    public PIDFController anglePidController = new PIDFController(anglePidCoeffs);
+    public Telemetry telemetry;
 
-    public static double gearRatio = 2;
-    public static double turretRatio = (double) 58 / 185;
-    public static double turretRatioBtoL = (double) 185 / 58;
+    public Follower follower;
 
-    public boolean realIsManual;
+    public Aliance alliance;
+
+
+    public static double Minimum = 0.037;
+    public static double MinimumEnc = 0.06;
+
+
+    public static double capstanRatio = (double) 58 / 182;
+
+    public static double ticktsToDegrees = (double) 360 / 8192;
 
     public static double furtherCorrectionAuto = 2;
 
@@ -45,94 +49,88 @@ public class TurretSubsystem extends SubsystemBase {
 
     public static double manualIncrement = 2.5;
 
-    public static int maxTurretTurnDegrees = 110;
-    public double turretP = 0;
-    public Double lastTurretP = null;
+    public static int upperLimit = 110;
 
-    public double deltaPos;
+    public static int lowerLimit = -110;
 
-    public static double startTurretPos = 20;
-    public double turretPRelative = startTurretPos;
+    public double encoderP = 0;
+
+    public double turretPRelative = 0;
 
     public double turretTarget = 0;
 
-    public double error;
+    double robotToGoalAngle;
+    double turretToGoalAngle;
 
-    public double pidPower;
+    public double distanceToGoal = 0;
 
-    double turretAbsolutepos = 0;
+    double goalX, goalY;
 
-    public Telemetry telemetry;
-
-    public Follower follower;
-
-    public Aliance aliance;
-
-    public TurretSubsystem(HardwareMap hMap, Follower follower, Telemetry telemetry, Aliance aliance) {
+    public void setGoalPos(double x, double y) {
+        goalX = x;
+        goalY = y;
+    }
+    public TurretSubsystem(HardwareMap hMap, Follower follower, Telemetry telemetry, DcMotor turretE, Aliance alliance) {
         turretS1 = hMap.get(CRServo.class, "trt1");
         turretS2 = hMap.get(CRServo.class, "trt2");
-        turretE = hMap.get(AnalogInput.class, "trtE");
 
-        turretS2.setDirection(DcMotorSimple.Direction.REVERSE);
+        this.follower = follower;
+
+        this.turretE = turretE;
+
+        this.turretE.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        this.turretE.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
 
         this.telemetry = telemetry;
-        this.aliance = aliance;
+        this.alliance = alliance;
 
+        if (alliance == Aliance.RED) {
+            setGoalPos(143, 143);
+        } else if (alliance == Aliance.BLUE) {
+            setGoalPos(0, 143);
+        } else {
+            setGoalPos(143, 143);
+        }
+
+        turretPid.setCoefficients(TurretSubsystem.principalTurretCoeffs);
+        turretPid.setMinimumOutput(TurretSubsystem.MinimumEnc);
+
+
+    }
+
+    public void setTurretPower(double power) {
+        if ((turretPRelative < -turretPRelative && power > 0) || (turretPRelative > upperLimit && power < 0)) {
+            turretS1.setPower(0);
+            turretS2.setPower(0);
+
+        } else {
+            turretS1.setPower(power);
+            turretS2.setPower(power);
+        }
     }
 
     @Override
     public void periodic() {
-        principalTurretController.setCoefficients(principalTurretCoeffs);
 
-        anglePidController.setCoefficients(anglePidCoeffs);
-        anglePidController.setSetPoint(0);
+        Pose robotPos = follower.getPose();
 
-        turretP = (turretE.getVoltage() / 3.3) * 360;
+        double dx = goalX - robotPos.getX();
+        double dy = goalY - robotPos.getY();
 
-        if (lastTurretP == null) {
-            lastTurretP = turretP;
-        }
+        robotToGoalAngle = Math.toDegrees(Math.atan2(dy, dx));//direction
+        distanceToGoal = Math.hypot(dx,dy);//magnitude
 
-        deltaPos = turretP - lastTurretP;
+        turretToGoalAngle = AngleUnit.normalizeDegrees(Math.toDegrees(robotPos.getHeading()) - robotToGoalAngle);
 
-        if (Math.abs(deltaPos) < 0.05) {
-            deltaPos = 0;
-        }
+        encoderP = turretE.getCurrentPosition();
 
-        if (deltaPos > 180) {
-            deltaPos -= 360;
+        turretPRelative = AngleUnit.normalizeDegrees((encoderP * capstanRatio * ticktsToDegrees));
 
-        } else if (deltaPos < -180) {
-            deltaPos += 360;
-        }
-
-        turretPRelative -= (deltaPos * turretRatio * gearRatio);
-
-        turretTarget = Range.clip(turretTarget, -maxTurretTurnDegrees, maxTurretTurnDegrees);
-
-        error = turretTarget - turretPRelative;
-
-        principalTurretController.setSetPoint(turretTarget);
-
-        pidPower = principalTurretController.calculate(turretPRelative);
-
-        double targetPower = Range.clip(pidPower, -1, 1);
-
-        turretS1.setPower(targetPower);
-        turretS2.setPower(targetPower);
-
-        lastTurretP = turretP;
-
-        FtcDashboard.getInstance().getTelemetry().addData("TurretPRel", turretPRelative);
-        FtcDashboard.getInstance().getTelemetry().addData("TurretTarget", turretTarget);
-        FtcDashboard.getInstance().getTelemetry().addData("TurretError", error);
-
-        telemetry.addData("realIsManual", realIsManual);
-        telemetry.addData("turretAbsolutePos", turretAbsolutepos);
-
-        double chassisHeading = follower.getPose().getHeading(); // degrees
-        turretAbsolutepos = wrapAngle(chassisHeading - turretPRelative);
-
+        FtcDashboard.getInstance().getTelemetry().addData("turret power", turretS1.getPower());
+        FtcDashboard.getInstance().getTelemetry().addData("turret angle", turretPRelative);
+        FtcDashboard.getInstance().getTelemetry().addData("turret to goal angle", getTurretToGoalAngle());
+        FtcDashboard.getInstance().getTelemetry().addData("distance to goal", getDistanceToGoal() );
 
     }
 
@@ -147,5 +145,25 @@ public class TurretSubsystem extends SubsystemBase {
         return angle;
     }
 
+    public double getRobotToGoalAngle() {
+        return robotToGoalAngle;
+    }
+
+    public double getTurretToGoalAngle() {
+        return turretToGoalAngle;
+    }
+
+    public double getDistanceToGoal(){
+        return distanceToGoal;
+    }
+
+
+    public double getCurrentPosition() {
+        return turretPRelative;
+    }
+    public void resetEncoder() {
+        turretE.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        turretE.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+    }
 
 }

@@ -21,12 +21,12 @@ public class SorterSubsystem extends SubsystemBase {
 
     //CONSTANTS
 
-    public static double upRampPos = 0.8;
+    public static double upRampPos = 0.85;
     public static double downRampPos = 0.5;
 
     public static double blockersUp = -0.35;
 
-    public static double blockerHHidePos = 0.41;
+    public static double blockerHHidePos = 0.53;
     public static double blockerHFreePos = 0.75;
 
     public static int waitAimTimer = 600;

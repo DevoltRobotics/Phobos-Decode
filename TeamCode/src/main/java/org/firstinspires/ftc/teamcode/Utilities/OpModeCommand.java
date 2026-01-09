@@ -9,6 +9,7 @@ import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.bylazar.telemetry.TelemetryManager;
 import com.pedropathing.follower.Follower;
+import com.qualcomm.hardware.gobilda.GoBildaPinpointDriver;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.seattlesolvers.solverslib.command.Command;
@@ -21,7 +22,6 @@ import org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.rampCMD;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 import org.firstinspires.ftc.teamcode.pedroPathing.PedroSubsystem;
 import org.firstinspires.ftc.teamcode.Subsystems.Intake.IntakeSubsystem;
-import org.firstinspires.ftc.teamcode.Subsystems.Lifting.LiftingSubsystem;
 import org.firstinspires.ftc.teamcode.Subsystems.Shooter.ShooterSubsystem;
 import org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.SorterSubsystem;
 import org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.horizontalBlockerCMD;
@@ -51,6 +51,9 @@ public abstract class OpModeCommand extends OpMode {
 
     public IMU imu;
 
+    GoBildaPinpointDriver pinpoint;
+
+
     public OpModeCommand(Aliance alliance, boolean isAuto) {
         this.currentAliance = alliance;
         this.isAuto = isAuto;
@@ -78,17 +81,20 @@ public abstract class OpModeCommand extends OpMode {
 
     @Override
     public void init() {
+        pinpoint = hardwareMap.get(GoBildaPinpointDriver.class, "pinpoint");
+
         telemetry = new MultipleTelemetry(
                 telemetry,
                 FtcDashboard.getInstance().getTelemetry()
         );
 
+
         register(
-                visionSb = new VisionSubsystem(hardwareMap, currentAliance, isAuto)
+                visionSb = new VisionSubsystem(hardwareMap, currentAliance, isAuto, pinpoint)
 
         );
 
-        follower = Constants.createFollower(hardwareMap, visionSb.limelight);
+        follower = Constants.createFollower(hardwareMap, visionSb.ll);
 
         follower.update();
 
@@ -97,7 +103,7 @@ public abstract class OpModeCommand extends OpMode {
                 intakeSb = new IntakeSubsystem(hardwareMap),
                 sorterSb = new SorterSubsystem(hardwareMap, telemetry),
                 sensorsSb = new SensorsSubsystem(hardwareMap, telemetry),
-                turretSb = new TurretSubsystem(hardwareMap, follower, telemetry, currentAliance),
+                turretSb = new TurretSubsystem(hardwareMap, follower, telemetry, intakeSb.intakeM, currentAliance),
                 //liftingSb = new LiftingSubsystem(hardwareMap),
                 shooterSb = new ShooterSubsystem(hardwareMap, telemetry)
         );
@@ -134,7 +140,7 @@ public abstract class OpModeCommand extends OpMode {
     public void loop() {
         telemetry.addData("Heading", Math.toDegrees(follower.poseTracker.getPose().getHeading()));
 
-        telemetryM.update();
+        //telemetryM.update(telemetry);
         FtcDashboard.getInstance().getTelemetry().update();
         run();
     }
