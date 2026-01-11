@@ -57,7 +57,7 @@ public class TURRET_PID_TUNER extends OpModeCommand {
 
     GamepadEx garra;
 
-    public static int turretTarget = 40;
+    public static double turretTarget = 60;
 
     public TURRET_PID_TUNER() {
         super(Aliance.RED, false);
@@ -72,17 +72,13 @@ public class TURRET_PID_TUNER extends OpModeCommand {
                 garra,
                 GamepadKeys.Button.A);
 
-        /*turretRight.whenPressed(new turretToPosCMD(turretSb, turretTarget));
+        turretRight.whenPressed(new turretToPosCMD(turretSb, turretTarget));
 
         Button turretLeft = new GamepadButton(
                 garra,
                 GamepadKeys.Button.B);
 
         turretLeft.whenPressed(new turretToPosCMD(turretSb, -turretTarget));
-
-
-         */
-
 
     }
 }

@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.Utilities;
 
+import static org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.SorterSubsystem.blockerHFreePos;
 import static org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.SorterSubsystem.blockerHHidePos;
 import static org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.SorterSubsystem.blockersUp;
 import static org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.SorterSubsystem.upRampPos;
@@ -9,16 +10,29 @@ import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.bylazar.telemetry.TelemetryManager;
 import com.pedropathing.follower.Follower;
+import com.pedropathing.paths.PathChain;
 import com.qualcomm.hardware.gobilda.GoBildaPinpointDriver;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.seattlesolvers.solverslib.command.Command;
 import com.seattlesolvers.solverslib.command.CommandScheduler;
+import com.seattlesolvers.solverslib.command.InstantCommand;
+import com.seattlesolvers.solverslib.command.ParallelCommandGroup;
+import com.seattlesolvers.solverslib.command.ParallelDeadlineGroup;
+import com.seattlesolvers.solverslib.command.ParallelRaceGroup;
 import com.seattlesolvers.solverslib.command.SequentialCommandGroup;
 import com.seattlesolvers.solverslib.command.Subsystem;
+import com.seattlesolvers.solverslib.command.WaitCommand;
 
+import org.firstinspires.ftc.teamcode.Subsystems.Intake.moveIntakeAutonomousCMD;
 import org.firstinspires.ftc.teamcode.Subsystems.Sensors.SensorsSubsystem;
+import org.firstinspires.ftc.teamcode.Subsystems.Shooter.shooterToBasketCMD;
+import org.firstinspires.ftc.teamcode.Subsystems.Shooter.shooterToVelCMD;
+import org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.postSorterCmd;
+import org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.preSorterCmd;
 import org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.rampCMD;
+import org.firstinspires.ftc.teamcode.Subsystems.Turret.turretToBasketCMD;
+import org.firstinspires.ftc.teamcode.Subsystems.Turret.turretToPosCMD;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 import org.firstinspires.ftc.teamcode.pedroPathing.PedroSubsystem;
 import org.firstinspires.ftc.teamcode.Subsystems.Intake.IntakeSubsystem;
@@ -51,8 +65,6 @@ public abstract class OpModeCommand extends OpMode {
 
     public IMU imu;
 
-    GoBildaPinpointDriver pinpoint;
-
 
     public OpModeCommand(Aliance alliance, boolean isAuto) {
         this.currentAliance = alliance;
@@ -81,7 +93,6 @@ public abstract class OpModeCommand extends OpMode {
 
     @Override
     public void init() {
-        pinpoint = hardwareMap.get(GoBildaPinpointDriver.class, "pinpoint");
 
         telemetry = new MultipleTelemetry(
                 telemetry,
@@ -90,7 +101,7 @@ public abstract class OpModeCommand extends OpMode {
 
 
         register(
-                visionSb = new VisionSubsystem(hardwareMap, currentAliance, isAuto, pinpoint)
+                visionSb = new VisionSubsystem(hardwareMap, telemetry, currentAliance, isAuto, follower)
 
         );
 
@@ -157,6 +168,71 @@ public abstract class OpModeCommand extends OpMode {
                 new horizontalBlockerCMD(sorterSb, blockerHHidePos),
                 new lateralBlockersCMD(sorterSb, 0, blockersUp),
                 new rampCMD(sorterSb, upRampPos)
+        );
+    }
+
+    public Command sorter3CMD(PathChain shootPath) {
+        return new SequentialCommandGroup(
+                new moveIntakeAutonomousCMD(intakeSb, 0),
+                new WaitCommand(100),
+
+                new preSorterCmd(sorterSb, sensorsSb, visionSb, 0.3),
+
+                new moveIntakeAutonomousCMD(intakeSb, 1, 0.7),
+
+                new shooterToBasketCMD(shooterSb, turretSb),
+
+                new WaitCommand(400),
+
+                new InstantCommand(
+                        () -> pedroSb.follower.setMaxPower(0.9)
+                ),
+
+                new ParallelRaceGroup(
+
+                        new turretToBasketCMD(turretSb),
+                        new ParallelCommandGroup(
+                                pedroSb.followPathCmd(shootPath),
+
+                                new SequentialCommandGroup(
+                                        new WaitCommand(900),
+                                        new moveIntakeAutonomousCMD(intakeSb, -0.6),
+                                        new WaitCommand(150),
+                                        new postSorterCmd(sorterSb, sensorsSb, visionSb),
+                                        new moveIntakeAutonomousCMD(intakeSb, 1)
+
+                                )
+                        ))
+        );
+    }
+
+    public Command shootThreeCMD() {
+        return new ParallelDeadlineGroup(
+
+                new WaitCommand(1500), // deadline
+
+                new SequentialCommandGroup(
+                        new horizontalBlockerCMD(sorterSb, blockerHFreePos),
+                        new WaitCommand(1000),
+                        new lateralBlockersCMD(sorterSb, blockersUp, blockersUp)
+                ),
+
+                new SequentialCommandGroup(
+                        new WaitCommand(200),
+                        new moveIntakeAutonomousCMD(intakeSb, 1)
+                ),
+
+                new turretToBasketCMD(turretSb)
+        );
+    }
+
+    public Command stopShootCMD() {
+        return new SequentialCommandGroup(
+                new moveIntakeAutonomousCMD(intakeSb, 0),
+                new shooterToVelCMD(shooterSb, 0),
+                new turretToPosCMD(turretSb, 0.0),
+                new horizontalBlockerCMD(sorterSb, blockerHHidePos),
+                new lateralBlockersCMD(sorterSb, 0, 0)
         );
     }
 }

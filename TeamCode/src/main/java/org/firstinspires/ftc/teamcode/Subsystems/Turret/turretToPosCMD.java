@@ -32,42 +32,13 @@ public class turretToPosCMD extends CommandBase {
 
     @Override
     public void execute() {
+        turretSb.turretTarget = targetPos;
 
-        if(targetPos == null) {
-            cancel();
-            return;
-        }
-
-        double shortError = AngleUnit.normalizeDegrees(targetPos - turretSb.turretPRelative);
-        double longError = shortError > 0
-                ? shortError - 360
-                : shortError + 360;
-
-        double predictedShort = turretSb.turretPRelative + shortError;
-
-        if(predictedShort >= TurretSubsystem.lowerLimit && predictedShort <= TurretSubsystem.upperLimit) {
-            error = shortError;
-        } else {
-            error = longError;
-        }
-
-        turretSb.setTurretPower(turretSb.turretPid.calculate(error, 0));
-
-        FtcDashboard.getInstance().getTelemetry().addData("turret target", targetPos);
-    }
-
-    @Override
-    public void end(boolean interrupted) {
-        turretSb.setTurretPower(0);
     }
 
     @Override
     public boolean isFinished() {
-        if(finishOnSetpoint) {
-            return Math.abs(turretSb.turretPid.getPositionError()) <= 5;
-        } else {
-            return false;
-        }
+        return true;
     }
 
 }

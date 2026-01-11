@@ -25,13 +25,16 @@ import com.seattlesolvers.solverslib.gamepad.GamepadKeys;
 import org.firstinspires.ftc.teamcode.Subsystems.Intake.moveIntakeAutonomousCMD;
 import org.firstinspires.ftc.teamcode.Subsystems.Intake.moveIntakeTeleOpCMD;
 import org.firstinspires.ftc.teamcode.Subsystems.Sensors.lightSorterCMD;
+import org.firstinspires.ftc.teamcode.Subsystems.Shooter.shooterToBasketCMD;
 import org.firstinspires.ftc.teamcode.Subsystems.Shooter.shooterToVelCMD;
 import org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.horizontalBlockerCMD;
 import org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.lateralBlockersCMD;
 import org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.preSorterTeleopCMD;
 import org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.rampCMD;
+import org.firstinspires.ftc.teamcode.Subsystems.Turret.turretDefaultTeleopCMD;
 import org.firstinspires.ftc.teamcode.Subsystems.Turret.turretHoldCMD;
 import org.firstinspires.ftc.teamcode.Subsystems.Turret.turretPowerCMD;
+import org.firstinspires.ftc.teamcode.Subsystems.Turret.turretToBasketCMD;
 import org.firstinspires.ftc.teamcode.Subsystems.Turret.turretToPosCMD;
 import org.firstinspires.ftc.teamcode.Utilities.Aliance;
 import org.firstinspires.ftc.teamcode.Utilities.Artifact;
@@ -52,8 +55,9 @@ public abstract class teleOp extends OpModeCommand {
 
     @Override
     public void initialize() {
-        follower.setStartingPose(new Pose(pedroSb.EndPose.getX(), pedroSb.EndPose.getY(), pedroSb.EndPose.getHeading() + angleOffSet));
+        //follower.setStartingPose(new Pose(pedroSb.EndPose.getX(), pedroSb.EndPose.getY(), pedroSb.EndPose.getHeading() + angleOffSet));
 
+        follower.setStartingPose(new Pose(72, 72, 0));
         //chasis = new GamepadEx(gamepad1);
         garra = new GamepadEx(gamepad2);
 
@@ -69,19 +73,21 @@ public abstract class teleOp extends OpModeCommand {
         intakeIn.whileActiveOnce(new moveIntakeTeleOpCMD(intakeSb, 1, 0.8));
         intakeOut.whileActiveOnce(new moveIntakeTeleOpCMD(intakeSb, -0.7, -1));
 
-        CommandScheduler.getInstance().setDefaultCommand(turretSb, new turretHoldCMD(turretSb));
+        CommandScheduler.getInstance().setDefaultCommand(turretSb, new turretDefaultTeleopCMD(turretSb, ()-> isTurretManual, gamepad2));
 
-        Button positiveTurret = new GamepadButton(
+        /*Button positiveTurret = new GamepadButton(
                 garra,
                 GamepadKeys.Button.RIGHT_BUMPER);
 
-        positiveTurret.whileHeld(new turretPowerCMD(turretSb, 1));
+        positiveTurret.whileActiveOnce(new turretPowerCMD(turretSb, 1));
 
         Button negativeTurret = new GamepadButton(
                 garra,
                 GamepadKeys.Button.LEFT_BUMPER);
 
-        negativeTurret.whileHeld(new turretPowerCMD(turretSb, -1));
+        negativeTurret.whileActiveOnce(new turretPowerCMD(turretSb, -1));
+
+         */
 
         CommandScheduler.getInstance().setDefaultCommand(sensorsSb, new lightSorterCMD(sensorsSb, turretSb, shooterSb));
 
@@ -113,15 +119,13 @@ public abstract class teleOp extends OpModeCommand {
 
         prepareShoot.whenPressed(
                 new ParallelCommandGroup(
-                        //new shooterToBasketCMD(shooterSb, currentAliance, follower),
-                        //new turretToBasketCMD(turretSb, currentAliance, follower),
+                        new shooterToBasketCMD(shooterSb, turretSb),
 
-                        new shooterToVelCMD(shooterSb, 1300)
-                        /*new InstantCommand(
+                        new InstantCommand(
                                 () -> isTurretManual = false
                         )
 
-                         */
+
 
                 ));
 
@@ -132,17 +136,14 @@ public abstract class teleOp extends OpModeCommand {
         shootButton.whenPressed(
                 new ParallelCommandGroup(
 
-                        //new shooterToBasketCMD(shooterSb, currentAliance, follower),
-                        //new turretToBasketCMD(turretSb, currentAliance, follower),
+                        new shooterToBasketCMD(shooterSb, turretSb),
+                        new turretToBasketCMD(turretSb),
 
-                        /*
                         new InstantCommand(
                                 () -> {
                                     isTurretManual = false;
                                 }
                         ),
-
-                         */
 
                         new InstantCommand(
                                 () -> sorterSb.isShooting = true

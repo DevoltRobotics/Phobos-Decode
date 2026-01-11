@@ -2,6 +2,8 @@ package org.firstinspires.ftc.teamcode.Subsystems.Vision;
 
 import static org.firstinspires.ftc.teamcode.PoseEstimate.ConversionUtil.from3DToPedro;
 
+import com.acmerobotics.dashboard.FtcDashboard;
+import com.pedropathing.follower.Follower;
 import com.qualcomm.hardware.gobilda.GoBildaPinpointDriver;
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
@@ -36,16 +38,18 @@ public class VisionSubsystem extends SubsystemBase {
 
     public Telemetry telemetry;
 
-    GoBildaPinpointDriver pinpoint;
+    Follower follower;
 
-    public VisionSubsystem(HardwareMap hMap, Aliance alliance, boolean isAuto, GoBildaPinpointDriver pinpoint) {
+    public VisionSubsystem(HardwareMap hMap, Telemetry telemetry, Aliance alliance, boolean isAuto, Follower follower) {
         ll = hMap.get(Limelight3A.class, "limelight");
 
         this.alliance = alliance;
 
         this.isAuto = isAuto;
 
-        //this.telemetry = telemetry;
+        this.telemetry = telemetry;
+
+        this.follower = follower;
 
         ll.setPollRateHz(100);
         ll.start();
@@ -54,23 +58,14 @@ public class VisionSubsystem extends SubsystemBase {
 
     }
 
-    public void periodic(){
+    public void periodic() {
         result = ll.getLatestResult();
 
-        ll.updateRobotOrientation(pinpoint.getHeading(AngleUnit.DEGREES));
+        //ll.updateRobotOrientation(follower.getPose().getHeading());
 
-        if (result != null) {
-            if (result.isValid()) {
-                Pose3D botpose = result.getBotpose_MT2();
 
-                Pose2d mtPose = from3DToPedro(botpose, pinpoint.getHeading(AngleUnit.DEGREES));
+        FtcDashboard.getInstance().getTelemetry().update();
 
-                telemetry.addData("mtPoseX", mtPose.getX());
-                telemetry.addData("mtPoseY", mtPose.getY());
-                telemetry.addData("mtPoseHeading", mtPose.getRotation().getDegrees());
-
-            }
-        }
     }
 
     public Double getAllianceTA() {
@@ -118,11 +113,12 @@ public class VisionSubsystem extends SubsystemBase {
 
         return null;
     }
+
     public Pattern getPatternDetected() {
         if (result != null && result.isValid() && !result.getFiducialResults().isEmpty()) {
             int id = result.getFiducialResults().get(0).getFiducialId();
 
-            switch (id){
+            switch (id) {
                 case 17:
                     return Pattern.GPP;
                 case 18:

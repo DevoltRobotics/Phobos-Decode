@@ -74,7 +74,7 @@ public class Constants {
 
 
 
-    /*public static PinpointConstants localizerConstants = new PinpointConstants()
+    public static PinpointConstants localizerConstants = new PinpointConstants()
             .forwardPodY(1)
             .strafePodX(-1.5)
             .distanceUnit(DistanceUnit.INCH)
@@ -85,7 +85,7 @@ public class Constants {
             .strafeEncoderDirection(GoBildaPinpointDriver.EncoderDirection.FORWARD);
 
 
-     */
+     /*
 
 
     public static DriveEncoderConstants localizerConstants = new DriveEncoderConstants()
@@ -106,6 +106,8 @@ public class Constants {
             ;
 
 
+      */
+
 
     public static PathConstraints pathConstraints = new PathConstraints(
             0.995,
@@ -123,8 +125,8 @@ public class Constants {
         return new FollowerBuilder(followerConstants, hardwareMap)
                 .pathConstraints(pathConstraints)
                 .mecanumDrivetrain(driveConstants)
-                //.setLocalizer(new VisionPinpointLocalizer(limelight, new PinpointLocalizer(hardwareMap, localizerConstants)))
-                .driveEncoderLocalizer(localizerConstants)
+                .setLocalizer(new VisionPinpointLocalizer(limelight, new PinpointLocalizer(hardwareMap, localizerConstants)))
+                //.driveEncoderLocalizer(localizerConstants)
                 .build();
 
 

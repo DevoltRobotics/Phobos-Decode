@@ -17,11 +17,11 @@ public class turretPowerCMD extends CommandBase {
 
     @Override
     public void execute() {
-        turretsb.setTurretPower(power);
+        //turretsb.setTurretPower(power);
     }
 
     @Override
     public void end(boolean interrupted) {
-        turretsb.setTurretPower(0);
+       // turretsb.setTurretPower(0);
     }
 }

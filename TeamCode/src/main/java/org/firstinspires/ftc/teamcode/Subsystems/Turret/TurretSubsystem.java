@@ -9,6 +9,7 @@ import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
+import com.qualcomm.robotcore.util.Range;
 import com.seattlesolvers.solverslib.command.SubsystemBase;
 import com.seattlesolvers.solverslib.controller.PIDFController;
 
@@ -33,8 +34,6 @@ public class TurretSubsystem extends SubsystemBase {
     public Follower follower;
 
     public Aliance alliance;
-
-
     public static double Minimum = 0.037;
     public static double MinimumEnc = 0.06;
 
@@ -43,11 +42,7 @@ public class TurretSubsystem extends SubsystemBase {
 
     public static double ticktsToDegrees = (double) 360 / 8192;
 
-    public static double furtherCorrectionAuto = 2;
-
     public static double furtherCorrection = 3;
-
-    public static double manualIncrement = 2.5;
 
     public static int upperLimit = 110;
 
@@ -55,21 +50,26 @@ public class TurretSubsystem extends SubsystemBase {
 
     public double encoderP = 0;
 
-    public double turretPRelative = 0;
+    public static double turretPRelative = 0;
 
     public double turretTarget = 0;
 
-    double robotToGoalAngle;
-    double turretToGoalAngle;
+    double turretPower = 0;
+
+    public double robotToGoalAngle;
+    public double turretToGoalAngle;
 
     public double distanceToGoal = 0;
 
     double goalX, goalY;
 
+    public boolean realIsManual;
+
     public void setGoalPos(double x, double y) {
         goalX = x;
         goalY = y;
     }
+
     public TurretSubsystem(HardwareMap hMap, Follower follower, Telemetry telemetry, DcMotor turretE, Aliance alliance) {
         turretS1 = hMap.get(CRServo.class, "trt1");
         turretS2 = hMap.get(CRServo.class, "trt2");
@@ -93,21 +93,8 @@ public class TurretSubsystem extends SubsystemBase {
             setGoalPos(143, 143);
         }
 
-        turretPid.setCoefficients(TurretSubsystem.principalTurretCoeffs);
-        turretPid.setMinimumOutput(TurretSubsystem.MinimumEnc);
+        turretPid = new PIDFController(principalTurretCoeffs);
 
-
-    }
-
-    public void setTurretPower(double power) {
-        if ((turretPRelative < -turretPRelative && power > 0) || (turretPRelative > upperLimit && power < 0)) {
-            turretS1.setPower(0);
-            turretS2.setPower(0);
-
-        } else {
-            turretS1.setPower(power);
-            turretS2.setPower(power);
-        }
     }
 
     @Override
@@ -119,22 +106,38 @@ public class TurretSubsystem extends SubsystemBase {
         double dy = goalY - robotPos.getY();
 
         robotToGoalAngle = Math.toDegrees(Math.atan2(dy, dx));//direction
-        distanceToGoal = Math.hypot(dx,dy);//magnitude
+        distanceToGoal = Math.hypot(dx, dy);//magnitude
 
         turretToGoalAngle = AngleUnit.normalizeDegrees(Math.toDegrees(robotPos.getHeading()) - robotToGoalAngle);
 
         encoderP = turretE.getCurrentPosition();
 
-        turretPRelative = AngleUnit.normalizeDegrees((encoderP * capstanRatio * ticktsToDegrees));
+        //turretPRelative = AngleUnit.normalizeDegrees((encoderP * capstanRatio * ticktsToDegrees));
+
+        turretPRelative = (encoderP * capstanRatio * ticktsToDegrees);
+
+        turretPid.setCoefficients(TurretSubsystem.principalTurretCoeffs);
+        turretPid.setMinimumOutput(TurretSubsystem.MinimumEnc);
+
+        double target = Range.clip(turretTarget, lowerLimit, upperLimit);
+
+        turretPower = turretPid.calculate(turretPRelative, target);
+
+        turretS1.setPower(turretPower);
+        turretS2.setPower(turretPower);
+
+        FtcDashboard.getInstance().getTelemetry().addData("isTurretManual", realIsManual);
+
+        FtcDashboard.getInstance().getTelemetry().addData("turretTarget", turretTarget);
 
         FtcDashboard.getInstance().getTelemetry().addData("turret power", turretS1.getPower());
         FtcDashboard.getInstance().getTelemetry().addData("turret angle", turretPRelative);
         FtcDashboard.getInstance().getTelemetry().addData("turret to goal angle", getTurretToGoalAngle());
-        FtcDashboard.getInstance().getTelemetry().addData("distance to goal", getDistanceToGoal() );
+        FtcDashboard.getInstance().getTelemetry().addData("distance to goal", getDistanceToGoal());
 
     }
 
-    public void setTarget (int target){
+    public void setTarget(int target) {
         turretTarget = target;
 
     }
@@ -153,7 +156,7 @@ public class TurretSubsystem extends SubsystemBase {
         return turretToGoalAngle;
     }
 
-    public double getDistanceToGoal(){
+    public double getDistanceToGoal() {
         return distanceToGoal;
     }
 
@@ -161,6 +164,7 @@ public class TurretSubsystem extends SubsystemBase {
     public double getCurrentPosition() {
         return turretPRelative;
     }
+
     public void resetEncoder() {
         turretE.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         turretE.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
