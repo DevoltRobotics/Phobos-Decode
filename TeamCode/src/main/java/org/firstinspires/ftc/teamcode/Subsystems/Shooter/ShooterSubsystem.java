@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.Subsystems.Shooter;
 
+import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -44,6 +45,8 @@ public class ShooterSubsystem extends SubsystemBase {
 
     public double shooterTarget = 0;
 
+    public double error = 0;
+
     //CONSTANTS
     
     public ShooterSubsystem(HardwareMap hMap, Telemetry telemetry) {
@@ -76,6 +79,10 @@ public class ShooterSubsystem extends SubsystemBase {
 
         shooterMUp.setPower(shooterTargetPwr);
         shooterMDown.setPower(shooterTargetPwr);
+
+        error = shooterTarget - motorVel;
+
+        FtcDashboard.getInstance().getTelemetry().addData("shooterError", error);
     }
 
 

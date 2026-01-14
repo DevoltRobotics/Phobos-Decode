@@ -11,11 +11,10 @@ import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.bylazar.telemetry.TelemetryManager;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.paths.PathChain;
-import com.qualcomm.hardware.gobilda.GoBildaPinpointDriver;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-import com.qualcomm.robotcore.hardware.IMU;
 import com.seattlesolvers.solverslib.command.Command;
 import com.seattlesolvers.solverslib.command.CommandScheduler;
+import com.seattlesolvers.solverslib.command.ConditionalCommand;
 import com.seattlesolvers.solverslib.command.InstantCommand;
 import com.seattlesolvers.solverslib.command.ParallelCommandGroup;
 import com.seattlesolvers.solverslib.command.ParallelDeadlineGroup;
@@ -25,6 +24,7 @@ import com.seattlesolvers.solverslib.command.Subsystem;
 import com.seattlesolvers.solverslib.command.WaitCommand;
 
 import org.firstinspires.ftc.teamcode.Subsystems.Intake.moveIntakeAutonomousCMD;
+import org.firstinspires.ftc.teamcode.Subsystems.Lifting.LiftingSubsystem;
 import org.firstinspires.ftc.teamcode.Subsystems.Sensors.SensorsSubsystem;
 import org.firstinspires.ftc.teamcode.Subsystems.Shooter.shooterToBasketCMD;
 import org.firstinspires.ftc.teamcode.Subsystems.Shooter.shooterToVelCMD;
@@ -59,12 +59,9 @@ public abstract class OpModeCommand extends OpMode {
     public IntakeSubsystem intakeSb;
     public SorterSubsystem sorterSb;
     public SensorsSubsystem sensorsSb;
-    //public LiftingSubsystem liftingSb;
+    public LiftingSubsystem liftingSb;
     public ShooterSubsystem shooterSb;
     public TurretSubsystem turretSb;
-
-    public IMU imu;
-
 
     public OpModeCommand(Aliance alliance, boolean isAuto) {
         this.currentAliance = alliance;
@@ -115,7 +112,7 @@ public abstract class OpModeCommand extends OpMode {
                 sorterSb = new SorterSubsystem(hardwareMap, telemetry),
                 sensorsSb = new SensorsSubsystem(hardwareMap, telemetry),
                 turretSb = new TurretSubsystem(hardwareMap, follower, telemetry, intakeSb.intakeM, currentAliance),
-                //liftingSb = new LiftingSubsystem(hardwareMap),
+                liftingSb = new LiftingSubsystem(hardwareMap),
                 shooterSb = new ShooterSubsystem(hardwareMap, telemetry)
         );
 
@@ -166,50 +163,44 @@ public abstract class OpModeCommand extends OpMode {
     public Command startCMD() {
         return new SequentialCommandGroup(
                 new horizontalBlockerCMD(sorterSb, blockerHHidePos),
-                new lateralBlockersCMD(sorterSb, 0, blockersUp),
+                new lateralBlockersCMD(sorterSb, blockersUp, 0),
                 new rampCMD(sorterSb, upRampPos)
         );
     }
 
-    public Command sorter3CMD(PathChain shootPath) {
+    public Command sorter3CMD(PathChain shootPath, double vel) {
         return new SequentialCommandGroup(
-                new moveIntakeAutonomousCMD(intakeSb, 0),
-                new WaitCommand(100),
+                new shooterToVelCMD(shooterSb, vel),
 
                 new preSorterCmd(sorterSb, sensorsSb, visionSb, 0.3),
 
                 new moveIntakeAutonomousCMD(intakeSb, 1, 0.7),
 
-                new shooterToBasketCMD(shooterSb, turretSb),
-
-                new WaitCommand(400),
-
-                new InstantCommand(
-                        () -> pedroSb.follower.setMaxPower(0.9)
-                ),
-
                 new ParallelRaceGroup(
 
-                        new turretToBasketCMD(turretSb),
+                        new turretToBasketCMD(turretSb, visionSb),
                         new ParallelCommandGroup(
                                 pedroSb.followPathCmd(shootPath),
 
                                 new SequentialCommandGroup(
-                                        new WaitCommand(900),
-                                        new moveIntakeAutonomousCMD(intakeSb, -0.6),
-                                        new WaitCommand(150),
-                                        new postSorterCmd(sorterSb, sensorsSb, visionSb),
-                                        new moveIntakeAutonomousCMD(intakeSb, 1)
+                                        new WaitCommand(500),
 
+                                        new moveIntakeAutonomousCMD(intakeSb, 0.8, -1),
+                                        new WaitCommand(300),
+                                        new moveIntakeAutonomousCMD(intakeSb, 0, 0),
+
+                                        new postSorterCmd(sorterSb, sensorsSb, visionSb),
+
+                                        new WaitCommand(150)
                                 )
                         ))
         );
     }
 
-    public Command shootThreeCMD() {
+    public Command shootThreeSorterCMD() {
         return new ParallelDeadlineGroup(
 
-                new WaitCommand(1500), // deadline
+                new WaitCommand(1800), // deadline
 
                 new SequentialCommandGroup(
                         new horizontalBlockerCMD(sorterSb, blockerHFreePos),
@@ -218,21 +209,43 @@ public abstract class OpModeCommand extends OpMode {
                 ),
 
                 new SequentialCommandGroup(
+                        new moveIntakeAutonomousCMD(intakeSb, 0, 0),
                         new WaitCommand(200),
-                        new moveIntakeAutonomousCMD(intakeSb, 1)
+                        new moveIntakeAutonomousCMD(intakeSb, 1, 1)
                 ),
 
-                new turretToBasketCMD(turretSb)
+                new turretToBasketCMD(turretSb, visionSb)
         );
     }
 
-    public Command stopShootCMD() {
+    public Command shootThreeSpamerCMD() {
+        return new ParallelDeadlineGroup(
+
+                new WaitCommand(1000), // deadline
+
+                new SequentialCommandGroup(
+                        new horizontalBlockerCMD(sorterSb, blockerHFreePos),
+                        new moveIntakeAutonomousCMD(intakeSb, 1)
+
+                ),
+
+                new turretToBasketCMD(turretSb, visionSb),
+                new shooterToBasketCMD(shooterSb, turretSb, visionSb)
+        );
+    }
+
+    public Command stopShootCMD(boolean isSorter) {
         return new SequentialCommandGroup(
                 new moveIntakeAutonomousCMD(intakeSb, 0),
                 new shooterToVelCMD(shooterSb, 0),
                 new turretToPosCMD(turretSb, 0.0),
                 new horizontalBlockerCMD(sorterSb, blockerHHidePos),
-                new lateralBlockersCMD(sorterSb, 0, 0)
+
+                new ConditionalCommand(
+                        new lateralBlockersCMD(sorterSb, 0, 0),
+                        new lateralBlockersCMD(sorterSb, blockersUp, 0),
+                        () -> isSorter)
+
         );
     }
 }

@@ -35,7 +35,7 @@ public class VisionPinpointLocalizer implements Localizer {
     PinpointOdometry odometry = new PinpointOdometry(kinematics, Rotation2d.kZero, new PinpointPositions(), Pose2d.kZero);
     PinpointPoseEstimator estimator = new PinpointPoseEstimator(odometry,
             VecBuilder.fill(0.05, 0.05, Units.degreesToRadians(5)),
-            VecBuilder.fill(.3, .3, 9999999)
+            VecBuilder.fill(.25, .25, 9999999)
     );
 
     Limelight3A ll;
@@ -70,6 +70,7 @@ public class VisionPinpointLocalizer implements Localizer {
     @Override
     public void setPose(Pose setPose) {
         estimator.resetPose(pedroToWPI(setPose));
+
     }
 
     @Override
@@ -93,17 +94,16 @@ public class VisionPinpointLocalizer implements Localizer {
 
                 Pose2d mtPose = from3DToPedro(botpose, localizer.getPose().getHeading());
 
-                estimator.setVisionMeasurementStdDevs(VecBuilder.fill(.0022, .0025, 9999999));
+                estimator.setVisionMeasurementStdDevs(VecBuilder.fill(.25, .25, 9999999));
                 estimator.addVisionMeasurement(mtPose, result.getTimestamp());
 
                 FtcDashboard.getInstance().getTelemetry().addData("botX", botpose.getPosition().x);
                 FtcDashboard.getInstance().getTelemetry().addData("botY", botpose.getPosition().y);
                 FtcDashboard.getInstance().getTelemetry().addData("botHeading", botpose.getOrientation());
 
-
-                FtcDashboard.getInstance().getTelemetry().addData("mtPoseX", mtPose.getX());
-                FtcDashboard.getInstance().getTelemetry().addData("mtPoseY", mtPose.getY());
-                FtcDashboard.getInstance().getTelemetry().addData("mtPoseHeading", mtPose.getRotation());
+                FtcDashboard.getInstance().getTelemetry().addData("mtPoseX", estimator.getEstimatedPosition().getX());
+                FtcDashboard.getInstance().getTelemetry().addData("mtPoseY", estimator.getEstimatedPosition().getY());
+                FtcDashboard.getInstance().getTelemetry().addData("mtPoseHeading", estimator.getEstimatedPosition().getRotation());
 
             }
         }

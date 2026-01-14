@@ -15,18 +15,39 @@ import static org.firstinspires.ftc.teamcode.Utilities.StaticConstants.shoootVso
 import static org.firstinspires.ftc.teamcode.Utilities.StaticConstants.shoootVsout5;
 import static org.firstinspires.ftc.teamcode.Utilities.StaticConstants.shoootVsout6;
 
+import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 import com.seattlesolvers.solverslib.command.CommandBase;
 import com.seattlesolvers.solverslib.util.InterpLUT;
 
 import org.firstinspires.ftc.teamcode.Subsystems.Turret.TurretSubsystem;
+import org.firstinspires.ftc.teamcode.Subsystems.Vision.VisionSubsystem;
 
 public class shooterToBasketCMD extends CommandBase {
 
     public static InterpLUT distanceLUT = new InterpLUT();
 
+    public static InterpLUT vsFunc = new InterpLUT();
+
+    Double TargetA;
+
+    private final ElapsedTime waitAimTimer;
+
+
     static {
-        distanceLUT.add(0, 0);
+        vsFunc.add(1, 1510);
+        vsFunc.add(24.5, 1520);
+        vsFunc.add(28.5, 1465);
+        vsFunc.add(38, 1400);
+        vsFunc.add(65, 1300);
+        vsFunc.add(100, 1230);
+        vsFunc.add(130, 1150);
+        vsFunc.add(200, 1100);
+        vsFunc.add(400, 1105);
+
+        vsFunc.createLUT();
+
+       /* distanceLUT.add(0, 0);
         distanceLUT.add(shoootVsint0, shoootVsout0);
         distanceLUT.add(shoootVsint1, shoootVsout1);
         distanceLUT.add(shoootVsint2, shoootVsout2);
@@ -36,33 +57,43 @@ public class shooterToBasketCMD extends CommandBase {
         distanceLUT.add(shoootVsint6, shoootVsout6);
         distanceLUT.add(1000000000, 1000000000);
 
-
         distanceLUT.createLUT();
-    }
 
-    double distance;
+        */
+    }
 
     private final ShooterSubsystem shooterSb;
 
     private final TurretSubsystem turretSb;
 
-    public shooterToBasketCMD(ShooterSubsystem shooterSb, TurretSubsystem turretSb) {
+    private final VisionSubsystem visionSb;
+
+    public shooterToBasketCMD(ShooterSubsystem shooterSb, TurretSubsystem turretSb, VisionSubsystem visionSb) {
         this.shooterSb = shooterSb;
         this.turretSb = turretSb;
 
+        this.visionSb = visionSb;
+
+        waitAimTimer = new ElapsedTime();
         addRequirements(this.shooterSb);
     }
 
     @Override
     public void execute() {
+        TargetA = visionSb.getAllianceTA();
 
-        distance = turretSb.getDistanceToGoal();
+        if (TargetA != null) {
+            double targetA = Range.clip(TargetA, 24, 200);
+            shooterSb.shooterTarget = vsFunc.get(targetA);
 
-        double velocity = distanceLUT.get(distance);
+            waitAimTimer.reset();
+        }/*else if (waitAimTimer.milliseconds() > 200){
+            double tagSizeDistance = distanceLUT.get(turretSb.getDistanceToGoal());
 
-        shooterSb.shooterTarget = (Range.clip(velocity, 1150,1600));
-
-        shooterSb.shooterTarget = distanceLUT.get(distance);
+            shooterSb.shooterTarget = vsFunc.get(tagSizeDistance);
+        }*/else {
+            shooterSb.shooterTarget = 1300;
+        }
 
     }
 

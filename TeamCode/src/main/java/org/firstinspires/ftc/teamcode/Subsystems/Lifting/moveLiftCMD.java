@@ -9,19 +9,23 @@ public class moveLiftCMD extends CommandBase {
 
     private final LiftingSubsystem liftingSb;
 
-    Gamepad gamepad;
-    public moveLiftCMD(LiftingSubsystem liftingSb, Gamepad gamepad) {
-        this.gamepad = gamepad;
+    double power;
+    public moveLiftCMD(LiftingSubsystem liftingSb, double power) {
 
         this.liftingSb = liftingSb;
+
+        this.power = power;
 
         addRequirements(liftingSb);
     }
 
     @Override
     public void execute() {
-        liftingSb.power = gamepad.left_stick_y;
+        liftingSb.setPower(power);
     }
 
-
+    @Override
+    public void end(boolean interrupted) {
+        liftingSb.setPower(power);
+    }
 }

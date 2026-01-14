@@ -11,24 +11,15 @@ public class turretToPosCMD extends CommandBase {
     TurretSubsystem turretSb;
 
     protected Double targetPos;
-    double error;
 
-    boolean finishOnSetpoint = false;
 
-    public turretToPosCMD(TurretSubsystem turretSb, Double targetPos, boolean finishOnSetpoint) {
+    public turretToPosCMD(TurretSubsystem turretSb, Double targetPos) {
         this.turretSb = turretSb;
 
         this.targetPos = targetPos;
 
-        this.finishOnSetpoint = finishOnSetpoint;
-
         addRequirements(this.turretSb);
     }
-
-    public turretToPosCMD(TurretSubsystem subsystem, Double targetPos) {
-        this(subsystem, targetPos, true);
-    }
-
 
     @Override
     public void execute() {

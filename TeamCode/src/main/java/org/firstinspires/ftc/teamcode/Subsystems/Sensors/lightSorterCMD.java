@@ -14,14 +14,16 @@ import org.firstinspires.ftc.teamcode.Utilities.Artifact;
 public class lightSorterCMD extends CommandBase {
 
     private final SensorsSubsystem sensorsSubsystem;
-    private final TurretSubsystem turretSb;
+
     private final ShooterSubsystem shooterSb;
 
-    public lightSorterCMD(SensorsSubsystem sensorsSb, TurretSubsystem turretSb, ShooterSubsystem shooterSb) {
+    private final VisionSubsystem visionSb;
+
+    public lightSorterCMD(SensorsSubsystem sensorsSb, ShooterSubsystem shooterSb, VisionSubsystem visionSb) {
         sensorsSubsystem = sensorsSb;
 
-        this.turretSb = turretSb;
         this.shooterSb = shooterSb;
+        this.visionSb = visionSb;
 
         addRequirements(sensorsSubsystem);
     }
@@ -30,10 +32,16 @@ public class lightSorterCMD extends CommandBase {
     @Override
     public void execute() {
 
-        if (sensorsSubsystem.sorterMode) {
+        Double tX = visionSb.getAllianceTX();
+        Double tA = visionSb.getAllianceTA();
+
+
+        if (sensorsSubsystem.liftingMode) {
+            sensorsSubsystem.light.setPosition(0.38);
+
+        } else if (sensorsSubsystem.sorterMode) {
             if (sensorsSubsystem.fourDetected) {
                 sensorsSubsystem.light.setPosition(0.28);
-
 
             } else if (sensorsSubsystem.targetArtifact == Artifact.Purple) {
                 sensorsSubsystem.light.setPosition(0.7);
@@ -44,22 +52,33 @@ public class lightSorterCMD extends CommandBase {
             }
 
         } else {
+            if (tX != null && tA != null && Math.abs(tX) < 12) {
+                if (tA < 50) {
+                    if (!visionSb.isAuto) {
+                        switch (visionSb.alliance) {
+                            case RED:
+                                tX += furtherCorrection;
+                                break;
 
-            if (sensorsSubsystem.laserState) {
-                sensorsSubsystem.light.setPosition(0.33);
+                            case BLUE:
+                                tX -= furtherCorrection;
+                                break;
+                        }
+                    }
+                }
+
+                sensorsSubsystem.light.setPosition(0.65);
+
+            } else if (sensorsSubsystem.laserState) {
+                sensorsSubsystem.light.setPosition(0.28);
 
             } else {
                 sensorsSubsystem.light.setPosition(0);
 
             }
 
-
         }
-
-
     }
-
-
 }
 
 

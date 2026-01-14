@@ -24,6 +24,7 @@ import com.seattlesolvers.solverslib.gamepad.GamepadKeys;
 
 import org.firstinspires.ftc.teamcode.Subsystems.Intake.moveIntakeAutonomousCMD;
 import org.firstinspires.ftc.teamcode.Subsystems.Intake.moveIntakeTeleOpCMD;
+import org.firstinspires.ftc.teamcode.Subsystems.Lifting.moveLiftCMD;
 import org.firstinspires.ftc.teamcode.Subsystems.Sensors.lightSorterCMD;
 import org.firstinspires.ftc.teamcode.Subsystems.Shooter.shooterToBasketCMD;
 import org.firstinspires.ftc.teamcode.Subsystems.Shooter.shooterToVelCMD;
@@ -32,10 +33,6 @@ import org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.lateralBlockers
 import org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.preSorterTeleopCMD;
 import org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.rampCMD;
 import org.firstinspires.ftc.teamcode.Subsystems.Turret.turretDefaultTeleopCMD;
-import org.firstinspires.ftc.teamcode.Subsystems.Turret.turretHoldCMD;
-import org.firstinspires.ftc.teamcode.Subsystems.Turret.turretPowerCMD;
-import org.firstinspires.ftc.teamcode.Subsystems.Turret.turretToBasketCMD;
-import org.firstinspires.ftc.teamcode.Subsystems.Turret.turretToPosCMD;
 import org.firstinspires.ftc.teamcode.Utilities.Aliance;
 import org.firstinspires.ftc.teamcode.Utilities.Artifact;
 import org.firstinspires.ftc.teamcode.Utilities.OpModeCommand;
@@ -43,11 +40,14 @@ import org.firstinspires.ftc.teamcode.Utilities.OpModeCommand;
 @Config
 public abstract class teleOp extends OpModeCommand {
 
-    //GamepadEx chasis;
+    GamepadEx chasis;
     GamepadEx garra;
 
     double angleOffSet;
     Boolean isTurretManual = true;
+
+    Boolean isClose = true;
+
 
     public teleOp(Aliance alliance) {
         super(alliance, false);
@@ -55,15 +55,45 @@ public abstract class teleOp extends OpModeCommand {
 
     @Override
     public void initialize() {
-        //follower.setStartingPose(new Pose(pedroSb.EndPose.getX(), pedroSb.EndPose.getY(), pedroSb.EndPose.getHeading() + angleOffSet));
+        //follower.setStartingPose(new Pose(pedroSb.EndPose.getX(), pedroSb.EndPose.getY(), pedroSb.EndPose.getHeading()));
 
-        follower.setStartingPose(new Pose(72, 72, 0));
-        //chasis = new GamepadEx(gamepad1);
+        follower.setStartingPose(new Pose(72, 72, angleOffSet));
+
+        chasis = new GamepadEx(gamepad1);
         garra = new GamepadEx(gamepad2);
 
         ///CHASSIS
 
-        CommandScheduler.getInstance().setDefaultCommand(pedroSb, pedroSb.fieldCentricCmd(gamepad1));
+        CommandScheduler.getInstance().setDefaultCommand(pedroSb, pedroSb.fieldCentricCmd(gamepad1, angleOffSet));
+
+        Button toggleLiftingMode = new GamepadButton(
+                chasis,
+                GamepadKeys.Button.PS);
+
+        toggleLiftingMode.whenPressed(
+                new InstantCommand(
+                        () -> sensorsSb.liftingMode = !sensorsSb.liftingMode
+                ));
+
+        Button liftingUp = new GamepadButton(
+                chasis,
+                GamepadKeys.Button.DPAD_UP);
+
+        Button liftingDown = new GamepadButton(
+                chasis,
+                GamepadKeys.Button.DPAD_DOWN);
+
+        liftingUp.whileActiveOnce(new ConditionalCommand(
+                new moveLiftCMD(liftingSb, -1),
+                new InstantCommand(),
+                () -> sensorsSb.liftingMode)
+        );
+
+        liftingDown.whileActiveOnce(new ConditionalCommand(
+                new moveLiftCMD(liftingSb, 1),
+                new InstantCommand(),
+                () -> sensorsSb.liftingMode)
+        );
 
         /// GARRA
 
@@ -73,7 +103,7 @@ public abstract class teleOp extends OpModeCommand {
         intakeIn.whileActiveOnce(new moveIntakeTeleOpCMD(intakeSb, 1, 0.8));
         intakeOut.whileActiveOnce(new moveIntakeTeleOpCMD(intakeSb, -0.7, -1));
 
-        CommandScheduler.getInstance().setDefaultCommand(turretSb, new turretDefaultTeleopCMD(turretSb, ()-> isTurretManual, gamepad2));
+        CommandScheduler.getInstance().setDefaultCommand(turretSb, new turretDefaultTeleopCMD(turretSb, visionSb, () -> isTurretManual, () -> isClose, gamepad2));
 
         /*Button positiveTurret = new GamepadButton(
                 garra,
@@ -89,7 +119,7 @@ public abstract class teleOp extends OpModeCommand {
 
          */
 
-        CommandScheduler.getInstance().setDefaultCommand(sensorsSb, new lightSorterCMD(sensorsSb, turretSb, shooterSb));
+        CommandScheduler.getInstance().setDefaultCommand(sensorsSb, new lightSorterCMD(sensorsSb, shooterSb, visionSb));
 
         CommandScheduler.getInstance().setDefaultCommand(sorterSb, new preSorterTeleopCMD(sorterSb, sensorsSb));
 
@@ -113,18 +143,40 @@ public abstract class teleOp extends OpModeCommand {
 
         );
 
-        Button prepareShoot = new GamepadButton(
+        Button prepareShootFar = new GamepadButton(
                 garra,
                 GamepadKeys.Button.DPAD_RIGHT);
 
-        prepareShoot.whenPressed(
+        prepareShootFar.whenPressed(
                 new ParallelCommandGroup(
-                        new shooterToBasketCMD(shooterSb, turretSb),
+                        new shooterToBasketCMD(shooterSb, turretSb, visionSb),
 
                         new InstantCommand(
                                 () -> isTurretManual = false
+                        ),
+
+                        new InstantCommand(
+                                () -> isClose = false
                         )
 
+
+                ));
+
+        Button prepareShootClose = new GamepadButton(
+                garra,
+                GamepadKeys.Button.DPAD_RIGHT);
+
+        prepareShootClose.whenPressed(
+                new ParallelCommandGroup(
+                        new shooterToBasketCMD(shooterSb, turretSb, visionSb),
+
+                        new InstantCommand(
+                                () -> isTurretManual = false
+                        ),
+
+                        new InstantCommand(
+                                () -> isClose = true
+                        )
 
 
                 ));
@@ -136,8 +188,7 @@ public abstract class teleOp extends OpModeCommand {
         shootButton.whenPressed(
                 new ParallelCommandGroup(
 
-                        new shooterToBasketCMD(shooterSb, turretSb),
-                        new turretToBasketCMD(turretSb),
+                        new shooterToBasketCMD(shooterSb, turretSb, visionSb),
 
                         new InstantCommand(
                                 () -> {
@@ -167,7 +218,7 @@ public abstract class teleOp extends OpModeCommand {
 
         stopShootButton.whenPressed(
                 new ParallelCommandGroup(
-                        new shooterToVelCMD(shooterSb, 0),
+                        new shooterToVelCMD(shooterSb, 500),
                         new moveIntakeAutonomousCMD(intakeSb, 0, 0),
 
                         new SequentialCommandGroup(
@@ -234,7 +285,7 @@ public abstract class teleOp extends OpModeCommand {
                 )
         );
 
-
+/*
         Trigger openLeft = new Trigger(() -> gamepad2.right_stick_x <= 0.5);
         Trigger openRight = new Trigger(() -> gamepad2.right_stick_x >= 0.5);
 
@@ -242,7 +293,7 @@ public abstract class teleOp extends OpModeCommand {
         openRight.whileActiveOnce(new lateralBlockersCMD(sorterSb, blockersUp, 0));
 
 
-
+ */
 
 
     }

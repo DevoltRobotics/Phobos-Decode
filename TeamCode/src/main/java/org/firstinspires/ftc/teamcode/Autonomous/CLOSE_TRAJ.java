@@ -12,12 +12,11 @@ import com.pedropathing.geometry.BezierLine;
 import com.pedropathing.geometry.Pose;
 import com.pedropathing.paths.Path;
 import com.pedropathing.paths.PathChain;
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.seattlesolvers.solverslib.command.Command;
 import com.seattlesolvers.solverslib.command.ConditionalCommand;
 import com.seattlesolvers.solverslib.command.InstantCommand;
 import com.seattlesolvers.solverslib.command.ParallelCommandGroup;
-import com.seattlesolvers.solverslib.command.ParallelDeadlineGroup;
-import com.seattlesolvers.solverslib.command.ParallelRaceGroup;
 import com.seattlesolvers.solverslib.command.SequentialCommandGroup;
 import com.seattlesolvers.solverslib.command.WaitCommand;
 
@@ -26,19 +25,17 @@ import org.firstinspires.ftc.teamcode.Subsystems.Shooter.shooterToBasketCMD;
 import org.firstinspires.ftc.teamcode.Subsystems.Shooter.shooterToVelCMD;
 import org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.horizontalBlockerCMD;
 import org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.lateralBlockersCMD;
-import org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.postSorterCmd;
-import org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.preSorterCmd;
 import org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.rampCMD;
-import org.firstinspires.ftc.teamcode.Subsystems.Turret.turretToBasketCMD;
 import org.firstinspires.ftc.teamcode.Subsystems.Turret.turretToPosCMD;
 import org.firstinspires.ftc.teamcode.Subsystems.Vision.detectMotifCMD;
 import org.firstinspires.ftc.teamcode.Utilities.Aliance;
 import org.firstinspires.ftc.teamcode.Utilities.OpModeCommand;
 
-public class CloseAuto_GLOBAL extends OpModeCommand {
+@Autonomous
+public class CLOSE_TRAJ extends OpModeCommand {
 
     private Path launchPreload, park;
-    private PathChain openGate, intakeFirst, launchFirst, prepareForIntakeSecond, intakeSecond, launchSecond, prepareForIntakeThird, intakeThird, launchThird;
+    private PathChain openGate, intakeFirst, launchFirst, intakeSecond, launchSecond, prepareForIntakeThird, intakeThird, launchThird;
 
     private Pose currentStartingPose;
     Command autoCommand;
@@ -72,14 +69,13 @@ public class CloseAuto_GLOBAL extends OpModeCommand {
 
     public static Pose parkPose = new Pose(108.0, 70.0, Math.toRadians(0));
 
-    public CloseAuto_GLOBAL(Aliance aliance) {
-        super(aliance, true);
+    public CLOSE_TRAJ() {
+        super(Aliance.RED, true);
     }
 
     public void createPaths() {
 
         if (currentAliance == Aliance.RED) {
-
 
             launchPreload = new Path(new BezierLine(startingPose, shootPreloadPose));
             launchPreload.setConstantHeadingInterpolation(startingPose.getHeading());
@@ -148,6 +144,7 @@ public class CloseAuto_GLOBAL extends OpModeCommand {
 
             park = new Path(new BezierLine(shoot3Pose, parkPose));
             park.setLinearHeadingInterpolation(shoot3Pose.getHeading(), parkPose.getHeading());
+
 
         } else {
 
@@ -220,119 +217,27 @@ public class CloseAuto_GLOBAL extends OpModeCommand {
 
         }
 
-        new SequentialCommandGroup(
-                new lateralBlockersCMD(sorterSb, blockersUp, blockersUp),
-                new horizontalBlockerCMD(sorterSb, blockerHFreePos),
-
-                new rampCMD(sorterSb, upRampPos),
-
-                new WaitCommand(200),
-
-                new lateralBlockersCMD(sorterSb, 0, 0),
-                new horizontalBlockerCMD(sorterSb, blockerHHidePos)
-
-        ).schedule();
-
         createPaths();
         autoCommand =
-                new SequentialCommandGroup(
+                autoCommand =
+                        new SequentialCommandGroup(
 
-                        new shooterToVelCMD(shooterSb, 1230),
+                                pedroSb.followPathCmd(launchPreload),
 
-                        new InstantCommand(
-                                () -> pedroSb.follower.setMaxPower(0.85)
-                        ),
+                                pedroSb.followPathCmd(intakeFirst),
 
-                        ///STARTING_DELAY
-                        //new WaitCommand(1),
+                                pedroSb.followPathCmd(openGate),
 
-                        new lateralBlockersCMD(sorterSb, blockersUp, 0),
-                        new horizontalBlockerCMD(sorterSb, blockerHHidePos),
+                                pedroSb.followPathCmd(launchFirst),
+                                pedroSb.followPathCmd(intakeSecond),
 
-                        new ConditionalCommand(
-                                new turretToPosCMD(turretSb, -55.0),
-                                new turretToPosCMD(turretSb, 55.0),
-                                () -> currentAliance.equals(Aliance.RED)
-                        ),
+                                pedroSb.followPathCmd(launchSecond),
 
-                        pedroSb.followPathCmd(launchPreload),
+                                pedroSb.followPathCmd(intakeThird),
 
-                        new lateralBlockersCMD(sorterSb, 0, 0),
+                                pedroSb.followPathCmd(launchThird),
+                                pedroSb.followPathCmd(park)
 
-                        new detectMotifCMD(visionSb, 0.4),
-
-                        new ParallelCommandGroup(
-                        new turretToPosCMD(turretSb, 0.0),
-                        new shooterToBasketCMD(shooterSb, turretSb, visionSb)
-                        ).withTimeout(700),
-
-                        shootThreeSpamerCMD(),
-
-                        ///PRELOAD_LAUNCHED
-
-                        stopShootCMD(false),
-
-                        new InstantCommand(
-                                () -> pedroSb.follower.setMaxPower(1)
-                        ),
-
-                        new moveIntakeAutonomousCMD(intakeSb, 1),
-
-                        pedroSb.followPathCmd(intakeFirst).withTimeout(2000),
-
-                        new WaitCommand(300),
-
-                        pedroSb.followPathCmd(openGate).withTimeout(800),
-
-                        new WaitCommand(300),
-
-                        sorter3CMD(launchFirst, 1250),
-
-                        shootThreeSorterCMD(),
-
-                        ///FIRST_LAUNCHED
-
-                        stopShootCMD(true),
-
-                        new moveIntakeAutonomousCMD(intakeSb, 1),
-
-                        new InstantCommand(
-                                () -> pedroSb.follower.setMaxPower(0.8)
-                        ),
-
-                        pedroSb.followPathCmd(intakeSecond).withTimeout(2000),
-
-                        new WaitCommand(300),
-
-                        sorter3CMD(launchFirst, 1250),
-
-                        shootThreeSorterCMD(),
-
-                        ///FIRST_LAUNCHED
-
-                        stopShootCMD(true),
-
-                        new moveIntakeAutonomousCMD(intakeSb, 1),
-
-                        new InstantCommand(
-                                () -> pedroSb.follower.setMaxPower(0.8)
-                        ),
-
-                        pedroSb.followPathCmd(intakeSecond).withTimeout(2000),
-
-                        new WaitCommand(300),
-
-                        sorter3CMD(launchFirst, 1250),
-
-                        shootThreeSorterCMD(),
-
-                        ///THIRD_LAUNCHED
-
-                        stopShootCMD(true),
-
-                        pedroSb.followPathCmd(park),
-
-                        new WaitCommand(300)
 
                 );
     }

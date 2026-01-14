@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.Subsystems.Turret;
 
 import static org.firstinspires.ftc.teamcode.Subsystems.Turret.TurretSubsystem.furtherCorrection;
+import static org.firstinspires.ftc.teamcode.Subsystems.Turret.TurretSubsystem.turretPRelative;
 import static org.firstinspires.ftc.teamcode.Utilities.Aliance.RED;
 
 import com.acmerobotics.dashboard.config.Config;
@@ -19,19 +20,30 @@ public class turretDefaultTeleopCMD extends CommandBase {
 
     private final TurretSubsystem turretSb;
 
+    private final VisionSubsystem visionSb;
+
     BooleanSupplier isManual;
+
     BooleanSupplier isClose;
 
     Gamepad gamepad;
 
-    public static int manualIncrement = 5;
+    static int manualIncrement = 5;
 
-    public turretDefaultTeleopCMD(TurretSubsystem turretSb, BooleanSupplier isManual, Gamepad gamepad) {
+    private final ElapsedTime waitAimTimer;
+
+    public turretDefaultTeleopCMD(TurretSubsystem turretSb, VisionSubsystem visionSb, BooleanSupplier isManual, BooleanSupplier isClose, Gamepad gamepad) {
         this.turretSb = turretSb;
+
+        this.visionSb = visionSb;
 
         this.gamepad = gamepad;
 
         this.isManual = isManual;
+
+        this.isClose = isClose;
+
+        waitAimTimer = new ElapsedTime();
 
         addRequirements(turretSb);
     }
@@ -48,19 +60,57 @@ public class turretDefaultTeleopCMD extends CommandBase {
 
         }
 
+        Double tA = visionSb.getAllianceTA();
+
+        Double tX = visionSb.getAllianceTX();
+
         if (turretSb.realIsManual) {
             if (gamepad.right_bumper) {
+                waitAimTimer.reset();
                 turretSb.turretTarget += manualIncrement;
 
             } else if (gamepad.left_bumper) {
+                waitAimTimer.reset();
                 turretSb.turretTarget -= manualIncrement;
 
             }
 
-        } else {
+        } else if (tX != null && tA != null) {
+
+            if (tA < 50) {
+                if (!visionSb.isAuto) {
+                    switch (visionSb.alliance) {
+                        case RED:
+                            tX += furtherCorrection;
+                            break;
+
+                        case BLUE:
+                            tX -= furtherCorrection;
+                            break;
+                    }
+                }
+            }
+
+            double llTarget = turretSb.llPidf.calculate(tX);
+            turretSb.turretTarget -= llTarget;
+
+            if (tX > 7) {
+
+                waitAimTimer.reset();
+
+            }
+
+            turretSb.telemetry.addData("llTarget", llTarget);
+
+
+        } else if (waitAimTimer.milliseconds() > 150) {
+
             turretSb.turretTarget = turretSb.turretToGoalAngle;
 
         }
+
+
     }
 }
+
 

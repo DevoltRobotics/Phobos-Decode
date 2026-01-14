@@ -43,13 +43,13 @@ public class PedroSubsystem extends SubsystemBase {
     public void periodic() {
 
 
-/*        telemetryM.debug("x:" + follower.getPose().getX());
+        telemetryM.debug("x:" + follower.getPose().getX());
         telemetryM.debug("y:" + follower.getPose().getY());
         telemetryM.debug("heading:" + follower.getPose().getHeading());
         telemetryM.debug("total heading:" + follower.getTotalHeading());
-        //telemetryM.update(telemetry);
 
- */
+        telemetryM.update(telemetry);
+
         follower.update();
 
         EndPose = follower.getPose();
@@ -59,20 +59,14 @@ public class PedroSubsystem extends SubsystemBase {
         return new FollowPathCmd(path);
     }
 
-    public Command followPathCmd(Path path, double timeOut) {
-        return new FollowPathCmd(path, timeOut);
-    }
 
     public Command followPathCmd(PathChain path) {
         return new FollowPathChainCmd(path);
     }
 
 
-    public Command followPathCmd(PathChain path, double timeOut) {
-        return new FollowPathChainCmd(path, timeOut);
-    }
-    public Command fieldCentricCmd(Gamepad gamepad) {
-        return new FieldCentricCmd(gamepad);
+    public Command fieldCentricCmd(Gamepad gamepad, double angleOffset) {
+        return new FieldCentricCmd(gamepad, angleOffset);
     }
 
     public Command turnToCmd(Pose pose) {
@@ -83,8 +77,12 @@ public class PedroSubsystem extends SubsystemBase {
     class FieldCentricCmd extends CommandBase {
         Gamepad gamepad;
 
-        FieldCentricCmd(Gamepad gamepad) {
+        double angleOffset;
+
+        FieldCentricCmd(Gamepad gamepad, double angleOffset) {
             this.gamepad = gamepad;
+
+            this.angleOffset = angleOffset;
             addRequirements(PedroSubsystem.this);
         }
 
@@ -107,11 +105,12 @@ public class PedroSubsystem extends SubsystemBase {
                     -gamepad.left_stick_y * multiplier,
                     -gamepad.left_stick_x * multiplier,
                     -gamepad.right_stick_x * multiplier,
-                    false // Robot Centric
+                    false,
+                    angleOffset// Robot Centric
             );
 
             if (gamepad.yWasPressed()) {
-                follower.setPose(new Pose(0, 0, 0));
+                follower.setPose(new Pose(follower.getPose().getX(), follower.getPose().getY(), angleOffset));
             }
         }
 
@@ -129,102 +128,50 @@ public class PedroSubsystem extends SubsystemBase {
     class FollowPathCmd extends CommandBase {
         Path path;
 
-        double timeOut;
-
-        boolean finishOnTime;
-
-        ElapsedTime timer;
 
         FollowPathCmd(Path path) {
             this.path = path;
 
-            finishOnTime = false;
-
-            timer = new ElapsedTime();
             addRequirements(PedroSubsystem.this);
         }
 
-        FollowPathCmd(Path path, double timeOut) {
-            this.path = path;
-
-            this.timeOut = timeOut;
-
-            finishOnTime = true;
-
-            timer = new ElapsedTime();
-
-            addRequirements(PedroSubsystem.this);
-        }
 
         @Override
         public void initialize() {
             follower.followPath(path);
 
-            timer.reset();
-
         }
 
         @Override
         public boolean isFinished() {
-            if (finishOnTime) {
 
-                return !follower.isBusy() || timer.milliseconds() > timeOut;
+            return !follower.isBusy();
 
-            } else {
-                return !follower.isBusy();
-
-            }
         }
     }
 
     class FollowPathChainCmd extends CommandBase {
         PathChain path;
 
-        double timeOut;
-
-        boolean finishOnTime;
-
-        ElapsedTime timer;
-
         FollowPathChainCmd(PathChain path) {
             this.path = path;
 
-            finishOnTime = false;
-
-            timer = new ElapsedTime();
             addRequirements(PedroSubsystem.this);
         }
 
-        FollowPathChainCmd(PathChain path, double timeOut) {
-            this.path = path;
-
-            this.timeOut = timeOut;
-
-            finishOnTime = true;
-
-            timer = new ElapsedTime();
-
-            addRequirements(PedroSubsystem.this);
-        }
 
         @Override
         public void initialize() {
             follower.followPath(path);
 
-            timer.reset();
-
         }
 
         @Override
         public boolean isFinished() {
-            if (finishOnTime) {
 
-                return !follower.isBusy() || timer.milliseconds() > timeOut;
+            return !follower.isBusy();
 
-            } else {
-                return !follower.isBusy();
 
-            }
         }
 
     }

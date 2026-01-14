@@ -20,6 +20,7 @@ import org.firstinspires.ftc.teamcode.PoseEstimate.wpilib.numbers.Nat;
 import java.util.NavigableMap;
 import java.util.Optional;
 import java.util.TreeMap;
+import java.util.function.BooleanSupplier;
 
 /**
  * This class wraps {@link Odometry} to fuse latency-compensated vision measurements with encoder
@@ -87,6 +88,8 @@ public class PoseEstimator<T> {
      *     numbers to trust global measurements from vision less. This matrix is in the form [x, y,
      *     theta]ᵀ, with units in meters and radians.
      */
+
+
     public final void setVisionMeasurementStdDevs(Matrix<N3, N1> visionMeasurementStdDevs) {
         double[] r = new double[3];
         for (int i = 0; i < 3; ++i) {

@@ -30,7 +30,7 @@ public class VisionSubsystem extends SubsystemBase {
     private static final int PGP_TAG_ID = 22;
     private static final int GPP_TAG_ID = 21;
 
-    public Pattern pattern = Pattern.GPP;
+    public Pattern pattern = Pattern.PGP;
 
     public final Aliance alliance;
 

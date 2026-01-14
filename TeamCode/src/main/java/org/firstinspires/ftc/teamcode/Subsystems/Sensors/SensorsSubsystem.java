@@ -26,6 +26,8 @@ public class SensorsSubsystem extends SubsystemBase {
 
 
     public Boolean sorterMode = false;
+    public Boolean liftingMode = false;
+
 
     RevColorSensorV3 colorR;
     RevColorSensorV3 colorL;
@@ -135,12 +137,6 @@ public class SensorsSubsystem extends SubsystemBase {
             telemetry.addLine("NoFourBall");
 
         }
-
-        // Display the raw HIGH/LOW signal for reference
-        telemetry.addData("Raw (HIGH/LOW)", fourDetected);
-
-
-        telemetry.addData("targetArtifact", targetArtifact);
 
         telemetry.addData("relaseOrder", relaseOrder);
     }

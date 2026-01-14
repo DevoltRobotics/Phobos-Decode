@@ -55,6 +55,7 @@ public class SorterSubsystem extends SubsystemBase {
     @Override
     public void periodic() {
 
+
         if (blockerR.getPosition() < 0.45 && blockerL.getPosition() > 0.55){
             blockersStatus = BlockersStatus.twoOpen;
 
