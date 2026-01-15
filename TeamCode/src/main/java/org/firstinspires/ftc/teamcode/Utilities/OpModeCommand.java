@@ -168,6 +168,7 @@ public abstract class OpModeCommand extends OpMode {
         );
     }
 
+    /*
     public Command sorter3CMD(PathChain shootPath, double vel) {
         return new SequentialCommandGroup(
                 new shooterToVelCMD(shooterSb, vel),
@@ -178,20 +179,21 @@ public abstract class OpModeCommand extends OpMode {
 
                 new ParallelRaceGroup(
 
-                        new turretToBasketCMD(turretSb, visionSb),
                         new ParallelCommandGroup(
                                 pedroSb.followPathCmd(shootPath),
 
                                 new SequentialCommandGroup(
                                         new WaitCommand(500),
-
                                         new moveIntakeAutonomousCMD(intakeSb, 0.8, -1),
-                                        new WaitCommand(300),
-                                        new moveIntakeAutonomousCMD(intakeSb, 0, 0),
+
+                                        new WaitCommand(150),
 
                                         new postSorterCmd(sorterSb, sensorsSb, visionSb),
 
-                                        new WaitCommand(150)
+                                        new WaitCommand(150),
+
+                                        new moveIntakeAutonomousCMD(intakeSb, 0.8, -1),
+                                        new WaitCommand(800)
                                 )
                         ))
         );
@@ -200,25 +202,21 @@ public abstract class OpModeCommand extends OpMode {
     public Command shootThreeSorterCMD() {
         return new ParallelDeadlineGroup(
 
-                new WaitCommand(1800), // deadline
+                new WaitCommand(2600), // deadline
 
                 new SequentialCommandGroup(
+                        new moveIntakeAutonomousCMD(intakeSb, 1, 1),
+
                         new horizontalBlockerCMD(sorterSb, blockerHFreePos),
-                        new WaitCommand(1000),
+                        new WaitCommand(1400),
                         new lateralBlockersCMD(sorterSb, blockersUp, blockersUp)
-                ),
-
-                new SequentialCommandGroup(
-                        new moveIntakeAutonomousCMD(intakeSb, 0, 0),
-                        new WaitCommand(200),
-                        new moveIntakeAutonomousCMD(intakeSb, 1, 1)
-                ),
-
-                new turretToBasketCMD(turretSb, visionSb)
+                )
         );
     }
 
-    public Command shootThreeSpamerCMD() {
+
+     */
+    public Command shootThreeSpamerCMD(double shooterVel) {
         return new ParallelDeadlineGroup(
 
                 new WaitCommand(1000), // deadline
@@ -230,14 +228,14 @@ public abstract class OpModeCommand extends OpMode {
                 ),
 
                 new turretToBasketCMD(turretSb, visionSb),
-                new shooterToBasketCMD(shooterSb, turretSb, visionSb)
+                new shooterToBasketCMD(shooterSb, visionSb, shooterVel)
         );
     }
 
     public Command stopShootCMD(boolean isSorter) {
         return new SequentialCommandGroup(
                 new moveIntakeAutonomousCMD(intakeSb, 0),
-                new shooterToVelCMD(shooterSb, 0),
+                new shooterToVelCMD(shooterSb, 500),
                 new turretToPosCMD(turretSb, 0.0),
                 new horizontalBlockerCMD(sorterSb, blockerHHidePos),
 

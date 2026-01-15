@@ -48,6 +48,7 @@ public abstract class teleOp extends OpModeCommand {
 
     Boolean isClose = true;
 
+    Double shooterProvTarget = 1300.0;
 
     public teleOp(Aliance alliance) {
         super(alliance, false);
@@ -55,9 +56,9 @@ public abstract class teleOp extends OpModeCommand {
 
     @Override
     public void initialize() {
-        //follower.setStartingPose(new Pose(pedroSb.EndPose.getX(), pedroSb.EndPose.getY(), pedroSb.EndPose.getHeading()));
+        follower.setStartingPose(new Pose(pedroSb.EndPose.getX(), pedroSb.EndPose.getY(), pedroSb.EndPose.getHeading()));
 
-        follower.setStartingPose(new Pose(72, 72, angleOffSet));
+        //follower.setStartingPose(new Pose(72, 72, angleOffSet));
 
         chasis = new GamepadEx(gamepad1);
         garra = new GamepadEx(gamepad2);
@@ -140,7 +141,6 @@ public abstract class teleOp extends OpModeCommand {
                         () -> sensorsSb.sorterMode
                 )
 
-
         );
 
         Button prepareShootFar = new GamepadButton(
@@ -149,7 +149,12 @@ public abstract class teleOp extends OpModeCommand {
 
         prepareShootFar.whenPressed(
                 new ParallelCommandGroup(
-                        new shooterToBasketCMD(shooterSb, turretSb, visionSb),
+                        new shooterToBasketCMD(shooterSb, visionSb, ()-> 1500),
+
+                        new InstantCommand(
+                                ()-> shooterProvTarget = 1500.0
+
+                        ),
 
                         new InstantCommand(
                                 () -> isTurretManual = false
@@ -168,7 +173,12 @@ public abstract class teleOp extends OpModeCommand {
 
         prepareShootClose.whenPressed(
                 new ParallelCommandGroup(
-                        new shooterToBasketCMD(shooterSb, turretSb, visionSb),
+                        new shooterToBasketCMD(shooterSb, visionSb, ()-> 1300),
+
+                        new InstantCommand(
+                                ()-> shooterProvTarget = 1300.0
+
+                        ),
 
                         new InstantCommand(
                                 () -> isTurretManual = false
@@ -188,7 +198,7 @@ public abstract class teleOp extends OpModeCommand {
         shootButton.whenPressed(
                 new ParallelCommandGroup(
 
-                        new shooterToBasketCMD(shooterSb, turretSb, visionSb),
+                        new shooterToBasketCMD(shooterSb, visionSb, shooterProvTarget),
 
                         new InstantCommand(
                                 () -> {
@@ -295,7 +305,6 @@ public abstract class teleOp extends OpModeCommand {
 
  */
 
-
     }
 
     @Override
@@ -304,5 +313,4 @@ public abstract class teleOp extends OpModeCommand {
         follower.setMaxPower(1);
         startCMD().schedule();
     }
-
 }

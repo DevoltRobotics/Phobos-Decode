@@ -62,6 +62,8 @@ public class Full_robot_test extends OpMode {
     DcMotorEx shooterMUp;
     DcMotorEx shooterMDown;
     DcMotorEx intakeM;
+    DcMotorEx transferM;
+
 
     CRServo starS;
 
@@ -110,6 +112,7 @@ public class Full_robot_test extends OpMode {
         shooterMUp = hardwareMap.get(DcMotorEx.class, "shup");
         shooterMDown = hardwareMap.get(DcMotorEx.class, "shdown");
         intakeM = hardwareMap.get(DcMotorEx.class, "in");
+        transferM = hardwareMap.get(DcMotorEx.class, "trans");
 
         starS = hardwareMap.get(CRServo.class, "star");
 
@@ -240,15 +243,15 @@ public class Full_robot_test extends OpMode {
         if (gamepad2.right_trigger > 0.5){
             intakeM.setPower(-1);
             starS.setPower(-1);
-            fr.setPower(1);
+            transferM.setPower(1);
         }else if (gamepad2.left_trigger > 0.5){
             intakeM.setPower(1);
             starS.setPower(1);
-            fr.setPower(-1);
+            transferM.setPower(-1);
         }else {
             intakeM.setPower(0);
             starS.setPower(0);
-            fr.setPower(0);
+            transferM.setPower(0);
 
         }
 

@@ -15,7 +15,7 @@ import org.firstinspires.ftc.teamcode.Utilities.OpModeCommand;
 
 @Config
 @Autonomous
-public class FURTHER_TRAJ extends OpModeCommand {
+public class FAR_TRAJ extends OpModeCommand {
 
     private Path intakeFirst, park;
     private PathChain launchFirst, prepareForIntakeSecond, intakeSecond1, backIntakeSecond, intakeSecond2, launchSecond;
@@ -32,7 +32,7 @@ public class FURTHER_TRAJ extends OpModeCommand {
 
     Command autoCommand;
 
-    public FURTHER_TRAJ() {
+    public FAR_TRAJ() {
         super(Aliance.RED, true);
     }
 

@@ -41,7 +41,7 @@ public class PedroSubsystem extends SubsystemBase {
 
     @Override
     public void periodic() {
-
+/*
 
         telemetryM.debug("x:" + follower.getPose().getX());
         telemetryM.debug("y:" + follower.getPose().getY());
@@ -49,7 +49,7 @@ public class PedroSubsystem extends SubsystemBase {
         telemetryM.debug("total heading:" + follower.getTotalHeading());
 
         telemetryM.update(telemetry);
-
+*/
         follower.update();
 
         EndPose = follower.getPose();

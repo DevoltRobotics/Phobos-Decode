@@ -23,23 +23,25 @@ import com.seattlesolvers.solverslib.util.InterpLUT;
 import org.firstinspires.ftc.teamcode.Subsystems.Turret.TurretSubsystem;
 import org.firstinspires.ftc.teamcode.Subsystems.Vision.VisionSubsystem;
 
+import java.util.function.DoubleSupplier;
+
 public class shooterToBasketCMD extends CommandBase {
 
     public static InterpLUT distanceLUT = new InterpLUT();
 
     public static InterpLUT vsFunc = new InterpLUT();
 
-    Double TargetA;
-
     private final ElapsedTime waitAimTimer;
+
+    DoubleSupplier provTarget;
 
 
     static {
-        vsFunc.add(1, 1510);
+        vsFunc.add(1, 1530);
         vsFunc.add(24.5, 1520);
         vsFunc.add(28.5, 1465);
-        vsFunc.add(38, 1400);
-        vsFunc.add(65, 1300);
+        vsFunc.add(37.5, 1400);
+        vsFunc.add(65, 1270);
         vsFunc.add(100, 1230);
         vsFunc.add(130, 1150);
         vsFunc.add(200, 1100);
@@ -64,26 +66,34 @@ public class shooterToBasketCMD extends CommandBase {
 
     private final ShooterSubsystem shooterSb;
 
-    private final TurretSubsystem turretSb;
-
     private final VisionSubsystem visionSb;
 
-    public shooterToBasketCMD(ShooterSubsystem shooterSb, TurretSubsystem turretSb, VisionSubsystem visionSb) {
+    public shooterToBasketCMD(ShooterSubsystem shooterSb, VisionSubsystem visionSb, double provTarget) {
         this.shooterSb = shooterSb;
-        this.turretSb = turretSb;
 
         this.visionSb = visionSb;
 
+        this.provTarget = ()-> provTarget;
+        waitAimTimer = new ElapsedTime();
+        addRequirements(this.shooterSb);
+    }
+
+    public shooterToBasketCMD(ShooterSubsystem shooterSb, VisionSubsystem visionSb, DoubleSupplier provTarget) {
+        this.shooterSb = shooterSb;
+
+        this.visionSb = visionSb;
+
+        this.provTarget = provTarget;
         waitAimTimer = new ElapsedTime();
         addRequirements(this.shooterSb);
     }
 
     @Override
     public void execute() {
-        TargetA = visionSb.getAllianceTA();
+        Double TargetA = visionSb.getAllianceTA();
 
         if (TargetA != null) {
-            double targetA = Range.clip(TargetA, 24, 200);
+            double targetA = Range.clip(TargetA, 24.5, 200);
             shooterSb.shooterTarget = vsFunc.get(targetA);
 
             waitAimTimer.reset();
@@ -92,7 +102,7 @@ public class shooterToBasketCMD extends CommandBase {
 
             shooterSb.shooterTarget = vsFunc.get(tagSizeDistance);
         }*/else {
-            shooterSb.shooterTarget = 1300;
+            shooterSb.shooterTarget = 1550;
         }
 
     }
