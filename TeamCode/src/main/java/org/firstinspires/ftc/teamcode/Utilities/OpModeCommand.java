@@ -10,15 +10,11 @@ import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.bylazar.telemetry.TelemetryManager;
 import com.pedropathing.follower.Follower;
-import com.pedropathing.paths.PathChain;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.seattlesolvers.solverslib.command.Command;
 import com.seattlesolvers.solverslib.command.CommandScheduler;
 import com.seattlesolvers.solverslib.command.ConditionalCommand;
-import com.seattlesolvers.solverslib.command.InstantCommand;
-import com.seattlesolvers.solverslib.command.ParallelCommandGroup;
 import com.seattlesolvers.solverslib.command.ParallelDeadlineGroup;
-import com.seattlesolvers.solverslib.command.ParallelRaceGroup;
 import com.seattlesolvers.solverslib.command.SequentialCommandGroup;
 import com.seattlesolvers.solverslib.command.Subsystem;
 import com.seattlesolvers.solverslib.command.WaitCommand;
@@ -28,8 +24,6 @@ import org.firstinspires.ftc.teamcode.Subsystems.Lifting.LiftingSubsystem;
 import org.firstinspires.ftc.teamcode.Subsystems.Sensors.SensorsSubsystem;
 import org.firstinspires.ftc.teamcode.Subsystems.Shooter.shooterToBasketCMD;
 import org.firstinspires.ftc.teamcode.Subsystems.Shooter.shooterToVelCMD;
-import org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.postSorterCmd;
-import org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.preSorterCmd;
 import org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.rampCMD;
 import org.firstinspires.ftc.teamcode.Subsystems.Turret.turretToBasketCMD;
 import org.firstinspires.ftc.teamcode.Subsystems.Turret.turretToPosCMD;
@@ -216,26 +210,39 @@ public abstract class OpModeCommand extends OpMode {
 
 
      */
-    public Command shootThreeSpamerCMD(double shooterVel) {
+    public Command shootThreeSpamerFarCMD(double shooterVel) {
         return new ParallelDeadlineGroup(
 
-                new WaitCommand(1000), // deadline
+                new WaitCommand(1300), // deadline
 
                 new SequentialCommandGroup(
                         new horizontalBlockerCMD(sorterSb, blockerHFreePos),
                         new moveIntakeAutonomousCMD(intakeSb, 1)
 
-                ),
-
-                new turretToBasketCMD(turretSb, visionSb),
-                new shooterToBasketCMD(shooterSb, visionSb, shooterVel)
+                )
         );
     }
 
+
+
+    public Command shootThreeSpamerCloseCMD() {
+        return new ParallelDeadlineGroup(
+
+                new WaitCommand(1600), // deadline
+
+                new SequentialCommandGroup(
+                        new WaitCommand(300), // deadline
+                        new horizontalBlockerCMD(sorterSb, blockerHFreePos),
+                        new moveIntakeAutonomousCMD(intakeSb, 1)
+
+                ),
+                new turretToBasketCMD(turretSb, visionSb)
+        );
+    }
     public Command stopShootCMD(boolean isSorter) {
         return new SequentialCommandGroup(
                 new moveIntakeAutonomousCMD(intakeSb, 0),
-                new shooterToVelCMD(shooterSb, 500),
+                new shooterToVelCMD(shooterSb, 800),
                 new turretToPosCMD(turretSb, 0.0),
                 new horizontalBlockerCMD(sorterSb, blockerHHidePos),
 

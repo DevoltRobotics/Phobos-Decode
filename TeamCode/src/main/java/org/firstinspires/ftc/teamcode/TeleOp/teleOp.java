@@ -56,9 +56,9 @@ public abstract class teleOp extends OpModeCommand {
 
     @Override
     public void initialize() {
-        follower.setStartingPose(new Pose(pedroSb.EndPose.getX(), pedroSb.EndPose.getY(), pedroSb.EndPose.getHeading()));
+        //follower.setStartingPose(new Pose(pedroSb.EndPose.getX(), pedroSb.EndPose.getY(), pedroSb.EndPose.getHeading()));
 
-        //follower.setStartingPose(new Pose(72, 72, angleOffSet));
+        follower.setStartingPose(new Pose(72, 72, angleOffSet));
 
         chasis = new GamepadEx(gamepad1);
         garra = new GamepadEx(gamepad2);

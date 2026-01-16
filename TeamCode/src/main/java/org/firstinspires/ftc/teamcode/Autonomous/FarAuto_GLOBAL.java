@@ -3,7 +3,6 @@ package org.firstinspires.ftc.teamcode.Autonomous;
 import static org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.SorterSubsystem.blockerHFreePos;
 import static org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.SorterSubsystem.blockerHHidePos;
 import static org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.SorterSubsystem.blockersUp;
-import static org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.SorterSubsystem.downRampPos;
 import static org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.SorterSubsystem.upRampPos;
 
 import com.pedropathing.geometry.BezierCurve;
@@ -12,22 +11,17 @@ import com.pedropathing.geometry.Pose;
 import com.pedropathing.paths.Path;
 import com.pedropathing.paths.PathChain;
 import com.seattlesolvers.solverslib.command.Command;
-import com.seattlesolvers.solverslib.command.InstantCommand;
+import com.seattlesolvers.solverslib.command.ConditionalCommand;
 import com.seattlesolvers.solverslib.command.ParallelDeadlineGroup;
-import com.seattlesolvers.solverslib.command.ParallelRaceGroup;
 import com.seattlesolvers.solverslib.command.SequentialCommandGroup;
 import com.seattlesolvers.solverslib.command.WaitCommand;
 
 import org.firstinspires.ftc.teamcode.Subsystems.Intake.moveIntakeAutonomousCMD;
-import org.firstinspires.ftc.teamcode.Subsystems.Shooter.shooterToBasketCMD;
 import org.firstinspires.ftc.teamcode.Subsystems.Shooter.shooterToVelCMD;
 import org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.horizontalBlockerCMD;
 import org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.lateralBlockersCMD;
-import org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.postSorterCmd;
-import org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.preSorterCmd;
 import org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.rampCMD;
-import org.firstinspires.ftc.teamcode.Subsystems.Turret.turretToBasketCMD;
-import org.firstinspires.ftc.teamcode.Subsystems.Vision.detectMotifCMD;
+import org.firstinspires.ftc.teamcode.Subsystems.Turret.turretToPosCMD;
 import org.firstinspires.ftc.teamcode.Utilities.Aliance;
 import org.firstinspires.ftc.teamcode.Utilities.OpModeCommand;
 
@@ -39,10 +33,10 @@ public class FarAuto_GLOBAL extends OpModeCommand {
     static Pose startingPose = new Pose(88.0, 7.5, Math.toRadians(90));
     static Pose controlPick1Point = new Pose(83, 37.0, Math.toRadians(0));
     static Pose pick1Pose = new Pose(130.0, 35.0, Math.toRadians(0));
-    static Pose shoot1Pose = new Pose(87.0, 15.0, Math.toRadians(25));
+    static Pose shoot1Pose = new Pose(87.0, 15.0, Math.toRadians(0));
     static Pose preparePick2Pose = new Pose(112.0, 7.0, Math.toRadians(0));
     static Pose pick2Pose = new Pose(135.0, 7.0, Math.toRadians(0));
-    static Pose shoot2Pose = new Pose(87.0, 15.0, Math.toRadians(350));
+    static Pose shoot2Pose = new Pose(87.0, 15.0, Math.toRadians(0));
     static Pose parkPose = new Pose(100.0, 25.0, Math.toRadians(0));
 
     Command autoCommand;
@@ -62,8 +56,10 @@ public class FarAuto_GLOBAL extends OpModeCommand {
                     .addPath(new BezierLine(
                             pick1Pose,
                             shoot1Pose))
-                    .setTangentHeadingInterpolation()
-                    .setReversed()
+                    .setLinearHeadingInterpolation(
+                            pick1Pose.getHeading(),
+                            shoot1Pose.getHeading()
+                    )
                     .build();
 
             prepareForIntakeSecond = follower.pathBuilder()
@@ -139,6 +135,7 @@ public class FarAuto_GLOBAL extends OpModeCommand {
                             pick2Pose.mirror()))
                     .setConstantHeadingInterpolation(
                             pick2Pose.mirror().getHeading())
+                    .setTimeoutConstraint(1)
                     .build();
 
             backIntakeSecond = follower.pathBuilder()
@@ -147,6 +144,7 @@ public class FarAuto_GLOBAL extends OpModeCommand {
                             preparePick2Pose.mirror()))
                     .setConstantHeadingInterpolation(
                             pick2Pose.mirror().getHeading())
+                    .setTimeoutConstraint(1)
                     .build();
 
             intakeSecond2 = follower.pathBuilder()
@@ -196,30 +194,9 @@ public class FarAuto_GLOBAL extends OpModeCommand {
                 new lateralBlockersCMD(sorterSb, blockersUp, 0),
                 new horizontalBlockerCMD(sorterSb, blockerHHidePos),
 
-
                 new WaitCommand(300)
 
         ).schedule();
-
-/*
-        new SequentialCommandGroup(
-                new lateralBlockersCMD(sorterSb, blockersUp, blockersUp),
-                new horizontalBlockerCMD(sorterSb, blockerHFreePos),
-
-                new rampCMD(sorterSb, downRampPos),
-
-                new WaitCommand(200),
-
-                new lateralBlockersCMD(sorterSb, 0, 0),
-                new horizontalBlockerCMD(sorterSb, blockerHHidePos),
-
-                new WaitCommand(300),
-
-                new detectMotifCMD(visionSb, 500)
-
-        ).schedule();
-
- */
 
         createPaths();
 
@@ -228,18 +205,25 @@ public class FarAuto_GLOBAL extends OpModeCommand {
 
                         new ParallelDeadlineGroup(
 
-                                new WaitCommand(3000),
+                                new WaitCommand(3800),
 
                                 new SequentialCommandGroup(
-                                        new WaitCommand(2300),
-                                        new moveIntakeAutonomousCMD(intakeSb, 1, 1),
+                                        new WaitCommand(2100),
+                                        new moveIntakeAutonomousCMD(intakeSb, 1, 0.8),
 
                                         new horizontalBlockerCMD(sorterSb, blockerHFreePos)
 
                                 ),
 
-                                new turretToBasketCMD(turretSb, visionSb),
-                                new shooterToBasketCMD(shooterSb, visionSb, 1500)
+                                new ConditionalCommand(
+                                        new turretToPosCMD(turretSb, 13.0),
+                                        new turretToPosCMD(turretSb,-13.0),
+                                        ()-> currentAliance.equals(Aliance.RED)),
+
+                                new shooterToVelCMD(shooterSb, 1500)
+
+                                /*new shooterToBasketCMD(shooterSb, visionSb, 1480)
+                                */
 
                         ),
 
@@ -247,37 +231,43 @@ public class FarAuto_GLOBAL extends OpModeCommand {
 
                         stopShootCMD(false),
 
-                        new InstantCommand(
-                                () -> pedroSb.follower.setMaxPower(1)
-                        ),
-
                         new ParallelDeadlineGroup(
                                 pedroSb.followPathCmd(intakeFirst).withTimeout(2300),
 
                                 new SequentialCommandGroup(
                                         new WaitCommand(300),
-                                        new moveIntakeAutonomousCMD(intakeSb, 1, 0.7)
+                                        new moveIntakeAutonomousCMD(intakeSb, 1, 0.8)
                                 )),
 
                         new WaitCommand(300),
 
-                        new moveIntakeAutonomousCMD(intakeSb, 0, 0),
+                        new shooterToVelCMD(shooterSb, 1480),
 
-                        new ParallelDeadlineGroup(
-                                pedroSb.followPathCmd(launchFirst).withTimeout(2300),
-                                new turretToBasketCMD(turretSb, visionSb),
-                                new shooterToBasketCMD(shooterSb, visionSb, 1300)
-                        ),
+                        new ConditionalCommand(
+                        new turretToPosCMD(turretSb, -60.0),
+                                new turretToPosCMD(turretSb,60.0),
+                                ()-> currentAliance.equals(Aliance.RED)),
 
-                        shootThreeSpamerCMD(1500),
+                                new moveIntakeAutonomousCMD(intakeSb, 0.4, 0),
+
+                        pedroSb.followPathCmd(launchFirst).withTimeout(2300),
+
+
+                        new WaitCommand(800),
+
+                        shootThreeSpamerFarCMD(1500),
 
                         /// FIRST_LAUNCHED
 
-                        stopShootCMD(true),
+                        stopShootCMD(false),
 
-                        pedroSb.followPathCmd(prepareForIntakeSecond),
+                        new ParallelDeadlineGroup(
+                                pedroSb.followPathCmd(prepareForIntakeSecond).withTimeout(2000),
 
-                        new moveIntakeAutonomousCMD(intakeSb, 1),
+                                new SequentialCommandGroup(
+                                        new WaitCommand(400),
+                                        new moveIntakeAutonomousCMD(intakeSb, 1, 1)
+                                )),
 
                         pedroSb.followPathCmd(intakeSecond1).withTimeout(1000),
 
@@ -287,15 +277,67 @@ public class FarAuto_GLOBAL extends OpModeCommand {
 
                         new WaitCommand(300),
 
-                        shootThreeSpamerCMD(1500),
+                        new shooterToVelCMD(shooterSb, 1490),
+
+                        new ConditionalCommand(
+                                new turretToPosCMD(turretSb, -64.0),
+                                new turretToPosCMD(turretSb,64.0),
+                                ()-> currentAliance.equals(Aliance.RED)),
+                        new moveIntakeAutonomousCMD(intakeSb, 0.4, 0),
+
+                        pedroSb.followPathCmd(launchSecond).withTimeout(2300),
+
+                        new WaitCommand(600),
+
+                        shootThreeSpamerFarCMD(1500),
 
                         /// SECOND_LAUNCHED
 
-                        stopShootCMD(true),
+                        stopShootCMD(false),
 
-                        new InstantCommand(
-                                () -> pedroSb.follower.setMaxPower(1)
+                        new ParallelDeadlineGroup(
+                                pedroSb.followPathCmd(prepareForIntakeSecond).withTimeout(2300),
+
+                                new SequentialCommandGroup(
+                                        new WaitCommand(400),
+                                        new moveIntakeAutonomousCMD(intakeSb, 1, 0.8)
+                                )),
+
+                        new moveIntakeAutonomousCMD(intakeSb, 1, 0.7),
+
+                        pedroSb.followPathCmd(intakeSecond1).withTimeout(1000),
+
+                        pedroSb.followPathCmd(backIntakeSecond).withTimeout(500),
+
+                        pedroSb.followPathCmd(intakeSecond2).withTimeout(1000),
+
+                        new WaitCommand(300),
+
+                        new shooterToVelCMD(shooterSb, 1490),
+
+                        new ConditionalCommand(
+                                new turretToPosCMD(turretSb, -64.0),
+                                new turretToPosCMD(turretSb,64.0),
+                                ()-> currentAliance.equals(Aliance.RED)
                         ),
+
+                        new moveIntakeAutonomousCMD(intakeSb, 0.4, 0),
+
+                        pedroSb.followPathCmd(launchSecond).withTimeout(2300),
+
+                        new WaitCommand(700),
+
+                        new WaitCommand(600),
+
+                        shootThreeSpamerFarCMD(1500),
+                        /// THIRD_LAUNCHED
+
+                        stopShootCMD(false),
+
+
+
+
+
 
                         pedroSb.followPathCmd(park)
 
@@ -309,7 +351,6 @@ public class FarAuto_GLOBAL extends OpModeCommand {
 
     @Override
     public void start() {
-        visionSb.getCurrentCommand().cancel();
         autoCommand.schedule();
 
     }

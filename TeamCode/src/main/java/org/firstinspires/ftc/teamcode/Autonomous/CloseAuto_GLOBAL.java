@@ -14,10 +14,7 @@ import com.pedropathing.paths.Path;
 import com.pedropathing.paths.PathChain;
 import com.seattlesolvers.solverslib.command.Command;
 import com.seattlesolvers.solverslib.command.ConditionalCommand;
-import com.seattlesolvers.solverslib.command.InstantCommand;
-import com.seattlesolvers.solverslib.command.ParallelCommandGroup;
 import com.seattlesolvers.solverslib.command.ParallelDeadlineGroup;
-import com.seattlesolvers.solverslib.command.ParallelRaceGroup;
 import com.seattlesolvers.solverslib.command.SequentialCommandGroup;
 import com.seattlesolvers.solverslib.command.WaitCommand;
 
@@ -26,12 +23,9 @@ import org.firstinspires.ftc.teamcode.Subsystems.Shooter.shooterToBasketCMD;
 import org.firstinspires.ftc.teamcode.Subsystems.Shooter.shooterToVelCMD;
 import org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.horizontalBlockerCMD;
 import org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.lateralBlockersCMD;
-import org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.postSorterCmd;
-import org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.preSorterCmd;
 import org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.rampCMD;
 import org.firstinspires.ftc.teamcode.Subsystems.Turret.turretToBasketCMD;
 import org.firstinspires.ftc.teamcode.Subsystems.Turret.turretToPosCMD;
-import org.firstinspires.ftc.teamcode.Subsystems.Vision.detectMotifCMD;
 import org.firstinspires.ftc.teamcode.Utilities.Aliance;
 import org.firstinspires.ftc.teamcode.Utilities.OpModeCommand;
 
@@ -45,13 +39,13 @@ public class CloseAuto_GLOBAL extends OpModeCommand {
 
     public static Pose startingPose = new Pose(123.0, 123.0, Math.toRadians(38));
 
-    public static Pose shootPreloadPose = new Pose(86.0, 82.0, Math.toRadians(320));
+    public static Pose shootPreloadPose = new Pose(86.0, 82.0, Math.toRadians(38));
 
     public static Pose pick1ControlPoint = new Pose(96, 58, Math.toRadians(0));
 
     public static Pose pick1Pose = new Pose(136.0, 58.0, Math.toRadians(0));
 
-    public static Pose openGateControlPoint = new Pose(118.0, 60.0, Math.toRadians(0));
+    public static Pose openGateControlPoint = new Pose(110.0, 60.0, Math.toRadians(0));
 
     public static Pose openGatePose = new Pose(128.0, 68.0, Math.toRadians(270));
 
@@ -168,14 +162,13 @@ public class CloseAuto_GLOBAL extends OpModeCommand {
 
             openGate = follower.pathBuilder()
                     .addPath(new BezierCurve(
-                            pick1Pose.mirror(),
-                            openGateControlPoint.mirror(),
-                            openGatePose.mirror()))
+                            pick1Pose,
+                            openGateControlPoint,
+                            openGatePose))
                     .setLinearHeadingInterpolation(
-                            pick1Pose.mirror().getHeading(),
-                            openGatePose.mirror().getHeading())
+                            pick1Pose.getHeading(),
+                            openGatePose.getHeading())
                     .build();
-
 
             launchFirst = follower.pathBuilder()
                     .addPath(new BezierCurve(
@@ -220,7 +213,7 @@ public class CloseAuto_GLOBAL extends OpModeCommand {
                             pickUp3Pose.mirror(),
                             shoot3ControlPoint.mirror(),
                             shoot3Pose.mirror()))
-                    .setTangentHeadingInterpolation()
+                    .setLinearHeadingInterpolation(pickUp3Pose.getHeading(), shoot3Pose.getHeading())
                     .setReversed()
                     .build();
 
@@ -238,10 +231,10 @@ public class CloseAuto_GLOBAL extends OpModeCommand {
     public void initialize() {
 
         if (currentAliance.equals(Aliance.RED)) {
-            follower.setStartingPose(startingPoseCloseRed);
+            follower.setStartingPose(startingPose);
 
         } else {
-            follower.setStartingPose(startingPoseCloseBlue);
+            follower.setStartingPose(startingPose.mirror());
 
         }
 
@@ -253,7 +246,7 @@ public class CloseAuto_GLOBAL extends OpModeCommand {
 
                 new WaitCommand(200),
 
-                new lateralBlockersCMD(sorterSb, 0, 0),
+                new lateralBlockersCMD(sorterSb, blockersUp, 0),
                 new horizontalBlockerCMD(sorterSb, blockerHHidePos)
 
         ).schedule();
@@ -262,15 +255,19 @@ public class CloseAuto_GLOBAL extends OpModeCommand {
         autoCommand =
                 new SequentialCommandGroup(
 
-                        new shooterToVelCMD(shooterSb, 1300),
+                        new shooterToVelCMD(shooterSb, 1250),
+                        new ConditionalCommand(
+                                new turretToPosCMD(turretSb, -5.0),
+                                new turretToPosCMD(turretSb,5.0),
+                                ()-> currentAliance.equals(Aliance.RED)
+                        ),
+                        new ParallelDeadlineGroup(
+                                pedroSb.followPathCmd(launchPreload).withTimeout(2300),
+                                new shooterToBasketCMD(shooterSb, visionSb, 1250)
+                        ),
+                        new WaitCommand(1500),
 
-                        new turretToPosCMD(turretSb, 80.0),
-
-                        pedroSb.followPathCmd(launchPreload),
-
-                        new WaitCommand(500),
-
-                        shootThreeSpamerCMD(1300),
+                        shootThreeSpamerCloseCMD(),
 
                         ///PRELOAD_LAUNCHED
 
@@ -280,19 +277,24 @@ public class CloseAuto_GLOBAL extends OpModeCommand {
 
                         pedroSb.followPathCmd(intakeFirst).withTimeout(2000),
 
+                        new shooterToVelCMD(shooterSb, 1250),
                         new WaitCommand(300),
 
                         pedroSb.followPathCmd(openGate).withTimeout(800),
 
-                        new WaitCommand(300),
+                        new WaitCommand(900),
 
+                        new ConditionalCommand(
+                                new turretToPosCMD(turretSb, -38.0),
+                                new turretToPosCMD(turretSb,38.0),
+                                ()-> currentAliance.equals(Aliance.RED)
+                        ),
                         new ParallelDeadlineGroup(
                                 pedroSb.followPathCmd(launchFirst).withTimeout(2300),
-                                new turretToBasketCMD(turretSb, visionSb),
                                 new shooterToBasketCMD(shooterSb, visionSb, 1300)
                         ),
 
-                        shootThreeSpamerCMD(1300),
+                        shootThreeSpamerCloseCMD(),
 
                         /// FIRST_LAUNCHED
 
@@ -302,32 +304,52 @@ public class CloseAuto_GLOBAL extends OpModeCommand {
 
                         pedroSb.followPathCmd(intakeSecond).withTimeout(2000),
 
+                        new shooterToVelCMD(shooterSb, 1250),
+
                         new WaitCommand(300),
 
+                        new ConditionalCommand(
+                                new turretToPosCMD(turretSb, -38.0),
+                                new turretToPosCMD(turretSb,38.0),
+                                ()-> currentAliance.equals(Aliance.RED)
+                        ),
                         new ParallelDeadlineGroup(
                                 pedroSb.followPathCmd(launchSecond).withTimeout(2300),
-                                new turretToBasketCMD(turretSb, visionSb),
                                 new shooterToBasketCMD(shooterSb, visionSb, 1300)
                         ),
 
-                        shootThreeSpamerCMD(1300),
+                        shootThreeSpamerCloseCMD(),
 
                         /// SECOND_LAUNCHED
 
-                        stopShootCMD(true),
+                        stopShootCMD(false),
                         new moveIntakeAutonomousCMD(intakeSb, 1),
 
                         pedroSb.followPathCmd(intakeThird).withTimeout(2000),
 
+                        new shooterToVelCMD(shooterSb, 1250),
+
                         new WaitCommand(300),
 
-                        new ParallelDeadlineGroup(
+                        new ConditionalCommand(
+                                new turretToPosCMD(turretSb, -50.0),
+                                new turretToPosCMD(turretSb,50.0),
+                                ()-> currentAliance.equals(Aliance.RED)
+                        ),
+                        /*
+                        new ConditionalCommand(
+                        new turretToPosCMD(turretSb, -68.0),
+                                new turretToPosCMD(turretSb, 68.0),
+                        ),
+
+
+                         */
+                                new ParallelDeadlineGroup(
                                 pedroSb.followPathCmd(launchThird).withTimeout(2300),
-                                new turretToBasketCMD(turretSb, visionSb),
                                 new shooterToBasketCMD(shooterSb, visionSb, 1300)
                         ),
 
-                        shootThreeSpamerCMD(1300),
+                        shootThreeSpamerCloseCMD(),
 
                         /// THIRD_LAUNCHED
 
