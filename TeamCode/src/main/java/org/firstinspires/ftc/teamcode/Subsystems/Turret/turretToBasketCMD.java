@@ -61,7 +61,7 @@ public class turretToBasketCMD extends CommandBase {
             turretSb.telemetry.addData("llTarget", llTarget);
 
 
-        } else if (waitAimTimer.milliseconds() > 150) {
+        } else if (waitAimTimer.milliseconds() > 250) {
 
             turretSb.turretTarget = turretSb.turretToGoalAngle;
 

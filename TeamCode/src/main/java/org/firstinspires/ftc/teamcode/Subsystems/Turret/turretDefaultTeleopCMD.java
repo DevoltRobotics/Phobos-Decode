@@ -26,13 +26,17 @@ public class turretDefaultTeleopCMD extends CommandBase {
 
     BooleanSupplier isClose;
 
+    BooleanSupplier isShooting;
+
+    BooleanSupplier isPoseEstimate;
+
     Gamepad gamepad;
 
     static int manualIncrement = 5;
 
     private final ElapsedTime waitAimTimer;
 
-    public turretDefaultTeleopCMD(TurretSubsystem turretSb, VisionSubsystem visionSb, BooleanSupplier isManual, BooleanSupplier isClose, Gamepad gamepad) {
+    public turretDefaultTeleopCMD(TurretSubsystem turretSb, VisionSubsystem visionSb, BooleanSupplier isManual, BooleanSupplier isClose, Gamepad gamepad, BooleanSupplier isShooting, BooleanSupplier isPoseEstimate) {
         this.turretSb = turretSb;
 
         this.visionSb = visionSb;
@@ -43,6 +47,11 @@ public class turretDefaultTeleopCMD extends CommandBase {
 
         this.isClose = isClose;
 
+        this.isShooting = isShooting;
+
+        this.isPoseEstimate = isPoseEstimate;
+
+
         waitAimTimer = new ElapsedTime();
 
         addRequirements(turretSb);
@@ -50,7 +59,6 @@ public class turretDefaultTeleopCMD extends CommandBase {
 
     @Override
     public void execute() {
-
 
         if (gamepad.right_bumper || gamepad.left_bumper) {
             turretSb.realIsManual = true;
@@ -94,16 +102,14 @@ public class turretDefaultTeleopCMD extends CommandBase {
             double llTarget = turretSb.llPidf.calculate(tX);
             turretSb.turretTarget -= llTarget;
 
-            if (tX > 7) {
-
+            if (isShooting.getAsBoolean()) {
                 waitAimTimer.reset();
-
             }
 
             turretSb.telemetry.addData("llTarget", llTarget);
 
 
-        } else if (waitAimTimer.milliseconds() > 150) {
+        } else if (waitAimTimer.milliseconds() > 400 && isPoseEstimate.getAsBoolean()) {
 
             turretSb.turretTarget = turretSb.turretToGoalAngle;
 

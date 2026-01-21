@@ -46,7 +46,12 @@ public abstract class teleOp extends OpModeCommand {
     double angleOffSet;
     Boolean isTurretManual = true;
 
+    Boolean isShooting = true;
+
     Boolean isClose = true;
+
+    Boolean poseEstimate = true;
+
 
     Double shooterProvTarget = 1300.0;
 
@@ -104,21 +109,25 @@ public abstract class teleOp extends OpModeCommand {
         intakeIn.whileActiveOnce(new moveIntakeTeleOpCMD(intakeSb, 1, 0.8));
         intakeOut.whileActiveOnce(new moveIntakeTeleOpCMD(intakeSb, -0.7, -1));
 
-        CommandScheduler.getInstance().setDefaultCommand(turretSb, new turretDefaultTeleopCMD(turretSb, visionSb, () -> isTurretManual, () -> isClose, gamepad2));
+        CommandScheduler.getInstance().setDefaultCommand(turretSb, new turretDefaultTeleopCMD(turretSb, visionSb, () -> isTurretManual, () -> isClose, gamepad2, () -> isShooting, () -> poseEstimate));
 
-        /*Button positiveTurret = new GamepadButton(
+        Button togglePoseEstimate = new GamepadButton(
                 garra,
-                GamepadKeys.Button.RIGHT_BUMPER);
+                GamepadKeys.Button.START);
 
-        positiveTurret.whileActiveOnce(new turretPowerCMD(turretSb, 1));
+        togglePoseEstimate.whenPressed(
+                new InstantCommand(
+                        () ->
 
-        Button negativeTurret = new GamepadButton(
-                garra,
-                GamepadKeys.Button.LEFT_BUMPER);
+                        {
+                            if (poseEstimate != null) {
+                                poseEstimate = !poseEstimate;
 
-        negativeTurret.whileActiveOnce(new turretPowerCMD(turretSb, -1));
+                            }
+                        }
+                )
+        );
 
-         */
 
         CommandScheduler.getInstance().setDefaultCommand(sensorsSb, new lightSorterCMD(sensorsSb, shooterSb, visionSb));
 
@@ -149,15 +158,19 @@ public abstract class teleOp extends OpModeCommand {
 
         prepareShootFar.whenPressed(
                 new ParallelCommandGroup(
-                        new shooterToBasketCMD(shooterSb, visionSb, ()-> 1500),
+                        new shooterToBasketCMD(shooterSb, visionSb, 1480),
 
                         new InstantCommand(
-                                ()-> shooterProvTarget = 1500.0
+                                () -> shooterProvTarget = 1480.0
 
                         ),
 
                         new InstantCommand(
                                 () -> isTurretManual = false
+                        ),
+
+                        new InstantCommand(
+                                () -> isShooting = true
                         ),
 
                         new InstantCommand(
@@ -173,11 +186,15 @@ public abstract class teleOp extends OpModeCommand {
 
         prepareShootClose.whenPressed(
                 new ParallelCommandGroup(
-                        new shooterToBasketCMD(shooterSb, visionSb, ()-> 1300),
+                        new shooterToBasketCMD(shooterSb, visionSb, () -> 1300),
 
                         new InstantCommand(
-                                ()-> shooterProvTarget = 1300.0
+                                () -> shooterProvTarget = 1300.0
 
+                        ),
+
+                        new InstantCommand(
+                                () -> isShooting = true
                         ),
 
                         new InstantCommand(
@@ -204,6 +221,10 @@ public abstract class teleOp extends OpModeCommand {
                                 () -> {
                                     isTurretManual = false;
                                 }
+                        ),
+
+                        new InstantCommand(
+                                () -> isShooting = true
                         ),
 
                         new InstantCommand(
@@ -244,6 +265,10 @@ public abstract class teleOp extends OpModeCommand {
 
                         new InstantCommand(
                                 () -> isTurretManual = true
+                        ),
+
+                        new InstantCommand(
+                                () -> isShooting = false
                         ),
 
                         new InstantCommand(

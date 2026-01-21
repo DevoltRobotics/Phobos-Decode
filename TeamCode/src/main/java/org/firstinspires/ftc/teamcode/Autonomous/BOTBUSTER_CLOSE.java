@@ -1,7 +1,5 @@
 package org.firstinspires.ftc.teamcode.Autonomous;
 
-import static org.firstinspires.ftc.teamcode.Autonomous.DrivePos.startingPoseCloseBlue;
-import static org.firstinspires.ftc.teamcode.Autonomous.DrivePos.startingPoseCloseRed;
 import static org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.SorterSubsystem.blockerHFreePos;
 import static org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.SorterSubsystem.blockerHHidePos;
 import static org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.SorterSubsystem.blockersUp;
@@ -24,15 +22,14 @@ import org.firstinspires.ftc.teamcode.Subsystems.Shooter.shooterToVelCMD;
 import org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.horizontalBlockerCMD;
 import org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.lateralBlockersCMD;
 import org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.rampCMD;
-import org.firstinspires.ftc.teamcode.Subsystems.Turret.turretToBasketCMD;
 import org.firstinspires.ftc.teamcode.Subsystems.Turret.turretToPosCMD;
 import org.firstinspires.ftc.teamcode.Utilities.Aliance;
 import org.firstinspires.ftc.teamcode.Utilities.OpModeCommand;
 
-public class CloseAuto_GLOBAL extends OpModeCommand {
+public class BOTBUSTER_CLOSE extends OpModeCommand {
 
     private Path launchPreload, park;
-    private PathChain openGate, intakeFirst, launchFirst, prepareForIntakeSecond, intakeSecond, launchSecond, prepareForIntakeThird, intakeThird, launchThird;
+    private PathChain openGate, intakeFirst, launchFirst, intakeSecond, launchSecond;
 
     private Pose currentStartingPose;
     Command autoCommand;
@@ -45,7 +42,7 @@ public class CloseAuto_GLOBAL extends OpModeCommand {
 
     public static Pose pick1Pose = new Pose(136.0, 58.0, Math.toRadians(0));
 
-    public static Pose openGateControlPoint = new Pose(101.0, 60.0, Math.toRadians(0));
+    public static Pose openGateControlPoint = new Pose(110.0, 60.0, Math.toRadians(0));
 
     public static Pose openGatePose = new Pose(131.0, 68.0, Math.toRadians(270));
 
@@ -58,15 +55,9 @@ public class CloseAuto_GLOBAL extends OpModeCommand {
 
     public static Pose pickUp2ControlPoint = new Pose(88.0, 30.0, Math.toRadians(0));
 
-    public static Pose pickUp3Pose = new Pose(135.0, 35.0, Math.toRadians(0));
-
-    public static Pose shoot3ControlPoint = new Pose(115, 63, Math.toRadians(340));
-
-    public static Pose shoot3Pose = new Pose(86.0, 81.0, Math.toRadians(340));
-
     public static Pose parkPose = new Pose(108.0, 70.0, Math.toRadians(0));
 
-    public CloseAuto_GLOBAL(Aliance aliance) {
+    public BOTBUSTER_CLOSE(Aliance aliance) {
         super(aliance, true);
     }
 
@@ -122,25 +113,8 @@ public class CloseAuto_GLOBAL extends OpModeCommand {
                             pickUp2Pose.getHeading())
                     .build();
 
-            intakeThird = follower.pathBuilder()
-                    .addPath(new BezierCurve(
-                            shoot2Pose,
-                            pickUp2ControlPoint,
-                            pickUp3Pose))
-                    .setTangentHeadingInterpolation()
-                    .build();
-
-            launchThird = follower.pathBuilder()
-                    .addPath(new BezierCurve(
-                            pickUp3Pose,
-                            shoot3ControlPoint,
-                            shoot3Pose))
-                    .setTangentHeadingInterpolation()
-                    .setReversed()
-                    .build();
-
-            park = new Path(new BezierLine(shoot3Pose, parkPose));
-            park.setLinearHeadingInterpolation(shoot3Pose.getHeading(), parkPose.getHeading());
+            park = new Path(new BezierLine(shoot2Pose, parkPose));
+            park.setLinearHeadingInterpolation(shoot2Pose.getHeading(), parkPose.getHeading());
 
         } else {
             launchPreload = new Path(new BezierLine(
@@ -198,30 +172,11 @@ public class CloseAuto_GLOBAL extends OpModeCommand {
                     .build();
 
 
-            intakeThird = follower.pathBuilder()
-                    .addPath(new BezierCurve(
-                            shoot2Pose.mirror(),
-                            pickUp2ControlPoint.mirror(),
-                            pickUp3Pose.mirror()))
-                    .setTangentHeadingInterpolation()
-                    .build();
-
-
-            launchThird = follower.pathBuilder()
-                    .addPath(new BezierCurve(
-                            pickUp3Pose.mirror(),
-                            shoot3ControlPoint.mirror(),
-                            shoot3Pose.mirror()))
-                    .setLinearHeadingInterpolation(pickUp3Pose.getHeading(), shoot3Pose.getHeading())
-                    .setReversed()
-                    .build();
-
-
             park = new Path(new BezierLine(
-                    shoot3Pose.mirror(),
+                    shoot2Pose.mirror(),
                     parkPose.mirror()));
             park.setLinearHeadingInterpolation(
-                    shoot3Pose.mirror().getHeading(),
+                    shoot2Pose.mirror().getHeading(),
                     parkPose.mirror().getHeading());
         }
     }
@@ -255,9 +210,6 @@ public class CloseAuto_GLOBAL extends OpModeCommand {
                 new SequentialCommandGroup(
 
                         new shooterToVelCMD(shooterSb, 1300),
-
-                        new moveIntakeAutonomousCMD(intakeSb, 0.3, 0),
-
                         new ConditionalCommand(
                                 new turretToPosCMD(turretSb, -5.0),
                                 new turretToPosCMD(turretSb,5.0),
@@ -311,10 +263,11 @@ public class CloseAuto_GLOBAL extends OpModeCommand {
                         new WaitCommand(300),
 
                         new ConditionalCommand(
-                                new turretToPosCMD(turretSb, -38.0),
-                                new turretToPosCMD(turretSb,38.0),
-                                ()-> currentAliance.equals(Aliance.RED)
-                        ),
+                        new turretToPosCMD(turretSb, -30.0),
+                        new turretToPosCMD(turretSb,30.0),
+                        ()-> currentAliance.equals(Aliance.RED)
+                ),
+
                         new ParallelDeadlineGroup(
                                 pedroSb.followPathCmd(launchSecond).withTimeout(2300),
                                 new shooterToBasketCMD(shooterSb, visionSb, 1300)
@@ -325,40 +278,10 @@ public class CloseAuto_GLOBAL extends OpModeCommand {
                         /// SECOND_LAUNCHED
 
                         stopShootCMD(false),
-                        new moveIntakeAutonomousCMD(intakeSb, 1),
 
-                        pedroSb.followPathCmd(intakeThird).withTimeout(3000),
-
-                        new shooterToVelCMD(shooterSb, 1250),
-
-                        new WaitCommand(300),
-
-                        new ConditionalCommand(
-                                new turretToPosCMD(turretSb, -30.0),
-                                new turretToPosCMD(turretSb,30.0),
-                                ()-> currentAliance.equals(Aliance.RED)
-                        ),
-                        /*
-                        new ConditionalCommand(
-                        new turretToPosCMD(turretSb, -68.0),
-                                new turretToPosCMD(turretSb, 68.0),
-                        ),
-
-
-                         */
-                                new ParallelDeadlineGroup(
-                                pedroSb.followPathCmd(launchThird).withTimeout(2300),
-                                new shooterToBasketCMD(shooterSb, visionSb, 1300)
-                        ),
-
-                        shootThreeSpamerCloseCMD(),
-
-                        /// THIRD_LAUNCHED
-
-                        stopShootCMD(false),
                         pedroSb.followPathCmd(park),
 
-                        new WaitCommand(400)
+                        new WaitCommand(500)
 
                 );
     }

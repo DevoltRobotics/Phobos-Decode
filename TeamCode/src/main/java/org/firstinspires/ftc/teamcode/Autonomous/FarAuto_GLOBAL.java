@@ -205,7 +205,7 @@ public class FarAuto_GLOBAL extends OpModeCommand {
 
                         new ParallelDeadlineGroup(
 
-                                new WaitCommand(3800),
+                                new WaitCommand(3900),
 
                                 new SequentialCommandGroup(
                                         new WaitCommand(2100),
@@ -216,14 +216,11 @@ public class FarAuto_GLOBAL extends OpModeCommand {
                                 ),
 
                                 new ConditionalCommand(
-                                        new turretToPosCMD(turretSb, 13.0),
-                                        new turretToPosCMD(turretSb,-13.0),
+                                        new turretToPosCMD(turretSb, 20.0),
+                                        new turretToPosCMD(turretSb,-20.0),
                                         ()-> currentAliance.equals(Aliance.RED)),
 
-                                new shooterToVelCMD(shooterSb, 1500)
-
-                                /*new shooterToBasketCMD(shooterSb, visionSb, 1480)
-                                */
+                                new shooterToVelCMD(shooterSb, 1515)
 
                         ),
 
@@ -241,11 +238,11 @@ public class FarAuto_GLOBAL extends OpModeCommand {
 
                         new WaitCommand(300),
 
-                        new shooterToVelCMD(shooterSb, 1480),
+                        new shooterToVelCMD(shooterSb, 1495),
 
                         new ConditionalCommand(
-                        new turretToPosCMD(turretSb, -60.0),
-                                new turretToPosCMD(turretSb,60.0),
+                        new turretToPosCMD(turretSb, -40.0),
+                                new turretToPosCMD(turretSb,40.0),
                                 ()-> currentAliance.equals(Aliance.RED)),
 
                                 new moveIntakeAutonomousCMD(intakeSb, 0.4, 0),
@@ -277,11 +274,11 @@ public class FarAuto_GLOBAL extends OpModeCommand {
 
                         new WaitCommand(300),
 
-                        new shooterToVelCMD(shooterSb, 1490),
+                        new shooterToVelCMD(shooterSb, 1505),
 
                         new ConditionalCommand(
-                                new turretToPosCMD(turretSb, -64.0),
-                                new turretToPosCMD(turretSb,64.0),
+                                new turretToPosCMD(turretSb, -58.0),
+                                new turretToPosCMD(turretSb,58.0),
                                 ()-> currentAliance.equals(Aliance.RED)),
                         new moveIntakeAutonomousCMD(intakeSb, 0.4, 0),
 
@@ -313,11 +310,11 @@ public class FarAuto_GLOBAL extends OpModeCommand {
 
                         new WaitCommand(300),
 
-                        new shooterToVelCMD(shooterSb, 1490),
+                        new shooterToVelCMD(shooterSb, 1505),
 
                         new ConditionalCommand(
-                                new turretToPosCMD(turretSb, -64.0),
-                                new turretToPosCMD(turretSb,64.0),
+                                new turretToPosCMD(turretSb, -58.0),
+                                new turretToPosCMD(turretSb,58.0),
                                 ()-> currentAliance.equals(Aliance.RED)
                         ),
 
@@ -334,12 +331,9 @@ public class FarAuto_GLOBAL extends OpModeCommand {
 
                         stopShootCMD(false),
 
+                        pedroSb.followPathCmd(park),
 
-
-
-
-
-                        pedroSb.followPathCmd(park)
+                        new WaitCommand(800)
 
                         ///PARK
 

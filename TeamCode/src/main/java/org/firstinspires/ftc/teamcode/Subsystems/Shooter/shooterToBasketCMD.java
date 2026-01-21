@@ -102,7 +102,7 @@ public class shooterToBasketCMD extends CommandBase {
 
             shooterSb.shooterTarget = vsFunc.get(tagSizeDistance);
         }*/else {
-            shooterSb.shooterTarget = 1550;
+            shooterSb.shooterTarget = provTarget.getAsDouble();
         }
 
     }

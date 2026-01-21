@@ -228,7 +228,7 @@ public abstract class OpModeCommand extends OpMode {
     public Command shootThreeSpamerCloseCMD() {
         return new ParallelDeadlineGroup(
 
-                new WaitCommand(1600), // deadline
+                new WaitCommand(1900), // deadline
 
                 new SequentialCommandGroup(
                         new WaitCommand(300), // deadline
