@@ -2,10 +2,6 @@ package org.firstinspires.ftc.teamcode.Autonomous;
 
 import static org.firstinspires.ftc.teamcode.Autonomous.DrivePos.startingPoseCloseBlue;
 import static org.firstinspires.ftc.teamcode.Autonomous.DrivePos.startingPoseCloseRed;
-import static org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.SorterSubsystem.blockerHFreePos;
-import static org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.SorterSubsystem.blockerHHidePos;
-import static org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.SorterSubsystem.blockersUp;
-import static org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.SorterSubsystem.upRampPos;
 
 import com.pedropathing.geometry.BezierCurve;
 import com.pedropathing.geometry.BezierLine;
@@ -14,20 +10,8 @@ import com.pedropathing.paths.Path;
 import com.pedropathing.paths.PathChain;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.seattlesolvers.solverslib.command.Command;
-import com.seattlesolvers.solverslib.command.ConditionalCommand;
-import com.seattlesolvers.solverslib.command.InstantCommand;
-import com.seattlesolvers.solverslib.command.ParallelCommandGroup;
 import com.seattlesolvers.solverslib.command.SequentialCommandGroup;
-import com.seattlesolvers.solverslib.command.WaitCommand;
 
-import org.firstinspires.ftc.teamcode.Subsystems.Intake.moveIntakeAutonomousCMD;
-import org.firstinspires.ftc.teamcode.Subsystems.Shooter.shooterToBasketCMD;
-import org.firstinspires.ftc.teamcode.Subsystems.Shooter.shooterToVelCMD;
-import org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.horizontalBlockerCMD;
-import org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.lateralBlockersCMD;
-import org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.rampCMD;
-import org.firstinspires.ftc.teamcode.Subsystems.Turret.turretToPosCMD;
-import org.firstinspires.ftc.teamcode.Subsystems.Vision.detectMotifCMD;
 import org.firstinspires.ftc.teamcode.Utilities.Aliance;
 import org.firstinspires.ftc.teamcode.Utilities.OpModeCommand;
 
@@ -35,39 +19,43 @@ import org.firstinspires.ftc.teamcode.Utilities.OpModeCommand;
 public class CLOSE_TRAJ extends OpModeCommand {
 
     private Path launchPreload, park;
-    private PathChain openGate, intakeFirst, launchFirst, intakeSecond, launchSecond, prepareForIntakeThird, intakeThird, launchThird;
+    private PathChain openGate, intakeFirst, launchFirst, intakeSecond, launchSecond, intakeThird, launchThird, intakeFourth, launchFourth, intakeFive, launchFive;
 
     private Pose currentStartingPose;
     Command autoCommand;
 
-    public static Pose startingPose = new Pose(123.0, 123.0, Math.toRadians(38));
+    static Pose startingPose = new Pose(123.0, 123.0, Math.toRadians(38));
 
-    public static Pose shootPreloadPose = new Pose(86.0, 82.0, Math.toRadians(38));
+     static Pose shootPreloadPose = new Pose(88.0, 84.0, Math.toRadians(38));
 
-    public static Pose pick1ControlPoint = new Pose(96, 58, Math.toRadians(0));
+     static Pose pick1ControlPoint = new Pose(95, 58, Math.toRadians(0));
 
-    public static Pose pick1Pose = new Pose(136.0, 58.0, Math.toRadians(0));
+     static Pose pick1Pose = new Pose(134.0, 58.0, Math.toRadians(0));
 
-    public static Pose openGateControlPoint = new Pose(118.0, 60.0, Math.toRadians(0));
+     static Pose shoot1ControlPoint = new Pose(91.0, 66.0, Math.toRadians(0));
+     static Pose shoot1Pose = new Pose(88.0, 85.0, Math.toRadians(320));
 
-    public static Pose openGatePose = new Pose(128.0, 68.0, Math.toRadians(270));
+     static Pose pickUp2Pose = new Pose(132.0, 57.0, Math.toRadians(40));
 
-    public static Pose shoot1ControlPoint = new Pose(91.0, 66.0, Math.toRadians(0));
-    public static Pose shoot1Pose = new Pose(88.0, 85.0, Math.toRadians(0));
+     static Pose shoot2Pose = new Pose(88.0, 85.0, Math.toRadians(0));
 
-    public static Pose pickUp2Pose = new Pose(128.0, 85.0, Math.toRadians(0));
+     static Pose pickUp3Pose = new Pose(132.0, 57.0, Math.toRadians(40));
 
-    public static Pose shoot2Pose = new Pose(88.0, 85.0, Math.toRadians(0));
+     static Pose shoot3Pose = new Pose(88.0, 85.0, Math.toRadians(0));
 
-    public static Pose pickUp2ControlPoint = new Pose(88.0, 30.0, Math.toRadians(0));
+     static Pose pickUp5Pose = new Pose(128.0, 85.0, Math.toRadians(0));
 
-    public static Pose pickUp3Pose = new Pose(135.0, 35.0, Math.toRadians(0));
+     static Pose shoot5Pose = new Pose(88.0, 85.0, Math.toRadians(0));
 
-    public static Pose shoot3ControlPoint = new Pose(105.0, 29.0, Math.toRadians(0));
+     static Pose pickUp4ControlPoint = new Pose(88.0, 30.0, Math.toRadians(0));
 
-    public static Pose shoot3Pose = new Pose(86.0, 81.0, Math.toRadians(0));
+     static Pose pickUp4Pose = new Pose(135.0, 35.0, Math.toRadians(0));
 
-    public static Pose parkPose = new Pose(108.0, 70.0, Math.toRadians(0));
+     static Pose shoot4ControlPoint = new Pose(115, 63, Math.toRadians(340));
+
+     static Pose shoot4Pose = new Pose(86.0, 81.0, Math.toRadians(340));
+
+     static Pose parkPose = new Pose(108.0, 70.0, Math.toRadians(0));
 
     public CLOSE_TRAJ() {
         super(Aliance.RED, true);
@@ -88,62 +76,101 @@ public class CLOSE_TRAJ extends OpModeCommand {
                     .setTangentHeadingInterpolation()
                     .build();
 
-
-            openGate = follower.pathBuilder()
-                    .addPath(new BezierCurve(
-                            pick1Pose,
-                            openGateControlPoint,
-                            openGatePose))
-                    .setLinearHeadingInterpolation(
-                            pick1Pose.getHeading(),
-                            openGatePose.getHeading())
-                    .build();
-
             launchFirst = follower.pathBuilder()
                     .addPath(new BezierCurve(
-                            openGatePose,
+                            pick1Pose,
                             shoot1ControlPoint,
                             shoot1Pose))
                     .setLinearHeadingInterpolation(
-                            openGatePose.getHeading(),
+                            pick1Pose.getHeading(),
                             shoot1Pose.getHeading())
                     .build();
+
+            /*openGate = follower.pathBuilder()
+                    .addPath(new BezierCurve(
+                            shoot1Pose,
+                            openGateControlPoint,
+                            openGatePose))
+                    .setTangentHeadingInterpolation()
+                    .build();
+
+             */
 
             intakeSecond = follower.pathBuilder()
                     .addPath(new BezierLine(
                             shoot1Pose,
                             pickUp2Pose))
-                    .setConstantHeadingInterpolation(
-                            shoot1Pose.getHeading())
+                    .setLinearHeadingInterpolation(
+                            shoot1Pose.getHeading(),
+                            pickUp2Pose.getHeading())
                     .build();
 
             launchSecond = follower.pathBuilder()
                     .addPath(new BezierLine(
                             pickUp2Pose,
                             shoot2Pose))
-                    .setConstantHeadingInterpolation(
-                            pickUp2Pose.getHeading())
+                    .setLinearHeadingInterpolation(
+                            pickUp2Pose.getHeading(),
+                            shoot2Pose.getHeading()
+                    )
                     .build();
 
+
+
             intakeThird = follower.pathBuilder()
-                    .addPath(new BezierCurve(
+                    .addPath(new BezierLine(
                             shoot2Pose,
-                            pickUp2ControlPoint,
                             pickUp3Pose))
-                    .setTangentHeadingInterpolation()
+                    .setLinearHeadingInterpolation(
+                            shoot2Pose.getHeading(),
+                            pickUp3Pose.getHeading())
                     .build();
 
             launchThird = follower.pathBuilder()
-                    .addPath(new BezierCurve(
+                    .addPath(new BezierLine(
                             pickUp3Pose,
-                            shoot3ControlPoint,
                             shoot3Pose))
+                    .setLinearHeadingInterpolation(
+                            pickUp3Pose.getHeading(),
+                            shoot3Pose.getHeading()
+                    )
+                    .build();
+
+            intakeFourth = follower.pathBuilder()
+                    .addPath(new BezierCurve(
+                            shoot5Pose,
+                            pickUp4ControlPoint,
+                            pickUp4Pose))
+                    .setTangentHeadingInterpolation()
+                    .build();
+
+            launchFourth = follower.pathBuilder()
+                    .addPath(new BezierCurve(
+                            pickUp4Pose,
+                            shoot4ControlPoint,
+                            shoot4Pose))
                     .setTangentHeadingInterpolation()
                     .setReversed()
                     .build();
 
-            park = new Path(new BezierLine(shoot3Pose, parkPose));
-            park.setLinearHeadingInterpolation(shoot3Pose.getHeading(), parkPose.getHeading());
+            intakeFive = follower.pathBuilder()
+                    .addPath(new BezierLine(
+                            shoot3Pose,
+                            pickUp5Pose))
+                    .setConstantHeadingInterpolation(
+                            pickUp5Pose.getHeading())
+                    .build();
+
+            launchFive = follower.pathBuilder()
+                    .addPath(new BezierLine(
+                            pickUp5Pose,
+                            shoot5Pose))
+                    .setConstantHeadingInterpolation(
+                            pickUp5Pose.getHeading())
+                    .build();
+
+            park = new Path(new BezierLine(shoot5Pose, parkPose));
+            park.setLinearHeadingInterpolation(shoot5Pose.getHeading(), parkPose.getHeading());
 
 
         } else {
@@ -218,7 +245,7 @@ public class CLOSE_TRAJ extends OpModeCommand {
         }
 
         createPaths();
-        autoCommand =
+
                 autoCommand =
                         new SequentialCommandGroup(
 
@@ -226,9 +253,10 @@ public class CLOSE_TRAJ extends OpModeCommand {
 
                                 pedroSb.followPathCmd(intakeFirst),
 
-                                pedroSb.followPathCmd(openGate),
-
                                 pedroSb.followPathCmd(launchFirst),
+
+                               // pedroSb.followPathCmd(openGate),
+
                                 pedroSb.followPathCmd(intakeSecond),
 
                                 pedroSb.followPathCmd(launchSecond),
@@ -236,7 +264,18 @@ public class CLOSE_TRAJ extends OpModeCommand {
                                 pedroSb.followPathCmd(intakeThird),
 
                                 pedroSb.followPathCmd(launchThird),
+
+                                pedroSb.followPathCmd(intakeFourth),
+
+                                pedroSb.followPathCmd(launchFourth),
+
+                                pedroSb.followPathCmd(intakeFive),
+
+                                pedroSb.followPathCmd(launchFive),
+
                                 pedroSb.followPathCmd(park)
+
+
 
 
                 );

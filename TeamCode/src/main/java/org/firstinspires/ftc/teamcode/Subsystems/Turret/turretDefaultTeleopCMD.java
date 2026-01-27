@@ -1,16 +1,12 @@
 package org.firstinspires.ftc.teamcode.Subsystems.Turret;
 
 import static org.firstinspires.ftc.teamcode.Subsystems.Turret.TurretSubsystem.furtherCorrection;
-import static org.firstinspires.ftc.teamcode.Subsystems.Turret.TurretSubsystem.turretPRelative;
-import static org.firstinspires.ftc.teamcode.Utilities.Aliance.RED;
 
 import com.acmerobotics.dashboard.config.Config;
-import com.pedropathing.follower.Follower;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.seattlesolvers.solverslib.command.CommandBase;
 
-import org.firstinspires.ftc.teamcode.Subsystems.Sensors.SensorsSubsystem;
 import org.firstinspires.ftc.teamcode.Subsystems.Vision.VisionSubsystem;
 
 import java.util.function.BooleanSupplier;
@@ -60,6 +56,16 @@ public class turretDefaultTeleopCMD extends CommandBase {
     @Override
     public void execute() {
 
+        double gx = Math.cos(turretSb.goalAngleRad);
+        double gy = Math.sin(turretSb.goalAngleRad);
+
+        double px = -gy;
+        double py =  gx;
+
+        double lateralVelocity = turretSb.velX * px + turretSb.velY * py;
+
+        double motionFF = lateralVelocity * TurretSubsystem.kBotToTurretVel;
+
         if (gamepad.right_bumper || gamepad.left_bumper) {
             turretSb.realIsManual = true;
 
@@ -108,14 +114,21 @@ public class turretDefaultTeleopCMD extends CommandBase {
 
             turretSb.telemetry.addData("llTarget", llTarget);
 
-
-        } else if (waitAimTimer.milliseconds() > 400 && isPoseEstimate.getAsBoolean()) {
-
-            turretSb.turretTarget = turretSb.turretToGoalAngle;
-
         }
 
+        else if (isPoseEstimate.getAsBoolean()) {
 
+            double toGoalAngle;
+
+            if (waitAimTimer.milliseconds() > 250){
+                toGoalAngle = turretSb.turretToGoalAngle;
+            }else {
+                toGoalAngle = turretSb.getCurrentPosition();
+            }
+
+            turretSb.turretTarget = toGoalAngle + motionFF;
+
+        }
     }
 }
 

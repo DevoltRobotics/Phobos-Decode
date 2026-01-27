@@ -158,7 +158,7 @@ public abstract class teleOp extends OpModeCommand {
 
         prepareShootFar.whenPressed(
                 new ParallelCommandGroup(
-                        new shooterToBasketCMD(shooterSb, visionSb, 1480),
+                        new shooterToBasketCMD(shooterSb, visionSb, ()-> 1480),
 
                         new InstantCommand(
                                 () -> shooterProvTarget = 1480.0
@@ -232,15 +232,10 @@ public abstract class teleOp extends OpModeCommand {
                         ),
 
                         new SequentialCommandGroup(
-                                new WaitCommand(waitAimTimer + 200),
-                                new moveIntakeAutonomousCMD(intakeSb, 1, 1)
-                        ),
-
-                        new SequentialCommandGroup(
-                                new WaitCommand(waitAimTimer),
-                                new horizontalBlockerCMD(sorterSb, blockerHFreePos).asProxy(),
-                                new WaitCommand(artifacToArtifactTimer)
-                        )
+                                new WaitCommand(200),
+                                new moveIntakeAutonomousCMD(intakeSb, 1, 1),
+                                new horizontalBlockerCMD(sorterSb, blockerHFreePos).asProxy()
+                                )
                 ));
 
         Button stopShootButton = new GamepadButton(

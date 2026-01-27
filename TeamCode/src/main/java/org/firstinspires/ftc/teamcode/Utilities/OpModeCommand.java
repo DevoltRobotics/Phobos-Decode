@@ -10,6 +10,7 @@ import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.bylazar.telemetry.TelemetryManager;
 import com.pedropathing.follower.Follower;
+import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.seattlesolvers.solverslib.command.Command;
 import com.seattlesolvers.solverslib.command.CommandScheduler;
@@ -37,8 +38,12 @@ import org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.lateralBlockers
 import org.firstinspires.ftc.teamcode.Subsystems.Turret.TurretSubsystem;
 import org.firstinspires.ftc.teamcode.Subsystems.Vision.VisionSubsystem;
 
+import java.util.List;
+
 @Config
 public abstract class OpModeCommand extends OpMode {
+
+    List<LynxModule> allhubs;
 
     public Follower follower;
 
@@ -85,11 +90,19 @@ public abstract class OpModeCommand extends OpMode {
     @Override
     public void init() {
 
+        allhubs = hardwareMap.getAll(LynxModule.class);
+
+        for (LynxModule hub : allhubs){
+            hub.setBulkCachingMode(LynxModule.BulkCachingMode.MANUAL);
+
+        }
+
+        allhubs.clear();
+
         telemetry = new MultipleTelemetry(
                 telemetry,
                 FtcDashboard.getInstance().getTelemetry()
         );
-
 
         register(
                 visionSb = new VisionSubsystem(hardwareMap, telemetry, currentAliance, isAuto, follower)
@@ -116,30 +129,25 @@ public abstract class OpModeCommand extends OpMode {
         initialize();
     }
 
-    /*public void initImu() {
-        IMU.Parameters parameters = new IMU.Parameters(new RevHubOrientationOnRobot(
-                RevHubOrientationOnRobot.LogoFacingDirection.RIGHT,
-                RevHubOrientationOnRobot.UsbFacingDirection.UP));
-        imu.initialize(parameters);
-        imu.resetYaw();
+    public void resetCache(){
+        for (LynxModule hub : allhubs){
+            hub.clearBulkCache();
+        }
     }
-
-     */
 
     @Override
     public void init_loop() {
-        //telemetry.addData("PATTERN", visionSb.alliance);
-
         if (isAuto) {
             run();
 
         }
-
     }
 
 
     @Override
     public void loop() {
+        resetCache();
+
         telemetry.addData("Heading", Math.toDegrees(follower.poseTracker.getPose().getHeading()));
 
         //telemetryM.update(telemetry);
@@ -228,20 +236,21 @@ public abstract class OpModeCommand extends OpMode {
     public Command shootThreeSpamerCloseCMD() {
         return new ParallelDeadlineGroup(
 
-                new WaitCommand(1900), // deadline
+                new WaitCommand(1700), // deadline
 
                 new SequentialCommandGroup(
-                        new WaitCommand(300), // deadline
                         new horizontalBlockerCMD(sorterSb, blockerHFreePos),
                         new moveIntakeAutonomousCMD(intakeSb, 1)
 
                 ),
-                new turretToBasketCMD(turretSb, visionSb)
+
+                new turretToBasketCMD(turretSb, visionSb),
+                new shooterToBasketCMD(shooterSb, visionSb)
         );
     }
     public Command stopShootCMD(boolean isSorter) {
         return new SequentialCommandGroup(
-                new moveIntakeAutonomousCMD(intakeSb, 0),
+                new moveIntakeAutonomousCMD(intakeSb, 0, 0),
                 new shooterToVelCMD(shooterSb, 800),
                 new turretToPosCMD(turretSb, 0.0),
                 new horizontalBlockerCMD(sorterSb, blockerHHidePos),

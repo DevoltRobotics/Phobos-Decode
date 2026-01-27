@@ -25,22 +25,27 @@ public class TurretSubsystem extends SubsystemBase {
 
     public DcMotor turretE;
 
-    public static PIDFCoefficients principalTurretCoeffs = new PIDFCoefficients(0.017, 0.0, 0.00056, 0.002);
-
-    public PIDFController turretPid;
-
-    public static PIDFCoefficients llPidCoeffs = new PIDFCoefficients(0.043, 0.0, 0.0001, 0);
-    public PIDFController llPidf;
-
-
     public Telemetry telemetry;
 
     public Follower follower;
 
     public Aliance alliance;
-    public static double Minimum = 0.037;
-    public static double MinimumEnc = 0.06;
 
+    public static PIDFCoefficients principalTurretCoeffs = new PIDFCoefficients(0.013, 0.0, 0.0014, 0.00);
+
+    public PIDFController turretPid;
+
+    public static PIDFCoefficients llPidCoeffs = new PIDFCoefficients(0.1, 0.0, 0.008, 0);
+    public PIDFController llPidf;
+
+    public static double kBotToTurretVel = 1.0; // start SMALL
+
+    public double velX;
+
+    public double velY; // YOU PROVIDE THIS
+
+
+    public static double MinimumEnc = 0.07;
 
     public static double capstanRatio = (double) 58 / 182;
 
@@ -63,16 +68,14 @@ public class TurretSubsystem extends SubsystemBase {
     public double robotToGoalAngle;
     public double turretToGoalAngle;
 
+    double goalAngleRad;
     public double distanceToGoal = 0;
 
     public static double aallY = 144;
     public static double redX = 144;
     public static double blueX = 0;
 
-    public static double aallYFar = 144;
-    public static double redXFar = 144;
-    public static double blueXFar = 0;
-
+    public static double ffValue = -0.09;
     double goalX, goalY;
 
     public boolean realIsManual;
@@ -98,8 +101,12 @@ public class TurretSubsystem extends SubsystemBase {
 
         if (alliance == Aliance.RED) {
             setGoalPos(redX, aallY);
+
+             goalAngleRad = Math.toRadians(38);
         } else if (alliance == Aliance.BLUE) {
             setGoalPos(blueX, aallY);
+
+            goalAngleRad = Math.toRadians(142);
         } else {
             setGoalPos(redX, aallY);
         }
@@ -125,16 +132,16 @@ public class TurretSubsystem extends SubsystemBase {
 
         encoderP = turretE.getCurrentPosition();
 
-        //turretPRelative = AngleUnit.normalizeDegrees((encoderP * capstanRatio * ticktsToDegrees));
-
         turretPRelative = (encoderP * capstanRatio * ticktsToDegrees);
 
         double target = Range.clip(turretTarget, lowerLimit, upperLimit);
 
-        turretPower = turretPid.calculate(turretPRelative, target);
+        double ff = Math.signum(turretTarget - turretPRelative) * ffValue;
 
-        turretS1.setPower(turretPower);
-        turretS2.setPower(turretPower);
+        turretPower = Range.clip(turretPid.calculate(turretPRelative, target), -1, 1);
+
+        turretS1.setPower(turretPower + ff);
+        turretS2.setPower(turretPower + ff);
 
         turretPid.setCoefficients(principalTurretCoeffs);
         turretPid.setMinimumOutput(MinimumEnc);

@@ -33,8 +33,6 @@ public class shooterToBasketCMD extends CommandBase {
 
     private final ElapsedTime waitAimTimer;
 
-    DoubleSupplier provTarget;
-
 
     static {
         vsFunc.add(1, 1530);
@@ -68,22 +66,11 @@ public class shooterToBasketCMD extends CommandBase {
 
     private final VisionSubsystem visionSb;
 
-    public shooterToBasketCMD(ShooterSubsystem shooterSb, VisionSubsystem visionSb, double provTarget) {
+    public shooterToBasketCMD(ShooterSubsystem shooterSb, VisionSubsystem visionSb) {
         this.shooterSb = shooterSb;
 
         this.visionSb = visionSb;
 
-        this.provTarget = ()-> provTarget;
-        waitAimTimer = new ElapsedTime();
-        addRequirements(this.shooterSb);
-    }
-
-    public shooterToBasketCMD(ShooterSubsystem shooterSb, VisionSubsystem visionSb, DoubleSupplier provTarget) {
-        this.shooterSb = shooterSb;
-
-        this.visionSb = visionSb;
-
-        this.provTarget = provTarget;
         waitAimTimer = new ElapsedTime();
         addRequirements(this.shooterSb);
     }
@@ -102,7 +89,6 @@ public class shooterToBasketCMD extends CommandBase {
 
             shooterSb.shooterTarget = vsFunc.get(tagSizeDistance);
         }*/else {
-            shooterSb.shooterTarget = provTarget.getAsDouble();
         }
 
     }

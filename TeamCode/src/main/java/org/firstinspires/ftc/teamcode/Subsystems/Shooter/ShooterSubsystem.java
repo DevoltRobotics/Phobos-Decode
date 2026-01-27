@@ -55,7 +55,6 @@ public class ShooterSubsystem extends SubsystemBase {
         shooterMUp = hMap.get(DcMotorEx.class, "shup");
 
         shooterMUp.setDirection(DcMotorSimple.Direction.REVERSE);
-        shooterMDown.setDirection(DcMotorSimple.Direction.REVERSE);
 
         shooterMDown.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         shooterMUp.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
