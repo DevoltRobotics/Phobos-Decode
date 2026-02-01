@@ -56,7 +56,7 @@ public class turretDefaultTeleopCMD extends CommandBase {
     @Override
     public void execute() {
 
-        double gx = Math.cos(turretSb.goalAngleRad);
+        /*double gx = Math.cos(turretSb.goalAngleRad);
         double gy = Math.sin(turretSb.goalAngleRad);
 
         double px = -gy;
@@ -66,6 +66,8 @@ public class turretDefaultTeleopCMD extends CommandBase {
 
         double motionFF = lateralVelocity * TurretSubsystem.kBotToTurretVel;
 
+
+         */
         if (gamepad.right_bumper || gamepad.left_bumper) {
             turretSb.realIsManual = true;
 
@@ -116,17 +118,9 @@ public class turretDefaultTeleopCMD extends CommandBase {
 
         }
 
-        else if (isPoseEstimate.getAsBoolean()) {
+        else if (isPoseEstimate.getAsBoolean() && waitAimTimer.milliseconds() > 250) {
 
-            double toGoalAngle;
-
-            if (waitAimTimer.milliseconds() > 250){
-                toGoalAngle = turretSb.turretToGoalAngle;
-            }else {
-                toGoalAngle = turretSb.getCurrentPosition();
-            }
-
-            turretSb.turretTarget = toGoalAngle + motionFF;
+            turretSb.turretTarget = turretSb.turretToGoalAngle;
 
         }
     }

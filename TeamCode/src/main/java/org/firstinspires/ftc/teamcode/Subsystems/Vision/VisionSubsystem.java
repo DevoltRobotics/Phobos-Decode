@@ -61,11 +61,7 @@ public class VisionSubsystem extends SubsystemBase {
     public void periodic() {
         result = ll.getLatestResult();
 
-        //ll.updateRobotOrientation(follower.getPose().getHeading());
-
-
-        FtcDashboard.getInstance().getTelemetry().update();
-
+        FtcDashboard.getInstance().getTelemetry().addData("llA", getAllianceTA());
     }
 
     public Double getAllianceTA() {

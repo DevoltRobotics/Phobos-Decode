@@ -1,7 +1,5 @@
 package org.firstinspires.ftc.teamcode.Autonomous;
 
-import static org.firstinspires.ftc.teamcode.Autonomous.DrivePos.startingPoseCloseBlue;
-import static org.firstinspires.ftc.teamcode.Autonomous.DrivePos.startingPoseCloseRed;
 
 import com.pedropathing.geometry.BezierCurve;
 import com.pedropathing.geometry.BezierLine;
@@ -237,10 +235,10 @@ public class CLOSE_TRAJ extends OpModeCommand {
     public void initialize() {
 
         if (currentAliance.equals(Aliance.RED)) {
-            follower.setStartingPose(startingPoseCloseRed);
+            follower.setStartingPose(startingPose);
 
         } else {
-            follower.setStartingPose(startingPoseCloseBlue);
+            follower.setStartingPose(startingPose.mirror());
 
         }
 

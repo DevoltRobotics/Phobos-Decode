@@ -17,10 +17,12 @@ import com.seattlesolvers.solverslib.command.SequentialCommandGroup;
 import com.seattlesolvers.solverslib.command.WaitCommand;
 
 import org.firstinspires.ftc.teamcode.Subsystems.Intake.moveIntakeAutonomousCMD;
+import org.firstinspires.ftc.teamcode.Subsystems.Shooter.shooterToBasketCMD;
 import org.firstinspires.ftc.teamcode.Subsystems.Shooter.shooterToVelCMD;
 import org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.horizontalBlockerCMD;
 import org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.lateralBlockersCMD;
 import org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.rampCMD;
+import org.firstinspires.ftc.teamcode.Subsystems.Turret.turretToBasketCMD;
 import org.firstinspires.ftc.teamcode.Subsystems.Turret.turretToPosCMD;
 import org.firstinspires.ftc.teamcode.Utilities.Aliance;
 import org.firstinspires.ftc.teamcode.Utilities.OpModeCommand;
@@ -202,6 +204,13 @@ public class FarAuto_GLOBAL extends OpModeCommand {
 
         autoCommand =
                 new SequentialCommandGroup(
+                        new shooterToVelCMD(shooterSb, 1520),
+
+                        new ConditionalCommand(
+                                new turretToPosCMD(turretSb, 17.0),
+                                new turretToPosCMD(turretSb, -17.0),
+                                () -> currentAliance.equals(Aliance.RED)),
+
 
                         new ParallelDeadlineGroup(
 
@@ -215,12 +224,9 @@ public class FarAuto_GLOBAL extends OpModeCommand {
 
                                 ),
 
-                                new ConditionalCommand(
-                                        new turretToPosCMD(turretSb, 20.0),
-                                        new turretToPosCMD(turretSb,-20.0),
-                                        ()-> currentAliance.equals(Aliance.RED)),
+                                new turretToBasketCMD(turretSb, visionSb),
 
-                                new shooterToVelCMD(shooterSb, 1515)
+                                new shooterToBasketCMD(shooterSb, visionSb, turretSb)
 
                         ),
 
@@ -241,14 +247,13 @@ public class FarAuto_GLOBAL extends OpModeCommand {
                         new shooterToVelCMD(shooterSb, 1495),
 
                         new ConditionalCommand(
-                        new turretToPosCMD(turretSb, -40.0),
-                                new turretToPosCMD(turretSb,40.0),
-                                ()-> currentAliance.equals(Aliance.RED)),
+                                new turretToPosCMD(turretSb, -70.0),
+                                new turretToPosCMD(turretSb, 70.0),
+                                () -> currentAliance.equals(Aliance.RED)),
 
-                                new moveIntakeAutonomousCMD(intakeSb, 0.4, 0),
+                        new moveIntakeAutonomousCMD(intakeSb, 0.2, 0),
 
                         pedroSb.followPathCmd(launchFirst).withTimeout(2300),
-
 
                         new WaitCommand(800),
 
@@ -277,9 +282,9 @@ public class FarAuto_GLOBAL extends OpModeCommand {
                         new shooterToVelCMD(shooterSb, 1505),
 
                         new ConditionalCommand(
-                                new turretToPosCMD(turretSb, -58.0),
-                                new turretToPosCMD(turretSb,58.0),
-                                ()-> currentAliance.equals(Aliance.RED)),
+                                new turretToPosCMD(turretSb, -70.0),
+                                new turretToPosCMD(turretSb, 70.0),
+                                () -> currentAliance.equals(Aliance.RED)),
                         new moveIntakeAutonomousCMD(intakeSb, 0.4, 0),
 
                         pedroSb.followPathCmd(launchSecond).withTimeout(2300),
@@ -313,9 +318,9 @@ public class FarAuto_GLOBAL extends OpModeCommand {
                         new shooterToVelCMD(shooterSb, 1505),
 
                         new ConditionalCommand(
-                                new turretToPosCMD(turretSb, -58.0),
-                                new turretToPosCMD(turretSb,58.0),
-                                ()-> currentAliance.equals(Aliance.RED)
+                                new turretToPosCMD(turretSb, -70.0),
+                                new turretToPosCMD(turretSb, 70.0),
+                                () -> currentAliance.equals(Aliance.RED)
                         ),
 
                         new moveIntakeAutonomousCMD(intakeSb, 0.4, 0),

@@ -38,7 +38,7 @@ public class ShooterSubsystem extends SubsystemBase {
     DcMotorEx shooterMDown;
     DcMotorEx shooterMUp;
 
-    public static double shooterkV = 0.000565;
+    public static double shooterkV = 0.000525;
     public static PIDFCoefficients shooterCoeffs = new PIDFCoefficients(0.01, 0.0, 0.0, 0);
     PIDFController shooterController;
     Telemetry telemetry;

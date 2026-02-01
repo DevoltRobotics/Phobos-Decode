@@ -71,9 +71,9 @@ public class TurretSubsystem extends SubsystemBase {
     double goalAngleRad;
     public double distanceToGoal = 0;
 
-    public static double aallY = 144;
-    public static double redX = 144;
-    public static double blueX = 0;
+    public static double aallY = 138;
+    public static double redX = 138;
+    public static double blueX = 6;
 
     public static double ffValue = -0.09;
     double goalX, goalY;
@@ -144,7 +144,7 @@ public class TurretSubsystem extends SubsystemBase {
         turretS2.setPower(turretPower + ff);
 
         turretPid.setCoefficients(principalTurretCoeffs);
-        turretPid.setMinimumOutput(MinimumEnc);
+        //turretPid.setMinimumOutput(MinimumEnc);
 
         llPidf.setCoefficients(llPidCoeffs);
         llPidf.setSetPoint(0);

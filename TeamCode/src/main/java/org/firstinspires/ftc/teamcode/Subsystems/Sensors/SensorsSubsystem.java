@@ -28,7 +28,6 @@ public class SensorsSubsystem extends SubsystemBase {
     public Boolean sorterMode = false;
     public Boolean liftingMode = false;
 
-
     RevColorSensorV3 colorR;
     RevColorSensorV3 colorL;
 
@@ -46,6 +45,9 @@ public class SensorsSubsystem extends SubsystemBase {
 
     public Artifact currentRightArtifact = null;
     public Artifact currentLeftArtifact = null;
+
+    public Artifact lastRightArtifact = null;
+    public Artifact lastLeftArtifact = null;
 
 
     public enum RelaseOrder{
@@ -139,6 +141,8 @@ public class SensorsSubsystem extends SubsystemBase {
         }
 
         telemetry.addData("relaseOrder", relaseOrder);
+
+
     }
 
 }

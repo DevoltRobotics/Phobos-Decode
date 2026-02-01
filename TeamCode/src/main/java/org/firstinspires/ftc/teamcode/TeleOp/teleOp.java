@@ -27,6 +27,7 @@ import org.firstinspires.ftc.teamcode.Subsystems.Intake.moveIntakeTeleOpCMD;
 import org.firstinspires.ftc.teamcode.Subsystems.Lifting.moveLiftCMD;
 import org.firstinspires.ftc.teamcode.Subsystems.Sensors.lightSorterCMD;
 import org.firstinspires.ftc.teamcode.Subsystems.Shooter.shooterToBasketCMD;
+import org.firstinspires.ftc.teamcode.Subsystems.Shooter.shooterToBasketTeleOpCMD;
 import org.firstinspires.ftc.teamcode.Subsystems.Shooter.shooterToVelCMD;
 import org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.horizontalBlockerCMD;
 import org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.lateralBlockersCMD;
@@ -39,6 +40,8 @@ import org.firstinspires.ftc.teamcode.Utilities.OpModeCommand;
 
 @Config
 public abstract class teleOp extends OpModeCommand {
+
+    static Pose startingPose = new Pose(88.0, 7.5, Math.toRadians(90));
 
     GamepadEx chasis;
     GamepadEx garra;
@@ -63,7 +66,7 @@ public abstract class teleOp extends OpModeCommand {
     public void initialize() {
         //follower.setStartingPose(new Pose(pedroSb.EndPose.getX(), pedroSb.EndPose.getY(), pedroSb.EndPose.getHeading()));
 
-        follower.setStartingPose(new Pose(72, 72, angleOffSet));
+       follower.setStartingPose(startingPose);
 
         chasis = new GamepadEx(gamepad1);
         garra = new GamepadEx(gamepad2);
@@ -89,16 +92,13 @@ public abstract class teleOp extends OpModeCommand {
                 chasis,
                 GamepadKeys.Button.DPAD_DOWN);
 
-        liftingUp.whileActiveOnce(new ConditionalCommand(
-                new moveLiftCMD(liftingSb, -1),
-                new InstantCommand(),
-                () -> sensorsSb.liftingMode)
+        liftingUp.whileActiveOnce(
+                new moveLiftCMD(liftingSb, -1)
         );
 
-        liftingDown.whileActiveOnce(new ConditionalCommand(
-                new moveLiftCMD(liftingSb, 1),
-                new InstantCommand(),
-                () -> sensorsSb.liftingMode)
+        liftingDown.whileActiveOnce(
+                new moveLiftCMD(liftingSb, 1)
+
         );
 
         /// GARRA
@@ -131,7 +131,7 @@ public abstract class teleOp extends OpModeCommand {
 
         CommandScheduler.getInstance().setDefaultCommand(sensorsSb, new lightSorterCMD(sensorsSb, shooterSb, visionSb));
 
-        CommandScheduler.getInstance().setDefaultCommand(sorterSb, new preSorterTeleopCMD(sorterSb, sensorsSb));
+        CommandScheduler.getInstance().setDefaultCommand(sorterSb, new preSorterTeleopCMD(sorterSb, sensorsSb, gamepad2));
 
         Button blockerUpButton = new GamepadButton(
                 garra,
@@ -158,12 +158,14 @@ public abstract class teleOp extends OpModeCommand {
 
         prepareShootFar.whenPressed(
                 new ParallelCommandGroup(
-                        new shooterToBasketCMD(shooterSb, visionSb, ()-> 1480),
 
                         new InstantCommand(
                                 () -> shooterProvTarget = 1480.0
 
                         ),
+
+                        new shooterToBasketTeleOpCMD(shooterSb, visionSb, turretSb, shooterProvTarget),
+
 
                         new InstantCommand(
                                 () -> isTurretManual = false
@@ -186,12 +188,14 @@ public abstract class teleOp extends OpModeCommand {
 
         prepareShootClose.whenPressed(
                 new ParallelCommandGroup(
-                        new shooterToBasketCMD(shooterSb, visionSb, () -> 1300),
-
                         new InstantCommand(
-                                () -> shooterProvTarget = 1300.0
+                                () -> shooterProvTarget = 1480.0
 
                         ),
+
+                        new shooterToBasketTeleOpCMD(shooterSb, visionSb, turretSb, shooterProvTarget),
+
+
 
                         new InstantCommand(
                                 () -> isShooting = true
@@ -215,7 +219,8 @@ public abstract class teleOp extends OpModeCommand {
         shootButton.whenPressed(
                 new ParallelCommandGroup(
 
-                        new shooterToBasketCMD(shooterSb, visionSb, shooterProvTarget),
+                        new shooterToBasketTeleOpCMD(shooterSb, visionSb, turretSb, shooterProvTarget),
+
 
                         new InstantCommand(
                                 () -> {

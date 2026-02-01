@@ -26,6 +26,6 @@ public class moveLiftCMD extends CommandBase {
 
     @Override
     public void end(boolean interrupted) {
-        liftingSb.setPower(power);
+        liftingSb.setPower(0);
     }
 }

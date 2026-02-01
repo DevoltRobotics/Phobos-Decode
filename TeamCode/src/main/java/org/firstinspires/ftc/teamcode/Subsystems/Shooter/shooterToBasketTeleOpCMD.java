@@ -1,20 +1,5 @@
 package org.firstinspires.ftc.teamcode.Subsystems.Shooter;
 
-import static org.firstinspires.ftc.teamcode.Utilities.StaticConstants.shoootVsint0;
-import static org.firstinspires.ftc.teamcode.Utilities.StaticConstants.shoootVsint1;
-import static org.firstinspires.ftc.teamcode.Utilities.StaticConstants.shoootVsint2;
-import static org.firstinspires.ftc.teamcode.Utilities.StaticConstants.shoootVsint3;
-import static org.firstinspires.ftc.teamcode.Utilities.StaticConstants.shoootVsint4;
-import static org.firstinspires.ftc.teamcode.Utilities.StaticConstants.shoootVsint5;
-import static org.firstinspires.ftc.teamcode.Utilities.StaticConstants.shoootVsint6;
-import static org.firstinspires.ftc.teamcode.Utilities.StaticConstants.shoootVsout0;
-import static org.firstinspires.ftc.teamcode.Utilities.StaticConstants.shoootVsout1;
-import static org.firstinspires.ftc.teamcode.Utilities.StaticConstants.shoootVsout2;
-import static org.firstinspires.ftc.teamcode.Utilities.StaticConstants.shoootVsout3;
-import static org.firstinspires.ftc.teamcode.Utilities.StaticConstants.shoootVsout4;
-import static org.firstinspires.ftc.teamcode.Utilities.StaticConstants.shoootVsout5;
-import static org.firstinspires.ftc.teamcode.Utilities.StaticConstants.shoootVsout6;
-
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 import com.seattlesolvers.solverslib.command.CommandBase;
@@ -23,15 +8,15 @@ import com.seattlesolvers.solverslib.util.InterpLUT;
 import org.firstinspires.ftc.teamcode.Subsystems.Turret.TurretSubsystem;
 import org.firstinspires.ftc.teamcode.Subsystems.Vision.VisionSubsystem;
 
-import java.util.function.DoubleSupplier;
-
-public class shooterToBasketCMD extends CommandBase {
+public class shooterToBasketTeleOpCMD extends CommandBase {
 
     public static InterpLUT distanceLUT = new InterpLUT();
 
     public static InterpLUT vsFunc = new InterpLUT();
 
     private final ElapsedTime waitAimTimer;
+
+    private Double provTarget;
 
 
     static {
@@ -79,12 +64,15 @@ public class shooterToBasketCMD extends CommandBase {
 
     private final TurretSubsystem turretSb;
 
-    public shooterToBasketCMD(ShooterSubsystem shooterSb, VisionSubsystem visionSb, TurretSubsystem turretSb) {
+    public shooterToBasketTeleOpCMD(ShooterSubsystem shooterSb, VisionSubsystem visionSb, TurretSubsystem turretSb, Double provTarget) {
         this.shooterSb = shooterSb;
 
         this.visionSb = visionSb;
 
         this.turretSb = turretSb;
+
+        this.provTarget = provTarget;
+
         waitAimTimer = new ElapsedTime();
         addRequirements(this.shooterSb);
     }
@@ -99,7 +87,12 @@ public class shooterToBasketCMD extends CommandBase {
             shooterSb.shooterTarget = vsFunc.get(targetA);
 
             waitAimTimer.reset();
-        }/*else if (waitAimTimer.milliseconds() > 150){
+        }else if (waitAimTimer.milliseconds() > 200){
+            shooterSb.shooterTarget = provTarget;
+
+        }
+
+        /*else if (waitAimTimer.milliseconds() > 150){
             double tagSizeDistance = Range.clip(distanceLUT.get(turretSb.getDistanceToGoal()), 50.5, 154);
 
             shooterSb.shooterTarget = vsFunc.get(tagSizeDistance);

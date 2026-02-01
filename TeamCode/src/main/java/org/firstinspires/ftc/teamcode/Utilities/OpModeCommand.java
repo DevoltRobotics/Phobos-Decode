@@ -89,15 +89,7 @@ public abstract class OpModeCommand extends OpMode {
 
     @Override
     public void init() {
-
-        allhubs = hardwareMap.getAll(LynxModule.class);
-
-        for (LynxModule hub : allhubs){
-            hub.setBulkCachingMode(LynxModule.BulkCachingMode.MANUAL);
-
-        }
-
-        allhubs.clear();
+        CommandScheduler.getInstance().setBulkReading(hardwareMap, LynxModule.BulkCachingMode.MANUAL);
 
         telemetry = new MultipleTelemetry(
                 telemetry,
@@ -129,12 +121,6 @@ public abstract class OpModeCommand extends OpMode {
         initialize();
     }
 
-    public void resetCache(){
-        for (LynxModule hub : allhubs){
-            hub.clearBulkCache();
-        }
-    }
-
     @Override
     public void init_loop() {
         if (isAuto) {
@@ -146,8 +132,6 @@ public abstract class OpModeCommand extends OpMode {
 
     @Override
     public void loop() {
-        resetCache();
-
         telemetry.addData("Heading", Math.toDegrees(follower.poseTracker.getPose().getHeading()));
 
         //telemetryM.update(telemetry);
@@ -227,10 +211,12 @@ public abstract class OpModeCommand extends OpMode {
                         new horizontalBlockerCMD(sorterSb, blockerHFreePos),
                         new moveIntakeAutonomousCMD(intakeSb, 1)
 
-                )
+                ),
+                new turretToBasketCMD(turretSb, visionSb),
+                new shooterToBasketCMD(shooterSb, visionSb, turretSb)
+
         );
     }
-
 
 
     public Command shootThreeSpamerCloseCMD() {
@@ -245,9 +231,10 @@ public abstract class OpModeCommand extends OpMode {
                 ),
 
                 new turretToBasketCMD(turretSb, visionSb),
-                new shooterToBasketCMD(shooterSb, visionSb)
+                new shooterToBasketCMD(shooterSb, visionSb, turretSb)
         );
     }
+
     public Command stopShootCMD(boolean isSorter) {
         return new SequentialCommandGroup(
                 new moveIntakeAutonomousCMD(intakeSb, 0, 0),

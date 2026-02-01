@@ -21,8 +21,8 @@ public class SorterSubsystem extends SubsystemBase {
 
     //CONSTANTS
 
-    public static double upRampPos = 1;
-    public static double downRampPos = 0.5;
+    public static double upRampPos = 0.8;
+    public static double downRampPos = 0.3;
 
     public static double blockersUp = -0.35;
 
@@ -54,7 +54,6 @@ public class SorterSubsystem extends SubsystemBase {
 
     @Override
     public void periodic() {
-
 
         if (blockerR.getPosition() < 0.45 && blockerL.getPosition() > 0.55){
             blockersStatus = BlockersStatus.twoOpen;

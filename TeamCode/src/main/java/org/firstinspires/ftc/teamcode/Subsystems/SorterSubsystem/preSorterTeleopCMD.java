@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem;
 
 import static org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.SorterSubsystem.blockersUp;
 
+import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.seattlesolvers.solverslib.command.CommandBase;
 
@@ -13,13 +14,16 @@ public class preSorterTeleopCMD extends CommandBase {
 
     private final SensorsSubsystem sensorsSb;
 
-    private final ElapsedTime timer;
+    private Boolean intaking = false;
 
-    public preSorterTeleopCMD(SorterSubsystem sorterSb, SensorsSubsystem sensorsSubsystem) {
+
+    private Gamepad gamepad;
+
+    public preSorterTeleopCMD(SorterSubsystem sorterSb, SensorsSubsystem sensorsSubsystem, Gamepad gamepad) {
         sorterSubsystem = sorterSb;
         sensorsSb = sensorsSubsystem;
 
-        timer = new ElapsedTime();
+        this.gamepad = gamepad;
 
         addRequirements(sorterSubsystem);
     }
@@ -31,21 +35,21 @@ public class preSorterTeleopCMD extends CommandBase {
 
             if (sensorsSb.sorterMode) {
 
-                if (timer.milliseconds() > 1200 && !sorterSubsystem.blockersStatus.equals(SorterSubsystem.BlockersStatus.closed)) {
-                    sorterSubsystem.setLateralPositions(0, 0);
-
-                }
+                intaking = gamepad.right_trigger > 0.3;
 
                 if (sensorsSb.rightDetected || sensorsSb.leftDetected) {
+
                     if (!(sensorsSb.currentRightArtifact == null) && sensorsSb.currentRightArtifact.equals(sensorsSb.targetArtifact)) {
-                        timer.reset();
                         sorterSubsystem.setLateralPositions(blockersUp, 0);
 
                     } else if (!(sensorsSb.currentLeftArtifact == null) && sensorsSb.currentLeftArtifact.equals(sensorsSb.targetArtifact)) {
-                        timer.reset();
                         sorterSubsystem.setLateralPositions(0, blockersUp);
 
+                    } else if (!intaking) {
+                        sorterSubsystem.setLateralPositions(0, 0);
+
                     }
+
                 }
             }
         }
