@@ -26,11 +26,12 @@ public class PedroSubsystem extends SubsystemBase {
 
     public static double slowModeMultiplier = 0.4;
 
-    public Pose EndPose = new Pose();
-
     Telemetry telemetry;
 
     TelemetryManager telemetryM;
+
+    public static Pose EndPose = new Pose();
+
 
     public PedroSubsystem(Follower follower, Telemetry telemetry, TelemetryManager telemetryM) {
         this.follower = follower;
@@ -41,18 +42,16 @@ public class PedroSubsystem extends SubsystemBase {
 
     @Override
     public void periodic() {
-/*
-
-        telemetryM.debug("x:" + follower.getPose().getX());
+        /*telemetryM.debug("x:" + follower.getPose().getX());
         telemetryM.debug("y:" + follower.getPose().getY());
         telemetryM.debug("heading:" + follower.getPose().getHeading());
         telemetryM.debug("total heading:" + follower.getTotalHeading());
 
         telemetryM.update(telemetry);
-*/
-        follower.update();
 
-        EndPose = follower.getPose();
+
+         */
+        follower.update();
     }
 
     public Command followPathCmd(Path path) {
@@ -96,7 +95,7 @@ public class PedroSubsystem extends SubsystemBase {
         public void execute() {
             double multiplier = 1;
 
-            if (gamepad.right_trigger >= 0.8) {
+            if (gamepad.right_trigger >= 0.7) {
                 multiplier = slowModeMultiplier;
             }
 
@@ -127,7 +126,6 @@ public class PedroSubsystem extends SubsystemBase {
 
     class FollowPathCmd extends CommandBase {
         Path path;
-
 
         FollowPathCmd(Path path) {
             this.path = path;

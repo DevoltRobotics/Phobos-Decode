@@ -73,8 +73,8 @@ public abstract class OpModeCommand extends OpMode {
     }
 
     //corre el scheduler
-    public void run() {
-        CommandScheduler.getInstance().run();
+    public void run() {        run();
+
     }
 
     //programa comandos al scheduler
@@ -110,7 +110,7 @@ public abstract class OpModeCommand extends OpMode {
                 intakeSb = new IntakeSubsystem(hardwareMap),
                 sorterSb = new SorterSubsystem(hardwareMap, telemetry),
                 sensorsSb = new SensorsSubsystem(hardwareMap, telemetry),
-                turretSb = new TurretSubsystem(hardwareMap, follower, telemetry, intakeSb.intakeM, currentAliance),
+                turretSb = new TurretSubsystem(hardwareMap, follower, telemetry, intakeSb.intakeM, currentAliance, isAuto),
                 liftingSb = new LiftingSubsystem(hardwareMap),
                 shooterSb = new ShooterSubsystem(hardwareMap, telemetry)
         );
@@ -124,7 +124,7 @@ public abstract class OpModeCommand extends OpMode {
     @Override
     public void init_loop() {
         if (isAuto) {
-            run();
+            CommandScheduler.getInstance().run();
 
         }
     }
@@ -132,11 +132,14 @@ public abstract class OpModeCommand extends OpMode {
 
     @Override
     public void loop() {
+
+        CommandScheduler.getInstance().run();
+        run();
+
         telemetry.addData("Heading", Math.toDegrees(follower.poseTracker.getPose().getHeading()));
 
         //telemetryM.update(telemetry);
         FtcDashboard.getInstance().getTelemetry().update();
-        run();
     }
 
     public void stop() {
@@ -209,7 +212,7 @@ public abstract class OpModeCommand extends OpMode {
 
                 new SequentialCommandGroup(
                         new horizontalBlockerCMD(sorterSb, blockerHFreePos),
-                        new moveIntakeAutonomousCMD(intakeSb, 1)
+                        new moveIntakeAutonomousCMD(intakeSb, 0.9, 0.75)
 
                 ),
                 new turretToBasketCMD(turretSb, visionSb),

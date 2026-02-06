@@ -43,7 +43,8 @@ public class shooterToBasketCMD extends CommandBase {
         vsFunc.add(100, 1230);
         vsFunc.add(130, 1150);
         vsFunc.add(200, 1100);
-        vsFunc.add(400, 1105);
+        vsFunc.add(250, 1060);
+        vsFunc.add(400, 1060);
 
         vsFunc.createLUT();
 

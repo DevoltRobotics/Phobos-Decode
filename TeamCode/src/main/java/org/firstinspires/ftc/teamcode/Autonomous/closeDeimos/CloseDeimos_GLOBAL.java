@@ -27,6 +27,7 @@ import org.firstinspires.ftc.teamcode.Subsystems.Turret.turretToBasketCMD;
 import org.firstinspires.ftc.teamcode.Subsystems.Turret.turretToPosCMD;
 import org.firstinspires.ftc.teamcode.Utilities.Aliance;
 import org.firstinspires.ftc.teamcode.Utilities.OpModeCommand;
+import org.firstinspires.ftc.teamcode.pedroPathing.PedroSubsystem;
 
 public class CloseDeimos_GLOBAL extends OpModeCommand {
 
@@ -359,13 +360,13 @@ public class CloseDeimos_GLOBAL extends OpModeCommand {
 
         autoCommand = new SequentialCommandGroup(
 
-                new shooterToVelCMD(shooterSb, 1220),
+                new shooterToVelCMD(shooterSb, 1210),
 
                 new moveIntakeAutonomousCMD(intakeSb, 0.3, 0),
 
                 new ConditionalCommand(
-                        new turretToPosCMD(turretSb, -18.0),
-                        new turretToPosCMD(turretSb, 18.0),
+                        new turretToPosCMD(turretSb, -15.0),
+                        new turretToPosCMD(turretSb, 15.0),
                         () -> currentAliance.equals(Aliance.RED)
                 ),
 
@@ -418,7 +419,7 @@ public class CloseDeimos_GLOBAL extends OpModeCommand {
                         () -> follower.setMaxPower(0.75)
                 ),
 
-                pedroSb.followPathCmd(openGate1).withTimeout(3000),
+                pedroSb.followPathCmd(openGate1).withTimeout(2200),
 
                 new InstantCommand(
 
@@ -441,8 +442,8 @@ public class CloseDeimos_GLOBAL extends OpModeCommand {
 
                         new SequentialCommandGroup(
                                 new WaitCommand(100),
-                                new moveIntakeAutonomousCMD(intakeSb, -0.2, 0.8),
-                                new WaitCommand(200),
+                                new moveIntakeAutonomousCMD(intakeSb, -0.25, 0.8),
+                                new WaitCommand(250),
                                 new moveIntakeAutonomousCMD(intakeSb, 1, 0.8)
 
                         )),
@@ -460,7 +461,7 @@ public class CloseDeimos_GLOBAL extends OpModeCommand {
                         () -> follower.setMaxPower(0.75)
                 ),
 
-                pedroSb.followPathCmd(openGate2).withTimeout(3000),
+                pedroSb.followPathCmd(openGate2).withTimeout(2200),
 
                 new InstantCommand(
 
@@ -482,9 +483,9 @@ public class CloseDeimos_GLOBAL extends OpModeCommand {
                         pedroSb.followPathCmd(launchThird).withTimeout(2300),
 
                         new SequentialCommandGroup(
-                                new WaitCommand(100),
-                                new moveIntakeAutonomousCMD(intakeSb, -0.2, 0.8),
-                                new WaitCommand(200),
+                                new WaitCommand(150),
+                                new moveIntakeAutonomousCMD(intakeSb, -0.25, 0.8),
+                                new WaitCommand(250),
                                 new moveIntakeAutonomousCMD(intakeSb, 1, 0.8)
 
                         )),
@@ -523,9 +524,9 @@ public class CloseDeimos_GLOBAL extends OpModeCommand {
                         pedroSb.followPathCmd(launchFourth).withTimeout(2300),
 
                         new SequentialCommandGroup(
-                                new WaitCommand(100),
+                                new WaitCommand(150),
                                 new moveIntakeAutonomousCMD(intakeSb, -0.2, 0.8),
-                                new WaitCommand(100),
+                                new WaitCommand(150),
                                 new moveIntakeAutonomousCMD(intakeSb, 1, 0.8)
 
                         )),
@@ -543,7 +544,16 @@ public class CloseDeimos_GLOBAL extends OpModeCommand {
 
     @Override
     public void start() {
-        autoCommand.schedule();
+        if (autoCommand != null) {
+            // Programamos el auton en el scheduler
+            schedule(autoCommand);
+        }
+
+    }
+
+    @Override
+    public void run() {
+        PedroSubsystem.EndPose = pedroSb.follower.getPose();
 
     }
 

@@ -1,8 +1,7 @@
-package org.firstinspires.ftc.teamcode.Autonomous.InAliances;
+package org.firstinspires.ftc.teamcode.Autonomous.farFull;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
-import org.firstinspires.ftc.teamcode.Autonomous.FarAuto_GLOBAL;
 import org.firstinspires.ftc.teamcode.Utilities.Aliance;
 
 @Autonomous

@@ -51,7 +51,7 @@ public class TurretSubsystem extends SubsystemBase {
 
     public static double ticktsToDegrees = (double) 360 / 8192;
 
-    public static double furtherCorrection = 3;
+    public static double furtherCorrection = 5;
 
     public static int upperLimit = 110;
 
@@ -80,12 +80,17 @@ public class TurretSubsystem extends SubsystemBase {
 
     public boolean realIsManual;
 
+    public static double turretEndPose = 0;
+
+    boolean isAuto;
+
+
     public void setGoalPos(double x, double y) {
         goalX = x;
         goalY = y;
     }
 
-    public TurretSubsystem(HardwareMap hMap, Follower follower, Telemetry telemetry, DcMotor turretE, Aliance alliance) {
+    public TurretSubsystem(HardwareMap hMap, Follower follower, Telemetry telemetry, DcMotor turretE, Aliance alliance, boolean isAuto) {
         turretS1 = hMap.get(CRServo.class, "trt1");
         turretS2 = hMap.get(CRServo.class, "trt2");
 
@@ -93,9 +98,14 @@ public class TurretSubsystem extends SubsystemBase {
 
         this.turretE = turretE;
 
-        this.turretE.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        this.turretE.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        this.isAuto = isAuto;
 
+        if (isAuto) {
+
+            this.turretE.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            this.turretE.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+        }
         this.telemetry = telemetry;
         this.alliance = alliance;
 
@@ -118,7 +128,6 @@ public class TurretSubsystem extends SubsystemBase {
 
     @Override
     public void periodic() {
-
         Pose robotPos = follower.getPose();
 
         double dx = goalX - robotPos.getX();
@@ -133,6 +142,8 @@ public class TurretSubsystem extends SubsystemBase {
         encoderP = turretE.getCurrentPosition();
 
         turretPRelative = (encoderP * capstanRatio * ticktsToDegrees);
+
+        turretEndPose = turretPRelative;
 
         double target = Range.clip(turretTarget, lowerLimit, upperLimit);
 
@@ -154,6 +165,11 @@ public class TurretSubsystem extends SubsystemBase {
         FtcDashboard.getInstance().getTelemetry().addData("turret angle", turretPRelative);
         FtcDashboard.getInstance().getTelemetry().addData("turret to goal angle", getTurretToGoalAngle());
         FtcDashboard.getInstance().getTelemetry().addData("distance to goal", getDistanceToGoal());
+
+    }
+
+    public void setAutoTurretPos() {
+        turretPRelative = turretEndPose;
 
     }
 

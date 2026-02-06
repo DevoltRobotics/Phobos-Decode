@@ -37,6 +37,7 @@ import org.firstinspires.ftc.teamcode.Subsystems.Turret.turretDefaultTeleopCMD;
 import org.firstinspires.ftc.teamcode.Utilities.Aliance;
 import org.firstinspires.ftc.teamcode.Utilities.Artifact;
 import org.firstinspires.ftc.teamcode.Utilities.OpModeCommand;
+import org.firstinspires.ftc.teamcode.pedroPathing.PedroSubsystem;
 
 @Config
 public abstract class teleOp extends OpModeCommand {
@@ -64,9 +65,11 @@ public abstract class teleOp extends OpModeCommand {
 
     @Override
     public void initialize() {
-        //follower.setStartingPose(new Pose(pedroSb.EndPose.getX(), pedroSb.EndPose.getY(), pedroSb.EndPose.getHeading()));
+        follower.setPose(PedroSubsystem.EndPose);
 
-       follower.setStartingPose(startingPose);
+        //turretSb.setAutoTurretPos();
+
+       //follower.setStartingPose(startingPose);
 
         chasis = new GamepadEx(gamepad1);
         garra = new GamepadEx(gamepad2);
@@ -334,8 +337,17 @@ public abstract class teleOp extends OpModeCommand {
 
     @Override
     public void start() {
-
         follower.setMaxPower(1);
         startCMD().schedule();
+    }
+
+    @Override
+    public void run() {
+        PedroSubsystem.EndPose = follower.getPose();
+
+        telemetry.addData("Heading", Math.toDegrees(follower.poseTracker.getPose().getHeading()));
+
+        telemetry.addData("EndPose", PedroSubsystem.EndPose);
+
     }
 }

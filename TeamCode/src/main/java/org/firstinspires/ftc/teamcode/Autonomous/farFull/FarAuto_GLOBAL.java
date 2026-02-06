@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.Autonomous;
+package org.firstinspires.ftc.teamcode.Autonomous.farFull;
 
 import static org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.SorterSubsystem.blockerHFreePos;
 import static org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.SorterSubsystem.blockerHHidePos;
@@ -26,6 +26,7 @@ import org.firstinspires.ftc.teamcode.Subsystems.Turret.turretToBasketCMD;
 import org.firstinspires.ftc.teamcode.Subsystems.Turret.turretToPosCMD;
 import org.firstinspires.ftc.teamcode.Utilities.Aliance;
 import org.firstinspires.ftc.teamcode.Utilities.OpModeCommand;
+import org.firstinspires.ftc.teamcode.pedroPathing.PedroSubsystem;
 
 public class FarAuto_GLOBAL extends OpModeCommand {
 
@@ -214,20 +215,17 @@ public class FarAuto_GLOBAL extends OpModeCommand {
 
                         new ParallelDeadlineGroup(
 
-                                new WaitCommand(3900),
+                                new WaitCommand(3700),
 
                                 new SequentialCommandGroup(
                                         new WaitCommand(2100),
-                                        new moveIntakeAutonomousCMD(intakeSb, 1, 0.8),
+                                        new moveIntakeAutonomousCMD(intakeSb, 0.9, 0.75),
 
                                         new horizontalBlockerCMD(sorterSb, blockerHFreePos)
 
                                 ),
 
-                                new turretToBasketCMD(turretSb, visionSb),
-
-                                new shooterToBasketCMD(shooterSb, visionSb, turretSb)
-
+                                new turretToBasketCMD(turretSb, visionSb)
                         ),
 
                         ///PRELOAD_LAUNCHED
@@ -350,7 +348,17 @@ public class FarAuto_GLOBAL extends OpModeCommand {
 
     @Override
     public void start() {
-        autoCommand.schedule();
+        if (autoCommand != null) {
+            // Programamos el auton en el scheduler
+            schedule(autoCommand);
+        }
 
     }
+
+    @Override
+    public void run() {
+        PedroSubsystem.EndPose = pedroSb.follower.getPose();
+
+    }
+
 }
