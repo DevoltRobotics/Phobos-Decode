@@ -1,7 +1,10 @@
 package org.firstinspires.ftc.teamcode.tests;
 
 import static org.firstinspires.ftc.teamcode.Subsystems.Shooter.ShooterSubsystem.shooterCoeffs;
+import static org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.SorterSubsystem.blockerHFreePos;
+import static org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.SorterSubsystem.blockerHHidePos;
 import static org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.SorterSubsystem.blockersUp;
+import static org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.SorterSubsystem.upRampPos;
 import static org.firstinspires.ftc.teamcode.Subsystems.Vision.VisionSubsystem.limelightTaRatio;
 import static org.firstinspires.ftc.teamcode.Utilities.StaticConstants.shoootVsint0;
 import static org.firstinspires.ftc.teamcode.Utilities.StaticConstants.shoootVsint1;
@@ -33,6 +36,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
@@ -48,6 +52,8 @@ import com.pedropathing.follower.Follower;
 @TeleOp
 @Config
 public class Full_robot_test extends OpMode {
+
+    static double kV = 0.00053;
 
     public static double provitionalShooterTarget = 1400;
 
@@ -72,7 +78,7 @@ public class Full_robot_test extends OpMode {
 
     Servo blockerH;
 
-    Servo hood;
+    Servo ramp;
 
     public InterpLUT vsFunc = new InterpLUT();
 
@@ -80,7 +86,8 @@ public class Full_robot_test extends OpMode {
 
     double tArea = shoootVsint0 + 1;
 
-    PIDFController shooterController = new PIDFController(shooterCoeffs);
+     static PIDFCoefficients shootcoefs = new PIDFCoefficients(0.008, 0.0, 0.0, 0);
+    PIDFController shooterController = new PIDFController(shootcoefs);
 
     ElapsedTime toggleTimer = new ElapsedTime();
     public boolean toggleShooterP;
@@ -116,7 +123,7 @@ public class Full_robot_test extends OpMode {
 
         starS = hardwareMap.get(CRServo.class, "star");
 
-        hood = hardwareMap.get(Servo.class, "hood");
+        ramp = hardwareMap.get(Servo.class, "ramp");
 
         blockerR = hardwareMap.get(Servo.class, "blcR");
         blockerL = hardwareMap.get(Servo.class, "blcL");
@@ -156,6 +163,8 @@ public class Full_robot_test extends OpMode {
         //In order to use float mode, add .useBrakeModeInTeleOp(true); to your Drivetrain Constants in Constant.java (for Mecanum)
         //If you don't pass anything in, it uses the default (false)
         follower.startTeleopDrive(true);
+
+        ramp.setPosition(upRampPos);
     }
 
     @Override
@@ -209,7 +218,7 @@ public class Full_robot_test extends OpMode {
         shooterController.setSetPoint(provitionalShooterTarget);
 
         double velocityError = provitionalShooterTarget - motorVel;
-        double shooterTargetPwr = (ShooterSubsystem.shooterkV * provitionalShooterTarget) + shooterController.calculate(motorVel);
+        double shooterTargetPwr = (kV * provitionalShooterTarget) + shooterController.calculate(motorVel);
 
         if (gamepad2.dpad_up && toggleTimer.seconds() > 0.5) {
             toggleShooterP = !toggleShooterP;
@@ -218,10 +227,10 @@ public class Full_robot_test extends OpMode {
 
         if (toggleShooterP) {
             shooterMUp.setPower(shooterTargetPwr);
-            shooterMDown.setPower(shooterTargetPwr);
+            //shooterMDown.setPower(shooterTargetPwr);
         } else {
             shooterMUp.setPower(0);
-            shooterMDown.setPower(0);
+            //shooterMDown.setPower(0);
         }
 
         if (gamepad2.right_bumper) {
@@ -237,17 +246,16 @@ public class Full_robot_test extends OpMode {
             turretS1.setPower(0);
             turretS2.setPower(0);
 
-
         }
 
         if (gamepad2.right_trigger > 0.5){
-            intakeM.setPower(-1);
+            intakeM.setPower(-0.9);
             starS.setPower(-1);
-            transferM.setPower(1);
+            transferM.setPower(0.75);
         }else if (gamepad2.left_trigger > 0.5){
-            intakeM.setPower(1);
+            intakeM.setPower(0.9);
             starS.setPower(1);
-            transferM.setPower(-1);
+            transferM.setPower(-75);
         }else {
             intakeM.setPower(0);
             starS.setPower(0);
@@ -255,26 +263,18 @@ public class Full_robot_test extends OpMode {
 
         }
 
-        if (gamepad2.a) {
-            hood.setPosition(0.47);
-
-        } else if (gamepad2.b) {
-            hood.setPosition(0.6);
-
-        }
-
         if (gamepad2.dpad_right){
-            blockerH.setPosition(0.45);
+            blockerH.setPosition(blockerHFreePos);
 
         }else if (gamepad2.dpad_left) {
-            blockerH.setPosition(0.75);
+            blockerH.setPosition(blockerHHidePos);
         }
 
         if (gamepad2.y) {
             blockerR.setPosition(0.5 + blockersUp);
             blockerL.setPosition(0.5 - blockersUp);
         } else if (gamepad2.x) {
-            blockerR.setPosition(0.5);
+            blockerL.setPosition(0.5);
         }
 
         telemetry.addData("shooterVelocity", motorVel);

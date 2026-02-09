@@ -69,7 +69,7 @@ public abstract class teleOp extends OpModeCommand {
 
         //turretSb.setAutoTurretPos();
 
-       //follower.setStartingPose(startingPose);
+        //follower.setStartingPose(startingPose);
 
         chasis = new GamepadEx(gamepad1);
         garra = new GamepadEx(gamepad2);
@@ -157,7 +157,7 @@ public abstract class teleOp extends OpModeCommand {
 
         Button prepareShootFar = new GamepadButton(
                 garra,
-                GamepadKeys.Button.DPAD_RIGHT);
+                GamepadKeys.Button.DPAD_LEFT);
 
         prepareShootFar.whenPressed(
                 new ParallelCommandGroup(
@@ -197,7 +197,6 @@ public abstract class teleOp extends OpModeCommand {
                         ),
 
                         new shooterToBasketTeleOpCMD(shooterSb, visionSb, turretSb, shooterProvTarget),
-
 
 
                         new InstantCommand(
@@ -241,9 +240,14 @@ public abstract class teleOp extends OpModeCommand {
 
                         new SequentialCommandGroup(
                                 new WaitCommand(200),
-                                new moveIntakeAutonomousCMD(intakeSb, 1, 1),
+
+                                new ConditionalCommand(
+                                        new moveIntakeAutonomousCMD(intakeSb, 1, 1),
+                                        new moveIntakeAutonomousCMD(intakeSb, 0.9, 0.75),
+                                        () -> isClose
+                                ),
                                 new horizontalBlockerCMD(sorterSb, blockerHFreePos).asProxy()
-                                )
+                        )
                 ));
 
         Button stopShootButton = new GamepadButton(
