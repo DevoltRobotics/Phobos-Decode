@@ -23,7 +23,7 @@ public class ConversionUtil {
         return new Pose(pose.getX(), pose.getY(), pose.getRotation().getRadians());
     }
 
-    public static Pose2d from3DToPedro(Pose3D pose3d, double headingRad) {
+    public static Pose from3DToPedro(Pose3D pose3d, double headingRad) {
         double xFtc = pose3d.getPosition().x * 39.37;
         double yFtc = pose3d.getPosition().y * 39.37;
         // 1) shift origin: center → corner
@@ -43,27 +43,5 @@ public class ConversionUtil {
                 Rotation2d.fromRadians(headingPedro)
         );
     }
-    /*
-    public static Pose2d from3DToPedro(Pose3D pose3d, double heading){
-        Pose2D convertedPose = new Pose2D(
-                DistanceUnit.INCH,
-                pose3d.getPosition().x * 39.37,
-                pose3d.getPosition().y * 39.37,
-                AngleUnit.RADIANS,
-                heading
-        );
 
-        Pose ftcStandard = PoseConverter.pose2DToPose(convertedPose, InvertedFTCCoordinates.INSTANCE);
-
-        Pose pedroStandard = ftcStandard.getAsCoordinateSystem(PedroCoordinates.INSTANCE);
-
-        return
-                new Pose2d(
-                        pedroStandard.getX(),
-                        pedroStandard.getY(),
-                        Rotation2d.fromRadians(heading)
-                );
-    }
-
-     */
 }

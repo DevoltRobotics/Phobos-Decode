@@ -92,10 +92,10 @@ public class VisionPinpointLocalizer implements Localizer {
             if (result.isValid()) {
                 Pose3D botpose = result.getBotpose_MT2();
 
-                Pose2d mtPose = from3DToPedro(botpose, localizer.getPose().getHeading());
+                //Pose2d mtPose = from3DToPedro(botpose, localizer.getPose().getHeading());
 
                 estimator.setVisionMeasurementStdDevs(VecBuilder.fill(.25, .25, 9999999));
-                estimator.addVisionMeasurement(mtPose, result.getTimestamp());
+                //estimator.addVisionMeasurement(mtPose, result.getTimestamp());
 
                 FtcDashboard.getInstance().getTelemetry().addData("botX", botpose.getPosition().x);
                 FtcDashboard.getInstance().getTelemetry().addData("botY", botpose.getPosition().y);
