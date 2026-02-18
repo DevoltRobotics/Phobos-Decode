@@ -32,6 +32,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.PoseEstimate.VisionPinpointLocalizer;
 import org.firstinspires.ftc.teamcode.pedroPathing.EstimatorLocalizer.EstimatorLocalizer;
+import org.firstinspires.ftc.teamcode.pedroPathing.EstimatorLocalizer.KalmanPedroLocalizer;
 
 public class Constants {
     public static FollowerConstants followerConstants = new FollowerConstants()
@@ -101,7 +102,7 @@ public class Constants {
                 .pathConstraints(pathConstraints)
                 .mecanumDrivetrain(driveConstants)
                 //.pinpointLocalizer(localizerConstants)
-                .setLocalizer(new EstimatorLocalizer(new PinpointLocalizer(hardwareMap, localizerConstants), limelight))
+                .setLocalizer(new KalmanPedroLocalizer(new PinpointLocalizer(hardwareMap, localizerConstants), limelight))
                 .build();
 
     }

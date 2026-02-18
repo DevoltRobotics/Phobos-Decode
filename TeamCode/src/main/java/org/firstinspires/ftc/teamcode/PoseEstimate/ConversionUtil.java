@@ -37,10 +37,10 @@ public class ConversionUtil {
         // 3) heading conversion
         double headingPedro = -headingRad;
 
-        return new Pose2d(
+        return new Pose(
                 xPedro,
                 yPedro,
-                Rotation2d.fromRadians(headingPedro)
+                headingPedro
         );
     }
 

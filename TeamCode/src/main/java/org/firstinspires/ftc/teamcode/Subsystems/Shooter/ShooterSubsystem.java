@@ -85,5 +85,4 @@ public class ShooterSubsystem extends SubsystemBase {
         FtcDashboard.getInstance().getTelemetry().addData("shooterError", error);
     }
 
-
 }

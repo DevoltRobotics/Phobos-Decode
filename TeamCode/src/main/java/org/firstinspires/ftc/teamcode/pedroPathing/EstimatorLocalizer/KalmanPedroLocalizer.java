@@ -1,7 +1,6 @@
 package org.firstinspires.ftc.teamcode.pedroPathing.EstimatorLocalizer;
 
-import static org.firstinspires.ftc.teamcode.PoseEstimate.ConversionUtil.WPIToPedro;
-import static org.firstinspires.ftc.teamcode.PoseEstimate.ConversionUtil.pedroToWPI;
+import static org.firstinspires.ftc.teamcode.PoseEstimate.ConversionUtil.from3DToPedro;
 
 import com.pedropathing.ftc.localization.localizers.PinpointLocalizer;
 import com.pedropathing.geometry.Pose;
@@ -10,39 +9,49 @@ import com.pedropathing.math.Vector;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.robotcore.util.ElapsedTime;
-import com.seattlesolvers.solverslib.geometry.Pose2d;
 
 import org.firstinspires.ftc.teamcode.PoseEstimate.wpilib.Units;
 
-public class KalmanPedroLocalizer implements Localizer{
+public class KalmanPedroLocalizer implements Localizer {
 
     private final PinpointLocalizer pinpointLocalizer;
     private final Limelight3A limelight;
 
     private Pose estimatedPose;
+    private Pose lastOdoPose;
 
-    ElapsedTime timer = new ElapsedTime();
-    double lastTime = 0;
+    private final ElapsedTime timer = new ElapsedTime();
+    private double lastTime = 0;
 
-    // Covariance values (tune these)
-    private double varX = 1.0;
-    private double varY = 1.0;
-    private double varHeading = 0.5;
+    // Covariance values
+    private double varX = 0.2;
+    private double varY = 0.2;
 
     private double lastHeading = 0;
 
-    // Noise parameters
+    // Noise parameters (tune these)
     private final double processNoise = 0.02;
     private final double visionNoise = 0.4;
 
-    private static final double ANGULAR_VEL_THRESHOLD = Math.toRadians(180);
+    private static final double ANGULAR_VEL_THRESHOLD =
+            Math.toRadians(180);
 
-    public KalmanPedroLocalizer(PinpointLocalizer pinpointLocalizer, Limelight3A ll) {
+    public KalmanPedroLocalizer(
+            PinpointLocalizer pinpointLocalizer,
+            Limelight3A ll
+    ) {
         this.pinpointLocalizer = pinpointLocalizer;
         this.limelight = ll;
 
         estimatedPose = pinpointLocalizer.getPose();
+        lastOdoPose = estimatedPose;
+
+        timer.reset();
     }
+
+    // ------------------------------------------------
+    // PREDRO REQUIRED METHODS
+    // ------------------------------------------------
 
     @Override
     public Pose getVelocity() {
@@ -62,8 +71,13 @@ public class KalmanPedroLocalizer implements Localizer{
     @Override
     public void setPose(Pose setPose) {
         pinpointLocalizer.setPose(setPose);
-
+        estimatedPose = setPose;
+        lastOdoPose = setPose;
     }
+
+    // ------------------------------------------------
+    // MAIN UPDATE LOOP
+    // ------------------------------------------------
 
     @Override
     public void update() {
@@ -72,49 +86,69 @@ public class KalmanPedroLocalizer implements Localizer{
         double dt = currentTime - lastTime;
         lastTime = currentTime;
 
+        if (dt <= 0) dt = 1e-6;
+
         // ----------------------------
-        // PREDICT STEP (Pinpoint Odometry)
+        // PREDICT STEP (DELTA ODOMETRY)
         // ----------------------------
+
         pinpointLocalizer.update();
         Pose odoPose = pinpointLocalizer.getPose();
 
-        double heading = odoPose.getHeading(); // Always trust this
+        double heading = odoPose.getHeading();
 
+        // Compute odometry delta
+        double dx = odoPose.getX() - lastOdoPose.getX();
+        double dy = odoPose.getY() - lastOdoPose.getY();
+
+        // Apply delta to FILTERED state
         estimatedPose = new Pose(
-                odoPose.getX(),
-                odoPose.getY(),
-                heading
+                estimatedPose.getX() + dx,
+                estimatedPose.getY() + dy,
+                heading // Always trust Pinpoint heading
         );
 
-        // Increase positional uncertainty over time
+        lastOdoPose = odoPose;
+
+        // Increase positional uncertainty
         varX += processNoise * dt;
         varY += processNoise * dt;
 
         // ----------------------------
         // ANGULAR VELOCITY CHECK
         // ----------------------------
-        double angularVelocity = (heading - lastHeading) / dt;
+
+        double angularVelocity =
+                (heading - lastHeading) / dt;
+
         lastHeading = heading;
 
-        if (Math.abs(angularVelocity) > Math.toRadians(180)) {
-            return; // Reject vision if turning too fast
+        if (Math.abs(angularVelocity) > ANGULAR_VEL_THRESHOLD) {
+            return; // reject vision
         }
 
         // ----------------------------
         // VISION UPDATE (MT2 X/Y ONLY)
         // ----------------------------
-        limelight.updateRobotOrientation(heading);
+
+        limelight.updateRobotOrientation(Units.radiansToDegrees(heading) + 90);
         LLResult result = limelight.getLatestResult();
 
         if (result != null && result.isValid()) {
 
-            double visionX = result.getBotpose_MT2().getPosition().x;
-            double visionY = result.getBotpose_MT2().getPosition().y;
+            Pose convertedBotPose = from3DToPedro(result.getBotpose_MT2(), heading);
 
-            // Kalman gain for X/Y
+            double visionX =
+                    convertedBotPose.getX();
+
+            double visionY =
+                    convertedBotPose.getY();
+
+            // Kalman gain
             double kX = varX / (varX + visionNoise);
             double kY = varY / (varY + visionNoise);
 
+            // Fuse into persistent state
             double fusedX = estimatedPose.getX()
                     + kX * (visionX - estimatedPose.getX());
 
@@ -124,7 +158,7 @@ public class KalmanPedroLocalizer implements Localizer{
             estimatedPose = new Pose(
                     fusedX,
                     fusedY,
-                    heading // Never modify heading
+                    heading
             );
 
             // Reduce covariance
@@ -132,6 +166,8 @@ public class KalmanPedroLocalizer implements Localizer{
             varY *= (1 - kY);
         }
     }
+
+    // ------------------------------------------------
 
     @Override
     public double getTotalHeading() {
@@ -154,9 +190,7 @@ public class KalmanPedroLocalizer implements Localizer{
     }
 
     @Override
-    public void resetIMU() throws InterruptedException {
-
-    }
+    public void resetIMU() throws InterruptedException { }
 
     @Override
     public double getIMUHeading() {
@@ -170,11 +204,5 @@ public class KalmanPedroLocalizer implements Localizer{
 
     public Pose getPose() {
         return estimatedPose;
-    }
-
-    private double angleWrap(double angle) {
-        while (angle > Math.PI) angle -= 2 * Math.PI;
-        while (angle < -Math.PI) angle += 2 * Math.PI;
-        return angle;
     }
 }

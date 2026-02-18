@@ -11,6 +11,7 @@ import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
+import org.firstinspires.ftc.teamcode.PoseEstimate.wpilib.Units;
 
 public class EstimatorLocalizer implements Localizer {
 
@@ -38,12 +39,20 @@ public class EstimatorLocalizer implements Localizer {
 
         this.currentPose = pinpoint.getPose();
 
-        estimator = new PinpointPoseEstimator(
+        /*estimator = new PinpointPoseEstimator(
                 currentPose,
                 0.02, 0.02,
                 0.25, 0.25
         );
 
+         */
+
+        estimator = new PinpointPoseEstimator(
+                currentPose,
+                0.2, 0.2,
+                0.03, 0.03
+
+        );
         timer.reset();
     }
 
@@ -67,6 +76,8 @@ public class EstimatorLocalizer implements Localizer {
 
         lastHeading = heading;
         lastTime = currentTime;
+
+        limelight.updateRobotOrientation(Units.radiansToDegrees(heading) + 90);
 
         // Handle vision
         LLResult result = limelight.getLatestResult();
