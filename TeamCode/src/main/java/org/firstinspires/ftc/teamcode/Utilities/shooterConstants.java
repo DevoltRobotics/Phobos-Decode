@@ -22,9 +22,9 @@ public class shooterConstants {
     public static double PASS_THROUGH_POINT_RADIUS = 5; //inches
 
     //HOOD
-    public static double MAX_HOOD_ANGLE = 40;
+    public static double MAX_HOOD_ANGLE = 44.9;
 
-    public static double MIN_HOOD_ANGLE = 70;
+    public static double MIN_HOOD_ANGLE = 45.1;
 
     public static double hoodRatio = (double) 25 / 259;
 

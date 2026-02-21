@@ -1,7 +1,6 @@
 package org.firstinspires.ftc.teamcode.Subsystems;
 
 import static org.firstinspires.ftc.teamcode.Subsystems.Turret.TurretSubsystem.capstanRatio;
-import static org.firstinspires.ftc.teamcode.Subsystems.Turret.TurretSubsystem.ffValue;
 import static org.firstinspires.ftc.teamcode.Subsystems.Turret.TurretSubsystem.lowerLimit;
 import static org.firstinspires.ftc.teamcode.Subsystems.Turret.TurretSubsystem.principalTurretCoeffs;
 import static org.firstinspires.ftc.teamcode.Subsystems.Turret.TurretSubsystem.ticktsToDegrees;
@@ -153,11 +152,9 @@ public class ShutSubsystem extends SubsystemBase {
 
         double target = Range.clip(turretTarget, lowerLimit, upperLimit);
 
-        double ff = Math.signum(turretTarget - turretP) * ffValue;
-
         turretPower = Range.clip(turretPid.calculate(turretP, target), -1, 1);
 
-        turretM.setPower(turretPower + ff);
+        turretM.setPower(turretPower);
 
         turretPid.setCoefficients(principalTurretCoeffs);
         //turretPid.setMinimumOutput(MinimumEnc);

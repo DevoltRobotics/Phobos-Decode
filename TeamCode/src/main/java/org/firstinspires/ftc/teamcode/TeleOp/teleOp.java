@@ -1,12 +1,10 @@
 package org.firstinspires.ftc.teamcode.TeleOp;
 
-import static org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.SorterSubsystem.artifacToArtifactTimer;
 import static org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.SorterSubsystem.blockerHFreePos;
 import static org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.SorterSubsystem.blockerHHidePos;
 import static org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.SorterSubsystem.blockersUp;
 import static org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.SorterSubsystem.downRampPos;
 import static org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.SorterSubsystem.upRampPos;
-import static org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.SorterSubsystem.waitAimTimer;
 
 import com.acmerobotics.dashboard.config.Config;
 import com.pedropathing.geometry.Pose;
@@ -26,7 +24,6 @@ import org.firstinspires.ftc.teamcode.Subsystems.Intake.moveIntakeAutonomousCMD;
 import org.firstinspires.ftc.teamcode.Subsystems.Intake.moveIntakeTeleOpCMD;
 import org.firstinspires.ftc.teamcode.Subsystems.Lifting.moveLiftCMD;
 import org.firstinspires.ftc.teamcode.Subsystems.Sensors.lightSorterCMD;
-import org.firstinspires.ftc.teamcode.Subsystems.Shooter.shooterToBasketCMD;
 import org.firstinspires.ftc.teamcode.Subsystems.Shooter.shooterToBasketTeleOpCMD;
 import org.firstinspires.ftc.teamcode.Subsystems.Shooter.shooterToVelCMD;
 import org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.horizontalBlockerCMD;
@@ -112,7 +109,7 @@ public abstract class teleOp extends OpModeCommand {
         intakeIn.whileActiveOnce(new moveIntakeTeleOpCMD(intakeSb, 1, 0.8));
         intakeOut.whileActiveOnce(new moveIntakeTeleOpCMD(intakeSb, -0.7, -1));
 
-        CommandScheduler.getInstance().setDefaultCommand(turretSb, new turretDefaultTeleopCMD(turretSb, visionSb, () -> isTurretManual, () -> isClose, gamepad2, () -> isShooting, () -> poseEstimate));
+        CommandScheduler.getInstance().setDefaultCommand(turretSb, new turretDefaultTeleopCMD(turretSb, () -> isTurretManual, gamepad2, () -> isShooting));
 
         Button togglePoseEstimate = new GamepadButton(
                 garra,
@@ -167,7 +164,7 @@ public abstract class teleOp extends OpModeCommand {
 
                         ),
 
-                        new shooterToBasketTeleOpCMD(shooterSb, visionSb, turretSb, shooterProvTarget),
+                        new shooterToBasketTeleOpCMD(shooterSb, turretSb, shooterProvTarget),
 
 
                         new InstantCommand(
@@ -196,7 +193,7 @@ public abstract class teleOp extends OpModeCommand {
 
                         ),
 
-                        new shooterToBasketTeleOpCMD(shooterSb, visionSb, turretSb, shooterProvTarget),
+                        new shooterToBasketTeleOpCMD(shooterSb, turretSb, shooterProvTarget),
 
 
                         new InstantCommand(
@@ -221,7 +218,7 @@ public abstract class teleOp extends OpModeCommand {
         shootButton.whenPressed(
                 new ParallelCommandGroup(
 
-                        new shooterToBasketTeleOpCMD(shooterSb, visionSb, turretSb, shooterProvTarget),
+                        new shooterToBasketTeleOpCMD(shooterSb, turretSb, shooterProvTarget),
 
 
                         new InstantCommand(

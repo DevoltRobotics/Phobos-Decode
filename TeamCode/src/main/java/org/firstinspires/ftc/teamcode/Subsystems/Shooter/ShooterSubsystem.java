@@ -35,7 +35,6 @@ import org.firstinspires.ftc.teamcode.Utilities.StaticConstants;
 @Config
 public class ShooterSubsystem extends SubsystemBase {
 
-    DcMotorEx shooterMDown;
     DcMotorEx shooterMUp;
 
     public static double shooterkV = 0.000525;
@@ -51,15 +50,12 @@ public class ShooterSubsystem extends SubsystemBase {
     
     public ShooterSubsystem(HardwareMap hMap, Telemetry telemetry) {
 
-        shooterMDown = hMap.get(DcMotorEx.class, "shdown");
         shooterMUp = hMap.get(DcMotorEx.class, "shup");
 
         shooterMUp.setDirection(DcMotorSimple.Direction.REVERSE);
 
-        shooterMDown.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         shooterMUp.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
-        shooterMDown.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         shooterMUp.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         shooterController = new PIDFController(shooterCoeffs);
@@ -78,11 +74,15 @@ public class ShooterSubsystem extends SubsystemBase {
         double shooterTargetPwr = (shooterkV * shooterTarget) + shooterController.calculate(motorVel);
 
         shooterMUp.setPower(shooterTargetPwr);
-        shooterMDown.setPower(shooterTargetPwr);
 
         error = shooterTarget - motorVel;
 
         FtcDashboard.getInstance().getTelemetry().addData("shooterError", error);
+    }
+
+    public void setShooterTarget(double target){
+        this.shooterTarget = target;
+
     }
 
 }

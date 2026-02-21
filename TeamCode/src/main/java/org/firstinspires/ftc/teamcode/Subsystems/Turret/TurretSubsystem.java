@@ -5,8 +5,9 @@ import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.Pose;
-import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.util.Range;
@@ -20,10 +21,9 @@ import org.firstinspires.ftc.teamcode.Utilities.Aliance;
 @Config
 public class TurretSubsystem extends SubsystemBase {
 
-    public CRServo turretS1;
-    public CRServo turretS2;
+    public static double trtTarget = 60;
 
-    public DcMotor turretE;
+    public DcMotorEx turretM;
 
     public Telemetry telemetry;
 
@@ -31,25 +31,27 @@ public class TurretSubsystem extends SubsystemBase {
 
     public Aliance alliance;
 
-    public static PIDFCoefficients principalTurretCoeffs = new PIDFCoefficients(0.013, 0.0, 0.0014, 0.00);
+    public static PIDFCoefficients principalTurretCoeffs = new PIDFCoefficients(0.02, 0.0, 0.0015, 0.00049);
 
-    public PIDFController turretPid;
+    public PIDFController principalTurretPid;
+
+    public static PIDFCoefficients secondaryTurretCoeffs = new PIDFCoefficients(0.035, 0.0, 0.0011, 0.00049);
+
+    public PIDFController secondaryTurretPid;
 
     public static PIDFCoefficients llPidCoeffs = new PIDFCoefficients(0.1, 0.0, 0.008, 0);
     public PIDFController llPidf;
 
-    public static double kBotToTurretVel = 1.0; // start SMALL
+    public static double turretPidSwitch = 10; // start SMALL
 
-    public double velX;
-
-    public double velY; // YOU PROVIDE THIS
-
+    public static boolean useSecondaryPID = true;
+    public static double minimunPower = 0.03;
 
     public static double MinimumEnc = 0.07;
 
-    public static double capstanRatio = (double) 58 / 182;
+    public static double capstanRatio = 0.331; //0.331
 
-    public static double ticktsToDegrees = (double) 360 / 8192;
+    public static double ticktsToDegrees = (double) 360 / 537.7;
 
     public static double furtherCorrection = 5;
 
@@ -57,9 +59,7 @@ public class TurretSubsystem extends SubsystemBase {
 
     public static int lowerLimit = -110;
 
-    public double encoderP = 0;
-
-    public static double turretPRelative = 0;
+    public static double turretP = 0;
 
     public double turretTarget = 0;
 
@@ -75,10 +75,11 @@ public class TurretSubsystem extends SubsystemBase {
     public static double redX = 138;
     public static double blueX = 6;
 
-    public static double ffValue = -0.09;
     double goalX, goalY;
 
     public boolean realIsManual;
+
+    public static int manualIncrement = 5;
 
     public static double turretEndPose = 0;
 
@@ -90,22 +91,26 @@ public class TurretSubsystem extends SubsystemBase {
         goalY = y;
     }
 
-    public TurretSubsystem(HardwareMap hMap, Follower follower, Telemetry telemetry, DcMotor turretE, Aliance alliance, boolean isAuto) {
-        turretS1 = hMap.get(CRServo.class, "trt1");
-        turretS2 = hMap.get(CRServo.class, "trt2");
+    public TurretSubsystem(HardwareMap hMap, Follower follower, Telemetry telemetry, Aliance alliance, boolean isAuto) {
+        turretM = hMap.get(DcMotorEx.class, "trtM");
 
+        turretM.setDirection(DcMotorSimple.Direction.REVERSE);
         this.follower = follower;
-
-        this.turretE = turretE;
 
         this.isAuto = isAuto;
 
-        if (isAuto) {
+        /*if (isAuto) {
 
-            this.turretE.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            this.turretE.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            this.turretM.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            this.turretM.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         }
+
+         */
+
+        this.turretM.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        this.turretM.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
         this.telemetry = telemetry;
         this.alliance = alliance;
 
@@ -121,8 +126,12 @@ public class TurretSubsystem extends SubsystemBase {
             setGoalPos(redX, aallY);
         }
 
-        turretPid = new PIDFController(principalTurretCoeffs);
+        principalTurretPid = new PIDFController(principalTurretCoeffs);
+        secondaryTurretPid = new PIDFController(secondaryTurretCoeffs);
+
         llPidf = new PIDFController(llPidCoeffs);
+
+
 
     }
 
@@ -139,41 +148,45 @@ public class TurretSubsystem extends SubsystemBase {
 
         turretToGoalAngle = AngleUnit.normalizeDegrees(Math.toDegrees(robotPos.getHeading()) - robotToGoalAngle);
 
-        encoderP = turretE.getCurrentPosition();
+        turretP =  (turretM.getCurrentPosition() * capstanRatio * ticktsToDegrees);
 
-        turretPRelative = (encoderP * capstanRatio * ticktsToDegrees);
-
-        turretEndPose = turretPRelative;
+        turretEndPose = turretP;
 
         double target = Range.clip(turretTarget, lowerLimit, upperLimit);
 
-        double ff = Math.signum(turretTarget - turretPRelative) * ffValue;
+        double error = target - turretP;
 
-        turretPower = Range.clip(turretPid.calculate(turretPRelative, target), -1, 1);
+        principalTurretPid.setMinimumOutput(minimunPower);
+        secondaryTurretPid.setMinimumOutput(minimunPower);
 
-        turretS1.setPower(turretPower + ff);
-        turretS2.setPower(turretPower + ff);
+        if (Math.abs(error) > turretPidSwitch || !useSecondaryPID) {
+            turretPower = Range.clip(principalTurretPid.calculate(turretP, target), -1, 1);
+        }else{
+            turretPower = Range.clip(secondaryTurretPid.calculate(turretP, target), -1, 1);
 
-        turretPid.setCoefficients(principalTurretCoeffs);
-        //turretPid.setMinimumOutput(MinimumEnc);
+        }
+        turretM.setPower(turretPower);
 
-        llPidf.setCoefficients(llPidCoeffs);
-        llPidf.setSetPoint(0);
+        /*principalTurretPid.setCoefficients(principalTurretCoeffs);
+        secondaryTurretPid.setCoefficients(secondaryTurretCoeffs);
 
-        FtcDashboard.getInstance().getTelemetry().addData("turretTarget", turretTarget);
 
-        FtcDashboard.getInstance().getTelemetry().addData("turret angle", turretPRelative);
+         */
+        FtcDashboard.getInstance().getTelemetry().addData("turretTarget", error);
+        FtcDashboard.getInstance().getTelemetry().addData("turretError", turretTarget);
+
+        FtcDashboard.getInstance().getTelemetry().addData("turret angle", turretP);
         FtcDashboard.getInstance().getTelemetry().addData("turret to goal angle", getTurretToGoalAngle());
         FtcDashboard.getInstance().getTelemetry().addData("distance to goal", getDistanceToGoal());
 
     }
 
     public void setAutoTurretPos() {
-        turretPRelative = turretEndPose;
+        turretP = turretEndPose;
 
     }
 
-    public void setTarget(int target) {
+    public void setTarget(double target) {
         turretTarget = target;
 
     }
@@ -191,12 +204,12 @@ public class TurretSubsystem extends SubsystemBase {
 
 
     public double getCurrentPosition() {
-        return turretPRelative;
+        return turretP;
     }
 
     public void resetEncoder() {
-        turretE.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        turretE.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        turretM.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        turretM.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
     }
 
 }

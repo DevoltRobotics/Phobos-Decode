@@ -73,7 +73,8 @@ public abstract class OpModeCommand extends OpMode {
     }
 
     //corre el scheduler
-    public void run() {        run();
+    public void run() {
+        run();
 
     }
 
@@ -110,7 +111,7 @@ public abstract class OpModeCommand extends OpMode {
                 intakeSb = new IntakeSubsystem(hardwareMap),
                 sorterSb = new SorterSubsystem(hardwareMap, telemetry),
                 sensorsSb = new SensorsSubsystem(hardwareMap, telemetry),
-                turretSb = new TurretSubsystem(hardwareMap, follower, telemetry, intakeSb.intakeM, currentAliance, isAuto),
+                turretSb = new TurretSubsystem(hardwareMap, follower, telemetry, currentAliance, isAuto),
                 liftingSb = new LiftingSubsystem(hardwareMap),
                 shooterSb = new ShooterSubsystem(hardwareMap, telemetry)
         );
@@ -157,54 +158,6 @@ public abstract class OpModeCommand extends OpMode {
         );
     }
 
-    /*
-    public Command sorter3CMD(PathChain shootPath, double vel) {
-        return new SequentialCommandGroup(
-                new shooterToVelCMD(shooterSb, vel),
-
-                new preSorterCmd(sorterSb, sensorsSb, visionSb, 0.3),
-
-                new moveIntakeAutonomousCMD(intakeSb, 1, 0.7),
-
-                new ParallelRaceGroup(
-
-                        new ParallelCommandGroup(
-                                pedroSb.followPathCmd(shootPath),
-
-                                new SequentialCommandGroup(
-                                        new WaitCommand(500),
-                                        new moveIntakeAutonomousCMD(intakeSb, 0.8, -1),
-
-                                        new WaitCommand(150),
-
-                                        new postSorterCmd(sorterSb, sensorsSb, visionSb),
-
-                                        new WaitCommand(150),
-
-                                        new moveIntakeAutonomousCMD(intakeSb, 0.8, -1),
-                                        new WaitCommand(800)
-                                )
-                        ))
-        );
-    }
-
-    public Command shootThreeSorterCMD() {
-        return new ParallelDeadlineGroup(
-
-                new WaitCommand(2600), // deadline
-
-                new SequentialCommandGroup(
-                        new moveIntakeAutonomousCMD(intakeSb, 1, 1),
-
-                        new horizontalBlockerCMD(sorterSb, blockerHFreePos),
-                        new WaitCommand(1400),
-                        new lateralBlockersCMD(sorterSb, blockersUp, blockersUp)
-                )
-        );
-    }
-
-
-     */
     public Command shootThreeSpamerFarCMD(double shooterVel) {
         return new ParallelDeadlineGroup(
 

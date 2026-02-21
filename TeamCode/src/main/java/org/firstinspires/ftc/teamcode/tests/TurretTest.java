@@ -1,7 +1,9 @@
 package org.firstinspires.ftc.teamcode.tests;
 
 import com.acmerobotics.dashboard.config.Config;
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.seattlesolvers.solverslib.command.button.Button;
 import com.seattlesolvers.solverslib.command.button.GamepadButton;
 import com.seattlesolvers.solverslib.gamepad.GamepadEx;
@@ -12,26 +14,32 @@ import org.firstinspires.ftc.teamcode.Utilities.OpModeCommand;
 
 @Config
 @TeleOp
-public class TurretTest extends OpModeCommand {
-
-    GamepadEx garra;
+public class TurretTest extends OpMode {
 
     public static double turretTargetPos = 50;
 
-    public TurretTest() {
-        super(Aliance.RED, false);
+    DcMotorEx trtM;
+
+    @Override
+    public void init() {
+        trtM = hardwareMap.get(DcMotorEx.class, "trtM");
+
     }
 
     @Override
-    public void initialize() {
-        garra = new GamepadEx(gamepad2);
+    public void loop() {
+        if (gamepad2.right_bumper){
+            trtM.setPower(1);
 
-        //CommandScheduler.getInstance().setDefaultCommand(turretSb, new turretManaulCMD(turretSb, visionSb, follower, gamepad2));
+        }else if (gamepad2.left_bumper){
+            trtM.setPower(-1);
 
-        Button targetBasket = new GamepadButton(
-                garra,
-                GamepadKeys.Button.A);
+        }else {
+            trtM.setPower(0);
 
-        //targetBasket.whenPressed(new turretToBasketCMD(turretSb, visionSb, follower));
+        }
+
     }
+
+
 }

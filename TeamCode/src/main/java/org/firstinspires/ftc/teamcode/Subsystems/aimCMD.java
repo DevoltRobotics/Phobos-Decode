@@ -19,7 +19,6 @@ public class aimCMD extends CommandBase {
 
     double hoodAngle = 0;
     double flywheelSpeed = 0;
-    double robotHeading = 0;
 
     public aimCMD(ShutSubsystem shootertSubsystem) {
 
@@ -71,7 +70,7 @@ public class aimCMD extends CommandBase {
 
         //update turret
         double turretVelCompOffset = Math.atan(perpendicularComponent / ivr);
-        double turretAngle = Math.toDegrees(robotHeading - robotToGoalVector.getTheta() * turretVelCompOffset);
+        double turretAngle = Math.toDegrees(robotPose.getHeading() - robotToGoalVector.getTheta() * turretVelCompOffset);
 
 
         shooterSb.setShooterTarget(flywheelSpeed);
