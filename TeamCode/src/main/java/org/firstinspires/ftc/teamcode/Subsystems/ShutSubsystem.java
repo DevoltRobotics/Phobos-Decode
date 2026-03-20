@@ -75,6 +75,7 @@ public class ShutSubsystem extends SubsystemBase {
 
     public ShutSubsystem(HardwareMap hMap, Telemetry telemetry, Follower follower, Aliance alliance, boolean isAuto) {
 
+
         //SHOOTER
         shooterM = hMap.get(DcMotorEx.class, "shdown");
 
