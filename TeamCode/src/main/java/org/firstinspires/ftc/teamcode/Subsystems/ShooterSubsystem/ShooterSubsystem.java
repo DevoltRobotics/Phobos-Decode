@@ -1,21 +1,26 @@
-package org.firstinspires.ftc.teamcode.Subsystems;
+package org.firstinspires.ftc.teamcode.Subsystems.ShooterSubsystem;
 
-import static org.firstinspires.ftc.teamcode.Subsystems.Turret.TurretSubsystem.capstanRatio;
-import static org.firstinspires.ftc.teamcode.Subsystems.Turret.TurretSubsystem.lowerLimit;
-import static org.firstinspires.ftc.teamcode.Subsystems.Turret.TurretSubsystem.principalTurretCoeffs;
-import static org.firstinspires.ftc.teamcode.Subsystems.Turret.TurretSubsystem.ticktsToDegrees;
-import static org.firstinspires.ftc.teamcode.Subsystems.Turret.TurretSubsystem.upperLimit;
 import static org.firstinspires.ftc.teamcode.Utilities.shooterConstants.GOAL_POSE_BLUE;
 import static org.firstinspires.ftc.teamcode.Utilities.shooterConstants.GOAL_POSE_RED;
+import static org.firstinspires.ftc.teamcode.Utilities.shooterConstants.capstanRatio;
 import static org.firstinspires.ftc.teamcode.Utilities.shooterConstants.gethoodTicksFromDegrees;
+import static org.firstinspires.ftc.teamcode.Utilities.shooterConstants.lowerLimit;
+import static org.firstinspires.ftc.teamcode.Utilities.shooterConstants.minimunPower;
+import static org.firstinspires.ftc.teamcode.Utilities.shooterConstants.principalTurretCoeffs;
+import static org.firstinspires.ftc.teamcode.Utilities.shooterConstants.secondaryTurretCoeffs;
+import static org.firstinspires.ftc.teamcode.Utilities.shooterConstants.shooterCoeffs;
+import static org.firstinspires.ftc.teamcode.Utilities.shooterConstants.shooterkV;
+import static org.firstinspires.ftc.teamcode.Utilities.shooterConstants.ticktsToDegrees;
+import static org.firstinspires.ftc.teamcode.Utilities.shooterConstants.turretPidSwitch;
+import static org.firstinspires.ftc.teamcode.Utilities.shooterConstants.upperLimit;
 
-import com.acmerobotics.dashboard.FtcDashboard;
+import com.bylazar.telemetry.PanelsTelemetry;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.Pose;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.Range;
 import com.seattlesolvers.solverslib.command.SubsystemBase;
@@ -25,15 +30,13 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.teamcode.Utilities.Aliance;
 
-public class ShutSubsystem extends SubsystemBase {
+public class ShooterSubsystem extends SubsystemBase {
 
     public Follower follower;
 
     //SHOOTER
     DcMotorEx shooterM;
 
-    public static double shooterkV = 0.000525;
-    public static PIDFCoefficients shooterCoeffs = new PIDFCoefficients(0.01, 0.0, 0.0, 0);
     PIDFController shooterController;
     Telemetry telemetry;
 
@@ -53,6 +56,8 @@ public class ShutSubsystem extends SubsystemBase {
 
     public PIDFController turretPid;
 
+    public PIDFController secondaryTurretPid;
+
     public static double turretP = 0;
 
     public double turretTarget = 0;
@@ -66,21 +71,20 @@ public class ShutSubsystem extends SubsystemBase {
 
     double goalX, goalY;
 
-    public boolean realIsManual;
-
     public static double turretEndPose = 0;
 
     boolean isAuto;
 
+    public static boolean useSecondaryPID = false;
 
-    public ShutSubsystem(HardwareMap hMap, Telemetry telemetry, Follower follower, Aliance alliance, boolean isAuto) {
 
+    public ShooterSubsystem(HardwareMap hMap, Telemetry telemetry, Follower follower, Aliance alliance, boolean isAuto) {
 
         //SHOOTER
-        shooterM = hMap.get(DcMotorEx.class, "shdown");
+        shooterM = hMap.get(DcMotorEx.class, "shM");
 
+        shooterM.setDirection(DcMotorSimple.Direction.REVERSE);
         shooterM.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-
         shooterM.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         shooterController = new PIDFController(shooterCoeffs);
@@ -91,14 +95,16 @@ public class ShutSubsystem extends SubsystemBase {
         //TURRET
         turretM = hMap.get(DcMotorEx.class, "trtM");
 
+        turretM.setDirection(DcMotorSimple.Direction.REVERSE);
+
         this.follower = follower;
 
         this.isAuto = isAuto;
 
-        if (isAuto) {
+        //if (isAuto) {
             this.turretM.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             this.turretM.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        }
+        //}
 
         this.telemetry = telemetry;
         this.alliance = alliance;
@@ -113,6 +119,7 @@ public class ShutSubsystem extends SubsystemBase {
         }
 
         turretPid = new PIDFController(principalTurretCoeffs);
+        secondaryTurretPid = new PIDFController(secondaryTurretCoeffs);
         this.telemetry = telemetry;
     }
 
@@ -132,8 +139,9 @@ public class ShutSubsystem extends SubsystemBase {
 
         error = shooterTarget - motorVel;
 
-        FtcDashboard.getInstance().getTelemetry().addData("shooterError", error);
-
+        PanelsTelemetry.INSTANCE.getFtcTelemetry().addData("shooterTargetPwr", shooterTargetPwr);
+        PanelsTelemetry.INSTANCE.getFtcTelemetry().addData("shooterTarget", shooterTarget);
+        PanelsTelemetry.INSTANCE.getFtcTelemetry().addData("shooterError", error);
         //TURRET
 
         Pose robotPos = follower.getPose();
@@ -147,26 +155,38 @@ public class ShutSubsystem extends SubsystemBase {
 
         turretToGoalAngle = AngleUnit.normalizeDegrees(Math.toDegrees(robotPos.getHeading()) - robotToGoalAngle);
 
-        turretP = (turretM.getCurrentPosition() * capstanRatio * ticktsToDegrees);
+        turretP =  (turretM.getCurrentPosition() * capstanRatio * ticktsToDegrees);
 
         turretEndPose = turretP;
 
         double target = Range.clip(turretTarget, lowerLimit, upperLimit);
 
-        turretPower = Range.clip(turretPid.calculate(turretP, target), -1, 1);
+        double error = target - turretP;
+
+        turretPid.setMinimumOutput(minimunPower);
+        secondaryTurretPid.setMinimumOutput(minimunPower);
+
+        if (Math.abs(error) > turretPidSwitch || !useSecondaryPID) {
+            turretPower = Range.clip(turretPid.calculate(turretP, target), -1, 1);
+        }else{
+            turretPower = Range.clip(secondaryTurretPid.calculate(turretP, target), -1, 1);
+
+        }
 
         turretM.setPower(turretPower);
 
-        turretPid.setCoefficients(principalTurretCoeffs);
-        //turretPid.setMinimumOutput(MinimumEnc);
+        /*principalTurretPid.setCoefficients(principalTurretCoeffs);
+        secondaryTurretPid.setCoefficients(secondaryTurretCoeffs);
 
-        FtcDashboard.getInstance().getTelemetry().addData("turretTarget", turretTarget);
+         */
 
-        FtcDashboard.getInstance().getTelemetry().addData("turret angle", turretP);
-    }
+        PanelsTelemetry.INSTANCE.getFtcTelemetry().addData("turretError", error);
+        PanelsTelemetry.INSTANCE.getFtcTelemetry().addData("turretTarget", turretTarget);
 
-    public void setTurretTarget(double target){
-        turretTarget = target;
+        PanelsTelemetry.INSTANCE.getFtcTelemetry().addData("turret angle", turretP);
+        PanelsTelemetry.INSTANCE.getFtcTelemetry().addData("turret to goal angle", getTurretToGoalAngle());
+        PanelsTelemetry.INSTANCE.getFtcTelemetry().addData("distance to goal", getDistanceToGoal());
+
 
     }
 
@@ -178,5 +198,32 @@ public class ShutSubsystem extends SubsystemBase {
     public void setHoodPose(double angle){
         hoodS.setPosition(gethoodTicksFromDegrees(angle));
 
+    }
+
+    public void setTurretTarget(double target){
+        turretTarget = target;
+
+    }
+
+    public double getRobotToGoalAngle() {
+        return robotToGoalAngle;
+    }
+
+    public double getTurretToGoalAngle() {
+        return turretToGoalAngle;
+    }
+
+    public double getDistanceToGoal() {
+        return distanceToGoal;
+    }
+
+
+    public double getCurrentPosition() {
+        return turretP;
+    }
+
+    public void resetTurret() {
+        turretM.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        turretM.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
     }
 }

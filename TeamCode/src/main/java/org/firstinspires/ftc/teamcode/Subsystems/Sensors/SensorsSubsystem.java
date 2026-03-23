@@ -1,6 +1,6 @@
 package org.firstinspires.ftc.teamcode.Subsystems.Sensors;
 
-import com.acmerobotics.dashboard.config.Config;
+import com.bylazar.configurables.annotations.Configurable;
 import com.qualcomm.hardware.rev.RevColorSensorV3;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -11,7 +11,7 @@ import com.seattlesolvers.solverslib.command.SubsystemBase;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Utilities.Artifact;
 
-@Config
+@Configurable
 public class SensorsSubsystem extends SubsystemBase {
 
     public Servo light;
@@ -94,6 +94,8 @@ public class SensorsSubsystem extends SubsystemBase {
             colorSensorsDelay.reset();
         }
 
+
+
         if (greenInR > targetGreenRight && greenInR > blueInR) {
             currentRightArtifact = Artifact.Green;
             rightDetected = true;
@@ -120,7 +122,7 @@ public class SensorsSubsystem extends SubsystemBase {
             leftDetected = false;
         }
 
-        telemetry.addData("RightGreen", greenInR);
+        /*telemetry.addData("RightGreen", greenInR);
         telemetry.addData("LeftGreen", greenInL);
         telemetry.addData("RightBlue", blueInR);
         telemetry.addData("LeftBlue", blueInL);
@@ -129,16 +131,10 @@ public class SensorsSubsystem extends SubsystemBase {
         telemetry.addData("WhatIsLefttArt", currentLeftArtifact);
 
 
+         */
+
         fourDetected = (rightDetected && leftDetected) && laserState;
 
-
-        if (fourDetected) {
-            telemetry.addLine("FourBallDetected");
-
-        } else {
-            telemetry.addLine("NoFourBall");
-
-        }
 
         telemetry.addData("relaseOrder", relaseOrder);
 

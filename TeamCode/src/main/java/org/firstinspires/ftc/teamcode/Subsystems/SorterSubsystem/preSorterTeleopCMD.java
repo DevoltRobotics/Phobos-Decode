@@ -40,13 +40,13 @@ public class preSorterTeleopCMD extends CommandBase {
                 if (sensorsSb.rightDetected || sensorsSb.leftDetected) {
 
                     if (!(sensorsSb.currentRightArtifact == null) && sensorsSb.currentRightArtifact.equals(sensorsSb.targetArtifact)) {
-                        sorterSubsystem.setLateralPositions(blockersUp, 0);
-
-                    } else if (!(sensorsSb.currentLeftArtifact == null) && sensorsSb.currentLeftArtifact.equals(sensorsSb.targetArtifact)) {
                         sorterSubsystem.setLateralPositions(0, blockersUp);
 
+                    } else if (!(sensorsSb.currentLeftArtifact == null) && sensorsSb.currentLeftArtifact.equals(sensorsSb.targetArtifact)) {
+                        sorterSubsystem.setLateralPositions(blockersUp, 0);
+
                     } else if (!intaking) {
-                        sorterSubsystem.setLateralPositions(0, 0);
+                        sorterSubsystem.setLateralPositions(blockersUp, blockersUp);
 
                     }
 

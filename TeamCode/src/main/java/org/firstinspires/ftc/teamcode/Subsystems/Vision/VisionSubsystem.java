@@ -1,8 +1,7 @@
 package org.firstinspires.ftc.teamcode.Subsystems.Vision;
 
-import static org.firstinspires.ftc.teamcode.PoseEstimate.ConversionUtil.from3DToPedro;
 
-import com.acmerobotics.dashboard.FtcDashboard;
+import com.bylazar.telemetry.PanelsTelemetry;
 import com.pedropathing.follower.Follower;
 import com.qualcomm.hardware.gobilda.GoBildaPinpointDriver;
 import com.qualcomm.hardware.limelightvision.LLResult;
@@ -13,8 +12,6 @@ import com.seattlesolvers.solverslib.command.SubsystemBase;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
-import org.firstinspires.ftc.teamcode.PoseEstimate.wpilib.Units;
-import org.firstinspires.ftc.teamcode.PoseEstimate.wpilib.geometry.Pose2d;
 import org.firstinspires.ftc.teamcode.Utilities.Aliance;
 import org.firstinspires.ftc.teamcode.Utilities.Pattern;
 
@@ -61,7 +58,7 @@ public class VisionSubsystem extends SubsystemBase {
     public void periodic() {
         result = ll.getLatestResult();
 
-        FtcDashboard.getInstance().getTelemetry().addData("llA", getAllianceTA());
+        PanelsTelemetry.INSTANCE.getFtcTelemetry().addData("llA", getAllianceTA());
     }
 
     public Double getAllianceTA() {

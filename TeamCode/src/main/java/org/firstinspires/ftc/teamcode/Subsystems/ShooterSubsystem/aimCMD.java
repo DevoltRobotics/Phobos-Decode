@@ -1,12 +1,13 @@
-package org.firstinspires.ftc.teamcode.Subsystems;
+package org.firstinspires.ftc.teamcode.Subsystems.ShooterSubsystem;
 
 import static org.firstinspires.ftc.teamcode.Utilities.shooterConstants.MAX_HOOD_ANGLE;
 import static org.firstinspires.ftc.teamcode.Utilities.shooterConstants.MIN_HOOD_ANGLE;
 import static org.firstinspires.ftc.teamcode.Utilities.shooterConstants.PASS_THROUGH_POINT_RADIUS;
 import static org.firstinspires.ftc.teamcode.Utilities.shooterConstants.SCORE_ANGLE;
 import static org.firstinspires.ftc.teamcode.Utilities.shooterConstants.SCORE_HEIGHT;
+import static org.firstinspires.ftc.teamcode.Utilities.shooterConstants.getFlywheelTicksFromVelocity;
 
-import com.pedropathing.geometry.Pose;
+import com.bylazar.telemetry.PanelsTelemetry;
 import com.pedropathing.math.MathFunctions;
 import com.pedropathing.math.Vector;
 import com.seattlesolvers.solverslib.command.CommandBase;
@@ -15,12 +16,12 @@ import com.seattlesolvers.solverslib.geometry.Translation2d;
 
 public class aimCMD extends CommandBase {
 
-    ShutSubsystem shooterSb;
+    ShooterSubsystem shooterSb;
 
     double hoodAngle = 0;
     double flywheelSpeed = 0;
 
-    public aimCMD(ShutSubsystem shootertSubsystem) {
+    public aimCMD(ShooterSubsystem shootertSubsystem) {
 
         this.shooterSb = shootertSubsystem;
 
@@ -47,7 +48,11 @@ public class aimCMD extends CommandBase {
         double a = SCORE_ANGLE;
 
         //calculate initial launch components
-        hoodAngle = MathFunctions.clamp(Math.atan(2 * y / x - Math.atan(a)), MAX_HOOD_ANGLE, MIN_HOOD_ANGLE);
+        hoodAngle = MathFunctions.clamp(Math.atan(2 * y / x - Math.tan(a)), Math.toRadians(MAX_HOOD_ANGLE), Math.toRadians(MIN_HOOD_ANGLE));
+
+        double denom = 2 * Math.pow(Math.cos(hoodAngle), 2) * (x * Math.tan(hoodAngle) - y);
+
+        PanelsTelemetry.INSTANCE.getFtcTelemetry().addData("denom", denom);
 
         flywheelSpeed =  Math.sqrt(g * x * x / (2 * Math.pow(Math.cos(hoodAngle), 2) * (x * Math.tan(hoodAngle) - y)));
 
@@ -64,18 +69,23 @@ public class aimCMD extends CommandBase {
         double ndr =  nvr * time;
 
         //recalculate launch components
-        hoodAngle = MathFunctions.clamp(Math.atan(vz / nvr), MAX_HOOD_ANGLE, MIN_HOOD_ANGLE);
+        hoodAngle = Math.atan(vz / nvr);
 
-        flywheelSpeed = Math.sqrt(g * ndr * ndr / (2 * Math.pow(Math.cos(hoodAngle), 2) * (ndr * Math.tan(hoodAngle))));
+        flywheelSpeed = Math.sqrt(g * ndr * ndr / (2 * Math.pow(Math.cos(hoodAngle), 2) * (ndr * Math.tan(hoodAngle) - y)));
 
         //update turret
         double turretVelCompOffset = Math.atan(perpendicularComponent / ivr);
-        double turretAngle = Math.toDegrees(robotPose.getHeading() - robotToGoalVector.getTheta() * turretVelCompOffset);
+        //double turretAngle = Math.toDegrees(robotPose.getHeading() - robotToGoalVector.getTheta() + turretVelCompOffset);
 
+        double turretAngle = shooterSb.turretToGoalAngle - Math.toDegrees(turretVelCompOffset);
 
-        shooterSb.setShooterTarget(flywheelSpeed);
+        shooterSb.setShooterTarget(getFlywheelTicksFromVelocity(flywheelSpeed));
+        shooterSb.setHoodPose(MathFunctions.clamp(Math.toDegrees(hoodAngle), MAX_HOOD_ANGLE, MIN_HOOD_ANGLE));
         shooterSb.setTurretTarget(turretAngle);
-        shooterSb.setHoodPose(hoodAngle);
+
+        PanelsTelemetry.INSTANCE.getFtcTelemetry().addData("flywheelSpeed", flywheelSpeed);
+        PanelsTelemetry.INSTANCE.getFtcTelemetry().addData("hoodPose", hoodAngle);
+        PanelsTelemetry.INSTANCE.getFtcTelemetry().addData("turretTarget", turretAngle);
 
     }
 }

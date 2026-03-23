@@ -1,12 +1,10 @@
 package org.firstinspires.ftc.teamcode.Subsystems.Vision;
 
-import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.seattlesolvers.solverslib.command.CommandBase;
 
 import org.firstinspires.ftc.teamcode.Utilities.Pattern;
 
-@Config
 public class detectMotifCMD extends CommandBase {
 
     private final VisionSubsystem visionSubsystem;

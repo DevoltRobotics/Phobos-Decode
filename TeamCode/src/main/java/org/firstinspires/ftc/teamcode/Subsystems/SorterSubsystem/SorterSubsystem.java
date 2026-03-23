@@ -1,13 +1,13 @@
 package org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem;
 
-import com.acmerobotics.dashboard.config.Config;
+import com.bylazar.configurables.annotations.Configurable;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.seattlesolvers.solverslib.command.SubsystemBase;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
-@Config
+@Configurable
 public class SorterSubsystem extends SubsystemBase {
 
     Servo blockerR;
@@ -21,10 +21,10 @@ public class SorterSubsystem extends SubsystemBase {
 
     //CONSTANTS
 
-    public static double upRampPos = 0.8;
-    public static double downRampPos = 0.3;
+    public static double upRampPos = 0.5;
+    public static double downRampPos = 0.9;
 
-    public static double blockersUp = -0.35;
+    public static double blockersUp = 0.35;
 
     public static double blockerHHidePos = 0.53;
     public static double blockerHFreePos = 0.75;
@@ -65,7 +65,6 @@ public class SorterSubsystem extends SubsystemBase {
             blockersStatus = BlockersStatus.closed;
         }
 
-        telemetry.addData("blockerStatus", blockersStatus);
     }
 
     public void setLateralPositions(double rightPos, double leftPos) {

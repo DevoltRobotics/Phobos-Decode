@@ -1,11 +1,11 @@
 package org.firstinspires.ftc.teamcode.Utilities;
 
 
-import com.acmerobotics.dashboard.config.Config;
+import com.bylazar.configurables.annotations.Configurable;
 import com.bylazar.opmodecontrol.OpModeControlPluginConfig;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 
-@Config
+@Configurable
 public class StaticConstants extends OpModeControlPluginConfig {
 
     //TURRET

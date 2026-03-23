@@ -18,13 +18,9 @@ import com.seattlesolvers.solverslib.command.SequentialCommandGroup;
 import com.seattlesolvers.solverslib.command.WaitCommand;
 
 import org.firstinspires.ftc.teamcode.Subsystems.Intake.moveIntakeAutonomousCMD;
-import org.firstinspires.ftc.teamcode.Subsystems.Shooter.shooterToBasketCMD;
-import org.firstinspires.ftc.teamcode.Subsystems.Shooter.shooterToVelCMD;
 import org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.horizontalBlockerCMD;
 import org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.lateralBlockersCMD;
 import org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.rampCMD;
-import org.firstinspires.ftc.teamcode.Subsystems.Turret.turretToBasketCMD;
-import org.firstinspires.ftc.teamcode.Subsystems.Turret.turretToPosCMD;
 import org.firstinspires.ftc.teamcode.Utilities.Aliance;
 import org.firstinspires.ftc.teamcode.Utilities.OpModeCommand;
 import org.firstinspires.ftc.teamcode.pedroPathing.PedroSubsystem;
@@ -340,6 +336,7 @@ public class CloseDeimos_GLOBAL extends OpModeCommand {
 
         }
 
+        /*
         new SequentialCommandGroup(
                 new lateralBlockersCMD(sorterSb, blockersUp, blockersUp),
                 new horizontalBlockerCMD(sorterSb, blockerHFreePos),
@@ -540,6 +537,8 @@ public class CloseDeimos_GLOBAL extends OpModeCommand {
                 new WaitCommand(400)
 
         );
+
+         */
     }
 
     @Override

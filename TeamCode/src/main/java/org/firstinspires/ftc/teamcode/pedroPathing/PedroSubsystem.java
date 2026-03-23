@@ -1,9 +1,9 @@
 package org.firstinspires.ftc.teamcode.pedroPathing;
 
+import static org.firstinspires.ftc.teamcode.pedroPathing.Tuning.drawOnlyCurrent;
 import static org.firstinspires.ftc.teamcode.pedroPathing.Tuning.follower;
 import static org.firstinspires.ftc.teamcode.pedroPathing.Tuning.telemetryM;
 
-import com.acmerobotics.dashboard.config.Config;
 import com.bylazar.configurables.annotations.Configurable;
 import com.bylazar.telemetry.TelemetryManager;
 import com.pedropathing.follower.Follower;
@@ -19,7 +19,6 @@ import com.seattlesolvers.solverslib.command.SubsystemBase;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 @Configurable
-@Config
 public class PedroSubsystem extends SubsystemBase {
 
     public Follower follower;
@@ -28,16 +27,14 @@ public class PedroSubsystem extends SubsystemBase {
 
     Telemetry telemetry;
 
-    TelemetryManager telemetryM;
 
     public static Pose EndPose = new Pose();
 
 
-    public PedroSubsystem(Follower follower, Telemetry telemetry, TelemetryManager telemetryM) {
+    public PedroSubsystem(Follower follower, Telemetry telemetry) {
         this.follower = follower;
 
         this.telemetry = telemetry;
-        this.telemetryM = telemetryM;
     }
 
     @Override
@@ -46,9 +43,6 @@ public class PedroSubsystem extends SubsystemBase {
         telemetryM.debug("y:" + follower.getPose().getY());
         telemetryM.debug("heading:" + follower.getPose().getHeading());
         telemetryM.debug("total heading:" + follower.getTotalHeading());
-
-        telemetryM.update(telemetry);
-
 
          */
         follower.update();

@@ -18,13 +18,9 @@ import com.seattlesolvers.solverslib.command.SequentialCommandGroup;
 import com.seattlesolvers.solverslib.command.WaitCommand;
 
 import org.firstinspires.ftc.teamcode.Subsystems.Intake.moveIntakeAutonomousCMD;
-import org.firstinspires.ftc.teamcode.Subsystems.Shooter.shooterToBasketCMD;
-import org.firstinspires.ftc.teamcode.Subsystems.Shooter.shooterToVelCMD;
 import org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.horizontalBlockerCMD;
 import org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.lateralBlockersCMD;
 import org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.rampCMD;
-import org.firstinspires.ftc.teamcode.Subsystems.Turret.turretToBasketCMD;
-import org.firstinspires.ftc.teamcode.Subsystems.Turret.turretToPosCMD;
 import org.firstinspires.ftc.teamcode.Utilities.Aliance;
 import org.firstinspires.ftc.teamcode.Utilities.OpModeCommand;
 import org.firstinspires.ftc.teamcode.pedroPathing.PedroSubsystem;
@@ -303,7 +299,7 @@ public class CloseFull_GLOBAL extends OpModeCommand {
 
                 new WaitCommand(200),
 
-                new turretToPosCMD(turretSb, 0.0),
+                //new turretToPosCMD(turretSb, 0.0),
 
                 new lateralBlockersCMD(sorterSb, blockersUp, 0),
                 new horizontalBlockerCMD(sorterSb, blockerHHidePos)
@@ -312,6 +308,7 @@ public class CloseFull_GLOBAL extends OpModeCommand {
         ).schedule();
 
         createPaths();
+        /*
 
         autoCommand = new SequentialCommandGroup(
 
@@ -471,6 +468,8 @@ public class CloseFull_GLOBAL extends OpModeCommand {
                 new WaitCommand(400)
 
         );
+
+         */
     }
 
     @Override

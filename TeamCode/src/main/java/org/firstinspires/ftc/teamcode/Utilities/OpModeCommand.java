@@ -5,9 +5,8 @@ import static org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.SorterSu
 import static org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.SorterSubsystem.blockersUp;
 import static org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.SorterSubsystem.upRampPos;
 
-import com.acmerobotics.dashboard.FtcDashboard;
-import com.acmerobotics.dashboard.config.Config;
-import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
+import com.bylazar.telemetry.JoinedTelemetry;
+import com.bylazar.telemetry.PanelsTelemetry;
 import com.bylazar.telemetry.TelemetryManager;
 import com.pedropathing.follower.Follower;
 import com.qualcomm.hardware.lynx.LynxModule;
@@ -23,35 +22,23 @@ import com.seattlesolvers.solverslib.command.WaitCommand;
 import org.firstinspires.ftc.teamcode.Subsystems.Intake.moveIntakeAutonomousCMD;
 import org.firstinspires.ftc.teamcode.Subsystems.Lifting.LiftingSubsystem;
 import org.firstinspires.ftc.teamcode.Subsystems.Sensors.SensorsSubsystem;
-import org.firstinspires.ftc.teamcode.Subsystems.Shooter.shooterToBasketCMD;
-import org.firstinspires.ftc.teamcode.Subsystems.Shooter.shooterToVelCMD;
+import org.firstinspires.ftc.teamcode.Subsystems.ShooterSubsystem.ShooterSubsystem;
 import org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.rampCMD;
-import org.firstinspires.ftc.teamcode.Subsystems.Turret.turretToBasketCMD;
-import org.firstinspires.ftc.teamcode.Subsystems.Turret.turretToPosCMD;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 import org.firstinspires.ftc.teamcode.pedroPathing.PedroSubsystem;
 import org.firstinspires.ftc.teamcode.Subsystems.Intake.IntakeSubsystem;
-import org.firstinspires.ftc.teamcode.Subsystems.Shooter.ShooterSubsystem;
 import org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.SorterSubsystem;
 import org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.horizontalBlockerCMD;
 import org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.lateralBlockersCMD;
-import org.firstinspires.ftc.teamcode.Subsystems.Turret.TurretSubsystem;
 import org.firstinspires.ftc.teamcode.Subsystems.Vision.VisionSubsystem;
 
-import java.util.List;
-
-@Config
 public abstract class OpModeCommand extends OpMode {
-
-    List<LynxModule> allhubs;
 
     public Follower follower;
 
     public final Aliance currentAliance;
 
     public final boolean isAuto;
-
-    public TelemetryManager telemetryM;
 
     public VisionSubsystem visionSb;
     public PedroSubsystem pedroSb;
@@ -60,7 +47,8 @@ public abstract class OpModeCommand extends OpMode {
     public SensorsSubsystem sensorsSb;
     public LiftingSubsystem liftingSb;
     public ShooterSubsystem shooterSb;
-    public TurretSubsystem turretSb;
+
+    public TelemetryManager telemetryM;
 
     public OpModeCommand(Aliance alliance, boolean isAuto) {
         this.currentAliance = alliance;
@@ -92,9 +80,9 @@ public abstract class OpModeCommand extends OpMode {
     public void init() {
         CommandScheduler.getInstance().setBulkReading(hardwareMap, LynxModule.BulkCachingMode.MANUAL);
 
-        telemetry = new MultipleTelemetry(
+        telemetry = new JoinedTelemetry(
                 telemetry,
-                FtcDashboard.getInstance().getTelemetry()
+                PanelsTelemetry.INSTANCE.getFtcTelemetry()
         );
 
         register(
@@ -107,13 +95,14 @@ public abstract class OpModeCommand extends OpMode {
         follower.update();
 
         register(
-                pedroSb = new PedroSubsystem(follower, telemetry, telemetryM),
+                pedroSb = new PedroSubsystem(follower, telemetry),
                 intakeSb = new IntakeSubsystem(hardwareMap),
                 sorterSb = new SorterSubsystem(hardwareMap, telemetry),
                 sensorsSb = new SensorsSubsystem(hardwareMap, telemetry),
-                turretSb = new TurretSubsystem(hardwareMap, follower, telemetry, currentAliance, isAuto),
+                //turretSb = new TurretSubsystem(hardwareMap, follower, telemetry, currentAliance, isAuto),
                 liftingSb = new LiftingSubsystem(hardwareMap),
-                shooterSb = new ShooterSubsystem(hardwareMap, telemetry)
+                //shooterSb = new ShooterSubsystem(hardwareMap, telemetry),
+                shooterSb = new ShooterSubsystem(hardwareMap, telemetry, follower, currentAliance, isAuto)
         );
 
 
@@ -140,7 +129,7 @@ public abstract class OpModeCommand extends OpMode {
         telemetry.addData("Heading", Math.toDegrees(follower.poseTracker.getPose().getHeading()));
 
         //telemetryM.update(telemetry);
-        FtcDashboard.getInstance().getTelemetry().update();
+        PanelsTelemetry.INSTANCE.getFtcTelemetry().update();
     }
 
     public void stop() {
@@ -167,10 +156,7 @@ public abstract class OpModeCommand extends OpMode {
                         new horizontalBlockerCMD(sorterSb, blockerHFreePos),
                         new moveIntakeAutonomousCMD(intakeSb, 0.9, 0.75)
 
-                ),
-                new turretToBasketCMD(turretSb, visionSb),
-                new shooterToBasketCMD(shooterSb, visionSb, turretSb)
-
+                )
         );
     }
 
@@ -184,25 +170,23 @@ public abstract class OpModeCommand extends OpMode {
                         new horizontalBlockerCMD(sorterSb, blockerHFreePos),
                         new moveIntakeAutonomousCMD(intakeSb, 1)
 
-                ),
+                )
 
-                new turretToBasketCMD(turretSb, visionSb),
-                new shooterToBasketCMD(shooterSb, visionSb, turretSb)
         );
     }
 
     public Command stopShootCMD(boolean isSorter) {
         return new SequentialCommandGroup(
                 new moveIntakeAutonomousCMD(intakeSb, 0, 0),
-                new shooterToVelCMD(shooterSb, 800),
-                new turretToPosCMD(turretSb, 0.0),
+
                 new horizontalBlockerCMD(sorterSb, blockerHHidePos),
 
                 new ConditionalCommand(
                         new lateralBlockersCMD(sorterSb, 0, 0),
                         new lateralBlockersCMD(sorterSb, blockersUp, 0),
-                        () -> isSorter)
-
+                        () -> isSorter
+                )
         );
+
     }
 }

@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode.tests;
 
-import static org.firstinspires.ftc.teamcode.Subsystems.Shooter.ShooterSubsystem.shooterCoeffs;
 import static org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.SorterSubsystem.blockerHFreePos;
 import static org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.SorterSubsystem.blockerHHidePos;
 import static org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.SorterSubsystem.blockersUp;
@@ -21,10 +20,10 @@ import static org.firstinspires.ftc.teamcode.Utilities.StaticConstants.shoootVso
 
 import static org.firstinspires.ftc.teamcode.Utilities.StaticConstants.shoootVsout5;
 import static org.firstinspires.ftc.teamcode.Utilities.StaticConstants.shoootVsout6;
+import static org.firstinspires.ftc.teamcode.Utilities.shooterConstants.shooterCoeffs;
 
-import com.acmerobotics.dashboard.FtcDashboard;
-import com.acmerobotics.dashboard.config.Config;
-import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
+import com.bylazar.configurables.annotations.Configurable;
+import com.bylazar.telemetry.JoinedTelemetry;
 import com.bylazar.telemetry.PanelsTelemetry;
 import com.bylazar.telemetry.TelemetryManager;
 import com.pedropathing.geometry.Pose;
@@ -45,12 +44,11 @@ import com.seattlesolvers.solverslib.util.InterpLUT;
 
 import org.firstinspires.ftc.robotcore.external.Supplier;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
-import org.firstinspires.ftc.teamcode.Subsystems.Shooter.ShooterSubsystem;
 
 import com.pedropathing.follower.Follower;
 
 @TeleOp
-@Config
+@Configurable
 public class Full_robot_test extends OpMode {
 
     static double kV = 0.00053;
@@ -141,9 +139,9 @@ public class Full_robot_test extends OpMode {
 
         shooterMUp.setDirection(DcMotorSimple.Direction.REVERSE);
 
-        telemetry = new MultipleTelemetry(
+        telemetry = new JoinedTelemetry(
                 telemetry,
-                FtcDashboard.getInstance().getTelemetry()
+                PanelsTelemetry.INSTANCE.getFtcTelemetry()
         );
 
         vsFunc.add(shoootVsint0, shoootVsout0);
@@ -286,6 +284,5 @@ public class Full_robot_test extends OpMode {
         telemetry.addData("servoPosition", blockerH.getPosition());
 
         telemetry.update();
-
     }
 }
