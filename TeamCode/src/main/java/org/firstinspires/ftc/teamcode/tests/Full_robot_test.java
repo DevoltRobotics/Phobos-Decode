@@ -101,9 +101,6 @@ public class Full_robot_test extends OpMode {
     public void init() {
         //pinpoint = hardwareMap.get(SensorGoBildaPinpoint.class, "pinpoint");
 
-        turretS1 = hardwareMap.get(CRServo.class, "trt1");
-        turretS2 = hardwareMap.get(CRServo.class, "trt2");
-
         blockerH = hardwareMap.get(Servo.class, "blcH");
 
         fr = hardwareMap.get(DcMotorEx.class, "fr");
@@ -114,18 +111,6 @@ public class Full_robot_test extends OpMode {
         fr.setDirection(DcMotorSimple.Direction.REVERSE);
         br.setDirection(DcMotorSimple.Direction.REVERSE);
 
-        shooterMUp = hardwareMap.get(DcMotorEx.class, "shup");
-        shooterMDown = hardwareMap.get(DcMotorEx.class, "shdown");
-        intakeM = hardwareMap.get(DcMotorEx.class, "in");
-        transferM = hardwareMap.get(DcMotorEx.class, "trans");
-
-        starS = hardwareMap.get(CRServo.class, "star");
-
-        ramp = hardwareMap.get(Servo.class, "ramp");
-
-        blockerR = hardwareMap.get(Servo.class, "blcR");
-        blockerL = hardwareMap.get(Servo.class, "blcL");
-
         limelight3A = hardwareMap.get(Limelight3A.class, "limelight");
 
         limelight3A.pipelineSwitch(2);
@@ -135,6 +120,19 @@ public class Full_robot_test extends OpMode {
         follower = Constants.createFollower(hardwareMap, limelight3A);
         follower.setStartingPose(startingPose);
         follower.update();
+
+        /*
+        shooterMUp = hardwareMap.get(DcMotorEx.class, "shM");
+        intakeM = hardwareMap.get(DcMotorEx.class, "in");
+        transferM = hardwareMap.get(DcMotorEx.class, "trans");
+
+
+        ramp = hardwareMap.get(Servo.class, "ramp");
+
+        blockerR = hardwareMap.get(Servo.class, "blcR");
+        blockerL = hardwareMap.get(Servo.class, "blcL");
+
+
         telemetryM = PanelsTelemetry.INSTANCE.getTelemetry();
 
         shooterMUp.setDirection(DcMotorSimple.Direction.REVERSE);
@@ -153,6 +151,8 @@ public class Full_robot_test extends OpMode {
         vsFunc.add(shoootVsint6, shoootVsout6);
         vsFunc.createLUT();
 
+
+         */
     }
 
     @Override
@@ -162,16 +162,14 @@ public class Full_robot_test extends OpMode {
         //If you don't pass anything in, it uses the default (false)
         follower.startTeleopDrive(true);
 
-        ramp.setPosition(upRampPos);
+        //ramp.setPosition(upRampPos);
     }
 
     @Override
     public void loop() {
 
         follower.update();
-        telemetryM.update();
 
-        /*
             //Make the last parameter false for field-centric
             //In case the drivers want to use a "slowMode" you can scale the vectors
             //This is the normal version to use in the TeleOp
@@ -189,15 +187,16 @@ public class Full_robot_test extends OpMode {
                     false // Robot Centric
             );
 
-         */
+
 
         //Slow Mode
 
         slowMode = gamepad1.right_trigger > 0.5;
         //Optional way to change slow mode strength
-
+/*
         telemetryM.debug("position", follower.getPose());
         telemetryM.debug("velocity", follower.getVelocity());
+
 
         double motorVel = shooterMUp.getVelocity();
 
@@ -284,5 +283,7 @@ public class Full_robot_test extends OpMode {
         telemetry.addData("servoPosition", blockerH.getPosition());
 
         telemetry.update();
+
+         */
     }
 }

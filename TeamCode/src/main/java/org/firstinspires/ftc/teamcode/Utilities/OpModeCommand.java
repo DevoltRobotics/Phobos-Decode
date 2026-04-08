@@ -32,11 +32,13 @@ import org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.horizontalBlock
 import org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.lateralBlockersCMD;
 import org.firstinspires.ftc.teamcode.Subsystems.Vision.VisionSubsystem;
 
+import java.util.function.BooleanSupplier;
+
 public abstract class OpModeCommand extends OpMode {
 
     public Follower follower;
 
-    public final Aliance currentAliance;
+    public final Alliance currentAliance;
 
     public final boolean isAuto;
 
@@ -50,7 +52,12 @@ public abstract class OpModeCommand extends OpMode {
 
     public TelemetryManager telemetryM;
 
-    public OpModeCommand(Aliance alliance, boolean isAuto) {
+    public boolean isLifting = false;
+
+    public BooleanSupplier isLiftingSupplier = ()-> isLifting;
+
+
+    public OpModeCommand(Alliance alliance, boolean isAuto) {
         this.currentAliance = alliance;
         this.isAuto = isAuto;
     }
@@ -95,13 +102,11 @@ public abstract class OpModeCommand extends OpMode {
         follower.update();
 
         register(
-                pedroSb = new PedroSubsystem(follower, telemetry),
+                pedroSb = new PedroSubsystem(follower, telemetry, isLiftingSupplier),
                 intakeSb = new IntakeSubsystem(hardwareMap),
                 sorterSb = new SorterSubsystem(hardwareMap, telemetry),
-                sensorsSb = new SensorsSubsystem(hardwareMap, telemetry),
-                //turretSb = new TurretSubsystem(hardwareMap, follower, telemetry, currentAliance, isAuto),
-                liftingSb = new LiftingSubsystem(hardwareMap),
-                //shooterSb = new ShooterSubsystem(hardwareMap, telemetry),
+                sensorsSb = new SensorsSubsystem(hardwareMap, telemetry, isLiftingSupplier),
+                //liftingSb = new LiftingSubsystem(hardwareMap, isLiftingSupplier),
                 shooterSb = new ShooterSubsystem(hardwareMap, telemetry, follower, currentAliance, isAuto)
         );
 

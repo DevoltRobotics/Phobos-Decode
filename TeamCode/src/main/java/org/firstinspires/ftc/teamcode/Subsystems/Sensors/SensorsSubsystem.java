@@ -11,6 +11,8 @@ import com.seattlesolvers.solverslib.command.SubsystemBase;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Utilities.Artifact;
 
+import java.util.function.BooleanSupplier;
+
 @Configurable
 public class SensorsSubsystem extends SubsystemBase {
 
@@ -49,6 +51,15 @@ public class SensorsSubsystem extends SubsystemBase {
     public Artifact lastRightArtifact = null;
     public Artifact lastLeftArtifact = null;
 
+    //LIGHT
+
+    public static double lightGreen = 0.5;
+    public static double lightPurple = 0.7;
+    public static double lightRed = 0.28;
+    public static double lightBlue = 0.65;
+
+
+
 
     public enum RelaseOrder{
         RL,
@@ -65,7 +76,7 @@ public class SensorsSubsystem extends SubsystemBase {
 
     Telemetry telemetry;
 
-    public SensorsSubsystem(HardwareMap hMap, Telemetry telemetry){
+    public SensorsSubsystem(HardwareMap hMap, Telemetry telemetry, BooleanSupplier isLifting){
         light = hMap.get(Servo.class, "rgb");
         light.setPosition(0);
 
@@ -77,7 +88,7 @@ public class SensorsSubsystem extends SubsystemBase {
         colorL = hMap.get(RevColorSensorV3.class, "colorL");
 
         colorSensorsDelay = new ElapsedTime();
-
+        liftingMode = isLifting.getAsBoolean();
         this.telemetry = telemetry;
     }
 

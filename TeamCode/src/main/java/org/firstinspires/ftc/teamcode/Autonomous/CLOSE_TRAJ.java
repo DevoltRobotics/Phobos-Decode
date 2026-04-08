@@ -6,12 +6,11 @@ import com.pedropathing.geometry.BezierLine;
 import com.pedropathing.geometry.Pose;
 import com.pedropathing.paths.Path;
 import com.pedropathing.paths.PathChain;
-import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.seattlesolvers.solverslib.command.Command;
 import com.seattlesolvers.solverslib.command.SequentialCommandGroup;
 
-import org.firstinspires.ftc.teamcode.Utilities.Aliance;
+import org.firstinspires.ftc.teamcode.Utilities.Alliance;
 import org.firstinspires.ftc.teamcode.Utilities.OpModeCommand;
 
 @Disabled
@@ -57,12 +56,12 @@ public class CLOSE_TRAJ extends OpModeCommand {
      static Pose parkPose = new Pose(108.0, 70.0, Math.toRadians(0));
 
     public CLOSE_TRAJ() {
-        super(Aliance.RED, true);
+        super(Alliance.RED, true);
     }
 
     public void createPaths() {
 
-        if (currentAliance == Aliance.RED) {
+        if (currentAliance == Alliance.RED) {
 
             launchPreload = new Path(new BezierLine(startingPose, shootPreloadPose));
             launchPreload.setConstantHeadingInterpolation(startingPose.getHeading());
@@ -235,7 +234,7 @@ public class CLOSE_TRAJ extends OpModeCommand {
     @Override
     public void initialize() {
 
-        if (currentAliance.equals(Aliance.RED)) {
+        if (currentAliance.equals(Alliance.RED)) {
             follower.setStartingPose(startingPose);
 
         } else {

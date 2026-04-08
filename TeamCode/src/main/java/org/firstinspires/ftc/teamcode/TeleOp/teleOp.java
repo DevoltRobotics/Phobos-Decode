@@ -26,7 +26,9 @@ import org.firstinspires.ftc.teamcode.Subsystems.Lifting.moveLiftCMD;
 import org.firstinspires.ftc.teamcode.Subsystems.Sensors.lightSorterCMD;
 import org.firstinspires.ftc.teamcode.Subsystems.ShooterSubsystem.aimCMD;
 import org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.horizontalBlockerCMD;
-import org.firstinspires.ftc.teamcode.Utilities.Aliance;
+import org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.preSorterTeleopCMD;
+import org.firstinspires.ftc.teamcode.Subsystems.Vision.VisionSubsystem;
+import org.firstinspires.ftc.teamcode.Utilities.Alliance;
 import org.firstinspires.ftc.teamcode.Utilities.Artifact;
 import org.firstinspires.ftc.teamcode.Utilities.OpModeCommand;
 import org.firstinspires.ftc.teamcode.pedroPathing.PedroSubsystem;
@@ -41,12 +43,16 @@ public abstract class teleOp extends OpModeCommand {
 
     Boolean isShooting = false;
 
-    public teleOp(Aliance alliance) {
+    public teleOp(Alliance alliance) {
         super(alliance, false);
     }
 
     @Override
     public void initialize() {
+        //INIT_CMDS
+
+        new InstantCommand(()-> visionSb.setLLState(VisionSubsystem.llState.posEstimate)).schedule();
+
         follower.setPose(new Pose(72, 72, 0));
 
         chasis = new GamepadEx(gamepad1);
@@ -56,33 +62,11 @@ public abstract class teleOp extends OpModeCommand {
 
         CommandScheduler.getInstance().setDefaultCommand(pedroSb, pedroSb.fieldCentricCmd(gamepad1, angleOffSet));
 
-        Button toggleLiftingMode = new GamepadButton(
-                chasis,
-                GamepadKeys.Button.PS);
-
-        toggleLiftingMode.whenPressed(
-                new InstantCommand(
-                        () -> sensorsSb.liftingMode = !sensorsSb.liftingMode
-                ));
-
-        Button liftingUp = new GamepadButton(
-                chasis,
-                GamepadKeys.Button.DPAD_UP);
-
-        Button liftingDown = new GamepadButton(
-                chasis,
-                GamepadKeys.Button.DPAD_DOWN);
-
-        liftingUp.whileActiveOnce(
-                new moveLiftCMD(liftingSb, -1)
-        );
-
-        liftingDown.whileActiveOnce(
-                new moveLiftCMD(liftingSb, 1)
-
-        );
-
         /// GARRA
+
+        CommandScheduler.getInstance().setDefaultCommand(sensorsSb, new lightSorterCMD(sensorsSb, shooterSb, visionSb));
+
+        CommandScheduler.getInstance().setDefaultCommand(sorterSb, new preSorterTeleopCMD(sorterSb, sensorsSb, gamepad2));
 
         Trigger intakeIn = new Trigger(() -> gamepad2.right_trigger >= 0.5);
         Trigger intakeOut = new Trigger(() -> gamepad2.left_trigger >= 0.5);
@@ -103,10 +87,6 @@ public abstract class teleOp extends OpModeCommand {
                 GamepadKeys.Button.START);
 
         resetTurretButton.whenPressed(new InstantCommand(() -> shooterSb.resetTurret()));
-
-        CommandScheduler.getInstance().setDefaultCommand(sensorsSb, new lightSorterCMD(sensorsSb, shooterSb, visionSb));
-
-        //CommandScheduler.getInstance().setDefaultCommand(sorterSb, new preSorterTeleopCMD(sorterSb, sensorsSb, gamepad2));
 
         Button blockerUpButton = new GamepadButton(
                 garra,

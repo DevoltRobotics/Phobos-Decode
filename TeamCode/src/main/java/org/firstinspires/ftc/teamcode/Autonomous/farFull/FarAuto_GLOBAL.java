@@ -11,16 +11,13 @@ import com.pedropathing.geometry.Pose;
 import com.pedropathing.paths.Path;
 import com.pedropathing.paths.PathChain;
 import com.seattlesolvers.solverslib.command.Command;
-import com.seattlesolvers.solverslib.command.ConditionalCommand;
-import com.seattlesolvers.solverslib.command.ParallelDeadlineGroup;
 import com.seattlesolvers.solverslib.command.SequentialCommandGroup;
 import com.seattlesolvers.solverslib.command.WaitCommand;
 
-import org.firstinspires.ftc.teamcode.Subsystems.Intake.moveIntakeAutonomousCMD;
 import org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.horizontalBlockerCMD;
 import org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.lateralBlockersCMD;
 import org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.rampCMD;
-import org.firstinspires.ftc.teamcode.Utilities.Aliance;
+import org.firstinspires.ftc.teamcode.Utilities.Alliance;
 import org.firstinspires.ftc.teamcode.Utilities.OpModeCommand;
 import org.firstinspires.ftc.teamcode.pedroPathing.PedroSubsystem;
 
@@ -40,13 +37,13 @@ public class FarAuto_GLOBAL extends OpModeCommand {
 
     Command autoCommand;
 
-    public FarAuto_GLOBAL(Aliance aliance) {
+    public FarAuto_GLOBAL(Alliance aliance) {
         super(aliance, true);
     }
 
     public void createPaths() {
 
-        if (currentAliance == Aliance.RED) {
+        if (currentAliance == Alliance.RED) {
 
             intakeFirst = new Path(new BezierCurve(startingPose, controlPick1Point, pick1Pose));
             intakeFirst.setTangentHeadingInterpolation();
@@ -174,7 +171,7 @@ public class FarAuto_GLOBAL extends OpModeCommand {
 
     @Override
     public void initialize() {
-        if (currentAliance.equals(Aliance.RED)) {
+        if (currentAliance.equals(Alliance.RED)) {
             follower.setStartingPose(startingPose);
 
         } else {

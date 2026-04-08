@@ -5,12 +5,11 @@ import com.pedropathing.geometry.BezierLine;
 import com.pedropathing.geometry.Pose;
 import com.pedropathing.paths.Path;
 import com.pedropathing.paths.PathChain;
-import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.seattlesolvers.solverslib.command.Command;
 import com.seattlesolvers.solverslib.command.SequentialCommandGroup;
 
-import org.firstinspires.ftc.teamcode.Utilities.Aliance;
+import org.firstinspires.ftc.teamcode.Utilities.Alliance;
 import org.firstinspires.ftc.teamcode.Utilities.OpModeCommand;
 
 @Disabled
@@ -32,12 +31,12 @@ public class FAR_TRAJ extends OpModeCommand {
     Command autoCommand;
 
     public FAR_TRAJ() {
-        super(Aliance.RED, true);
+        super(Alliance.RED, true);
     }
 
     public void createPaths() {
 
-        if (currentAliance == Aliance.RED) {
+        if (currentAliance == Alliance.RED) {
 
             intakeFirst = new Path(new BezierCurve(startingPose, controlPick1Point, pick1Pose));
             intakeFirst.setTangentHeadingInterpolation();
@@ -162,7 +161,7 @@ public class FAR_TRAJ extends OpModeCommand {
 
     @Override
     public void initialize() {
-        if (currentAliance.equals(Aliance.RED)) {
+        if (currentAliance.equals(Alliance.RED)) {
             follower.setStartingPose(startingPose);
 
         } else {

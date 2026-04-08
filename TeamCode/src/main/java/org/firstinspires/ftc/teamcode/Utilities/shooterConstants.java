@@ -37,7 +37,7 @@ public class shooterConstants {
 
     //FLYWHEEL
 
-    public static double shooterkV = 0.000525;
+    public static double shooterkV = 0.00057;
     public static PIDFCoefficients shooterCoeffs = new PIDFCoefficients(0.01, 0.0, 0.0, 0);
 
     // ===============================
@@ -60,9 +60,11 @@ public class shooterConstants {
 
     public static double MAX_FLYWHEEL_SPEED = 1700;
 
-    public static double MIN_FLYWHEEL_SPEED = 1070;
+    public static double MIN_FLYWHEEL_SPEED = 800;
 
-    public static double flywheelOffSet = 0;
+    public static double flywheelOffSet = 420;
+
+    public static double flywheelOffSetMultiplier = 1.4;
 
     public static double getFlywheelTicksFromVelocity(double velocity) {
         double wheelRadius = 1.889; // inches (CHANGE THIS)
@@ -71,7 +73,7 @@ public class shooterConstants {
         double ticksPerSecond = (velocity / wheelRadius) * (ticksPerRev / (2 * Math.PI));
 
         return MathFunctions.clamp(
-                ticksPerSecond + flywheelOffSet,
+                Math.pow((ticksPerSecond + flywheelOffSet), flywheelOffSetMultiplier),
                 MIN_FLYWHEEL_SPEED,
                 MAX_FLYWHEEL_SPEED
         );

@@ -105,8 +105,9 @@ public class KalmanPedroLocalizer implements Localizer {
         estimatedPose = new Pose(
                 estimatedPose.getX() + dx,
                 estimatedPose.getY() + dy,
-                heading // Always trust Pinpoint heading
+                heading
         );
+
 
         lastOdoPose = odoPose;
 

@@ -11,8 +11,6 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 public class IntakeSubsystem extends SubsystemBase {
 
     public DcMotor  intakeM;
-    public CRServo intakeS;
-
     public DcMotor transferM;
 
     public double intakePower = 0;
@@ -27,9 +25,6 @@ public class IntakeSubsystem extends SubsystemBase {
         intakeM = hMap.dcMotor.get("in");
         intakeM.setDirection(DcMotorSimple.Direction.REVERSE);
 
-        intakeS = hMap.get(CRServo.class,"star");
-        intakeS.setDirection(DcMotorSimple.Direction.REVERSE);
-
         transferM = hMap.dcMotor.get("trans");
 
         intakeM.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -42,7 +37,6 @@ public class IntakeSubsystem extends SubsystemBase {
     public void periodic() {
         intakeM.setPower(intakePower);
 
-        intakeS.setPower(transferPower);
         transferM.setPower(transferPower);
 
     }

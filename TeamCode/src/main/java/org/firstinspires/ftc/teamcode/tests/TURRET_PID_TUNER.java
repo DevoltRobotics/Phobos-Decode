@@ -1,18 +1,11 @@
 package org.firstinspires.ftc.teamcode.tests;
 
-import static org.firstinspires.ftc.teamcode.Subsystems.Shooter.ShooterSubsystem.shooterCoeffs;
-import static org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.SorterSubsystem.blockersUp;
-import static org.firstinspires.ftc.teamcode.Subsystems.Turret.TurretSubsystem.trtTarget;
 
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-import com.seattlesolvers.solverslib.command.CommandScheduler;
-import com.seattlesolvers.solverslib.command.button.Button;
-import com.seattlesolvers.solverslib.command.button.GamepadButton;
 import com.seattlesolvers.solverslib.gamepad.GamepadEx;
-import com.seattlesolvers.solverslib.gamepad.GamepadKeys;
-import org.firstinspires.ftc.teamcode.Subsystems.Turret.turretToPosCMD;
-import org.firstinspires.ftc.teamcode.Utilities.Aliance;
+
+import org.firstinspires.ftc.teamcode.Utilities.Alliance;
 import org.firstinspires.ftc.teamcode.Utilities.OpModeCommand;
 import org.firstinspires.ftc.teamcode.pedroPathing.PedroSubsystem;
 
@@ -22,7 +15,7 @@ public class TURRET_PID_TUNER extends OpModeCommand {
     GamepadEx garra;
 
     public TURRET_PID_TUNER() {
-        super(Aliance.RED, false);
+        super(Alliance.RED, false);
     }
 
     @Override
@@ -30,6 +23,7 @@ public class TURRET_PID_TUNER extends OpModeCommand {
 
         garra = new GamepadEx(gamepad2);
 
+        /*
         Button turretRight = new GamepadButton(
                 garra,
                 GamepadKeys.Button.A);
@@ -41,6 +35,9 @@ public class TURRET_PID_TUNER extends OpModeCommand {
                 GamepadKeys.Button.B);
 
         turretLeft.whenPressed(new turretToPosCMD(turretSb, -trtTarget));
+
+
+         */
     }
 
     @Override

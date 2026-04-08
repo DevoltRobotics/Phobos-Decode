@@ -27,7 +27,7 @@ import com.seattlesolvers.solverslib.command.CommandScheduler;
 import com.seattlesolvers.solverslib.command.Subsystem;
 
 import org.firstinspires.ftc.teamcode.Subsystems.Vision.VisionSubsystem;
-import org.firstinspires.ftc.teamcode.Utilities.Aliance;
+import org.firstinspires.ftc.teamcode.Utilities.Alliance;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -96,7 +96,7 @@ public class Tuning extends SelectableOpMode {
     public void onSelect() {
 
         register(
-                visionSb = new VisionSubsystem(hardwareMap, telemetry, Aliance.RED, true, follower)
+                visionSb = new VisionSubsystem(hardwareMap, telemetry, Alliance.RED, true, follower)
 
         );
         if (follower == null) {

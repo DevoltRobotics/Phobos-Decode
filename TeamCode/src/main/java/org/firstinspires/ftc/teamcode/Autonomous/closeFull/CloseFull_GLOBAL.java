@@ -11,17 +11,13 @@ import com.pedropathing.geometry.Pose;
 import com.pedropathing.paths.Path;
 import com.pedropathing.paths.PathChain;
 import com.seattlesolvers.solverslib.command.Command;
-import com.seattlesolvers.solverslib.command.ConditionalCommand;
-import com.seattlesolvers.solverslib.command.InstantCommand;
-import com.seattlesolvers.solverslib.command.ParallelDeadlineGroup;
 import com.seattlesolvers.solverslib.command.SequentialCommandGroup;
 import com.seattlesolvers.solverslib.command.WaitCommand;
 
-import org.firstinspires.ftc.teamcode.Subsystems.Intake.moveIntakeAutonomousCMD;
 import org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.horizontalBlockerCMD;
 import org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.lateralBlockersCMD;
 import org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.rampCMD;
-import org.firstinspires.ftc.teamcode.Utilities.Aliance;
+import org.firstinspires.ftc.teamcode.Utilities.Alliance;
 import org.firstinspires.ftc.teamcode.Utilities.OpModeCommand;
 import org.firstinspires.ftc.teamcode.pedroPathing.PedroSubsystem;
 
@@ -67,13 +63,13 @@ public class CloseFull_GLOBAL extends OpModeCommand {
     static Pose shoot4Pose = new Pose(87.0, 80.0, Math.toRadians(330));
     static Pose parkPose = new Pose(108.0, 70.0, Math.toRadians(0));
 
-    public CloseFull_GLOBAL(Aliance aliance) {
+    public CloseFull_GLOBAL(Alliance aliance) {
         super(aliance, true);
     }
 
     public void createPaths() {
 
-        if (currentAliance == Aliance.RED) {
+        if (currentAliance == Alliance.RED) {
 
             launchPreload = new Path(new BezierLine(startingPose, shootPreloadPose));
             launchPreload.setConstantHeadingInterpolation(startingPose.getHeading());
@@ -283,7 +279,7 @@ public class CloseFull_GLOBAL extends OpModeCommand {
     @Override
     public void initialize() {
 
-        if (currentAliance.equals(Aliance.RED)) {
+        if (currentAliance.equals(Alliance.RED)) {
             follower.setStartingPose(startingPose);
 
         } else {

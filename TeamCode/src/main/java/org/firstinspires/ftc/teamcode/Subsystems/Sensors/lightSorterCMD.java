@@ -1,5 +1,9 @@
 package org.firstinspires.ftc.teamcode.Subsystems.Sensors;
 
+import static org.firstinspires.ftc.teamcode.Subsystems.Sensors.SensorsSubsystem.lightGreen;
+import static org.firstinspires.ftc.teamcode.Subsystems.Sensors.SensorsSubsystem.lightPurple;
+import static org.firstinspires.ftc.teamcode.Subsystems.Sensors.SensorsSubsystem.lightRed;
+
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.seattlesolvers.solverslib.command.CommandBase;
@@ -32,24 +36,21 @@ public class lightSorterCMD extends CommandBase {
         Double tX = visionSb.getAllianceTX();
         Double tA = visionSb.getAllianceTA();
 
-        if (sensorsSubsystem.liftingMode) {
-            sensorsSubsystem.light.setPosition(0.38);
-
-        } else if (sensorsSubsystem.sorterMode) {
+        if (sensorsSubsystem.sorterMode) {
             if (sensorsSubsystem.laserState) {
-                sensorsSubsystem.light.setPosition(0.28);
+                sensorsSubsystem.light.setPosition(lightRed);
 
             } else if (sensorsSubsystem.targetArtifact == Artifact.Purple) {
-                sensorsSubsystem.light.setPosition(0.7);
+                sensorsSubsystem.light.setPosition(lightPurple);
 
             } else {
-                sensorsSubsystem.light.setPosition(0.5);
+                sensorsSubsystem.light.setPosition(lightGreen);
 
             }
 
         } else {
             if (sensorsSubsystem.laserState) {
-                sensorsSubsystem.light.setPosition(0.28);
+                sensorsSubsystem.light.setPosition(lightRed);
 
             }if (tX != null && tA != null) {
 

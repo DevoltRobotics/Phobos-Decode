@@ -10,7 +10,6 @@ import com.qualcomm.robotcore.hardware.IMU;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 
-@Disabled
 @TeleOp
 public class Chassis_test extends OpMode {
 
@@ -34,7 +33,7 @@ public class Chassis_test extends OpMode {
         // Adjust the orientation parameters to match your robot
         IMU.Parameters parameters = new IMU.Parameters(new RevHubOrientationOnRobot(
                 RevHubOrientationOnRobot.LogoFacingDirection.RIGHT,
-                RevHubOrientationOnRobot.UsbFacingDirection.UP));
+                RevHubOrientationOnRobot.UsbFacingDirection.BACKWARD));
         // Without this, the REV Hub'shoootVsint1 orientation is assumed to be logo up / USB forward
         imu.initialize(parameters);
     }

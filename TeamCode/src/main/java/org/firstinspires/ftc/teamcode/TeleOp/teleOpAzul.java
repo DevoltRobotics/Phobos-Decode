@@ -2,12 +2,12 @@ package org.firstinspires.ftc.teamcode.TeleOp;
 
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-import org.firstinspires.ftc.teamcode.Utilities.Aliance;
+import org.firstinspires.ftc.teamcode.Utilities.Alliance;
 
 @TeleOp
 public class teleOpAzul extends teleOp {
     public teleOpAzul() {
-        super(Aliance.BLUE);
+        super(Alliance.BLUE);
 
         angleOffSet = Math.PI;
     }

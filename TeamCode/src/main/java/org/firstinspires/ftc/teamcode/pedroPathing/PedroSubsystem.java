@@ -18,6 +18,8 @@ import com.seattlesolvers.solverslib.command.SubsystemBase;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
+import java.util.function.BooleanSupplier;
+
 @Configurable
 public class PedroSubsystem extends SubsystemBase {
 
@@ -27,14 +29,16 @@ public class PedroSubsystem extends SubsystemBase {
 
     Telemetry telemetry;
 
-
     public static Pose EndPose = new Pose();
 
+    public BooleanSupplier isLifting;
 
-    public PedroSubsystem(Follower follower, Telemetry telemetry) {
+    public PedroSubsystem(Follower follower, Telemetry telemetry, BooleanSupplier isLifting) {
         this.follower = follower;
 
         this.telemetry = telemetry;
+
+        this.isLifting = isLifting;
     }
 
     @Override
@@ -45,7 +49,10 @@ public class PedroSubsystem extends SubsystemBase {
         telemetryM.debug("total heading:" + follower.getTotalHeading());
 
          */
-        follower.update();
+
+        if (!isLifting.getAsBoolean()) {
+            follower.update();
+        }
     }
 
     public Command followPathCmd(Path path) {

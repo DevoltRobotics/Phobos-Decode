@@ -28,7 +28,7 @@ import com.seattlesolvers.solverslib.controller.PIDFController;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-import org.firstinspires.ftc.teamcode.Utilities.Aliance;
+import org.firstinspires.ftc.teamcode.Utilities.Alliance;
 
 public class ShooterSubsystem extends SubsystemBase {
 
@@ -52,7 +52,7 @@ public class ShooterSubsystem extends SubsystemBase {
 
     public DcMotorEx turretM;
 
-    public Aliance alliance;
+    public Alliance alliance;
 
     public PIDFController turretPid;
 
@@ -78,7 +78,7 @@ public class ShooterSubsystem extends SubsystemBase {
     public static boolean useSecondaryPID = false;
 
 
-    public ShooterSubsystem(HardwareMap hMap, Telemetry telemetry, Follower follower, Aliance alliance, boolean isAuto) {
+    public ShooterSubsystem(HardwareMap hMap, Telemetry telemetry, Follower follower, Alliance alliance, boolean isAuto) {
 
         //SHOOTER
         shooterM = hMap.get(DcMotorEx.class, "shM");
@@ -109,7 +109,7 @@ public class ShooterSubsystem extends SubsystemBase {
         this.telemetry = telemetry;
         this.alliance = alliance;
 
-        if (alliance.equals(Aliance.RED)){
+        if (alliance.equals(Alliance.RED)){
             goalX = GOAL_POSE_RED.getX();
             goalY = GOAL_POSE_RED.getY();
         }else{

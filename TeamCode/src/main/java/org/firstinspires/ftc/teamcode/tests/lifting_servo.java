@@ -1,17 +1,21 @@
 package org.firstinspires.ftc.teamcode.tests;
 
 
+import com.bylazar.configurables.annotations.Configurable;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.AnalogInput;
 import com.qualcomm.robotcore.hardware.CRServo;
+import com.qualcomm.robotcore.hardware.Servo;
 
 @TeleOp
+@Configurable
 public class lifting_servo extends OpMode {
 
-    CRServo liftS;
+    Servo liftR, liftL;
 
+    public static double servoPos = 0.3;
 
     //PIDFController principalTurretController = new PIDFController(principalTurretCoeffs);
 
@@ -19,21 +23,19 @@ public class lifting_servo extends OpMode {
     @Override
     public void init() {
 
-        liftS = hardwareMap.get(CRServo.class, "liftS");
+        liftR = hardwareMap.get(Servo.class, "liftR");
+        liftL = hardwareMap.get(Servo.class, "liftL");
 
     }
 
     @Override
     public void loop() {
-        if (gamepad2.right_bumper) {
-            liftS.setPower(1);
-
-        } else if (gamepad2.left_bumper) {
-            liftS.setPower(-1);
-
-        } else {
-            liftS.setPower(0);
-
+        if (gamepad2.a) {
+            liftR.setPosition(0.5);
+            liftL.setPosition(0.5);
+        }else if (gamepad2.b) {
+            liftR.setPosition(0.5 + servoPos);
+            liftL.setPosition(0.5 - servoPos);
         }
     }
 }
