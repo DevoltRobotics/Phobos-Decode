@@ -1,11 +1,25 @@
 package org.firstinspires.ftc.teamcode.Subsystems.ShooterSubsystem;
 
+import static org.firstinspires.ftc.teamcode.Utilities.shooterConstants.MAX_FLYWHEEL_SPEED;
 import static org.firstinspires.ftc.teamcode.Utilities.shooterConstants.MAX_HOOD_ANGLE;
+import static org.firstinspires.ftc.teamcode.Utilities.shooterConstants.MIN_FLYWHEEL_SPEED;
 import static org.firstinspires.ftc.teamcode.Utilities.shooterConstants.MIN_HOOD_ANGLE;
-import static org.firstinspires.ftc.teamcode.Utilities.shooterConstants.PASS_THROUGH_POINT_RADIUS;
-import static org.firstinspires.ftc.teamcode.Utilities.shooterConstants.SCORE_ANGLE;
-import static org.firstinspires.ftc.teamcode.Utilities.shooterConstants.SCORE_HEIGHT;
-import static org.firstinspires.ftc.teamcode.Utilities.shooterConstants.getFlywheelTicksFromVelocity;
+import static org.firstinspires.ftc.teamcode.Utilities.shooterConstants.PASS_THROUGH_POINT_RADIUS_CLOSE;
+import static org.firstinspires.ftc.teamcode.Utilities.shooterConstants.PASS_THROUGH_POINT_RADIUS_FAR;
+import static org.firstinspires.ftc.teamcode.Utilities.shooterConstants.SCORE_ANGLE_CLOSE;
+import static org.firstinspires.ftc.teamcode.Utilities.shooterConstants.SCORE_ANGLE_FAR;
+import static org.firstinspires.ftc.teamcode.Utilities.shooterConstants.SCORE_HEIGHT_CLOSE;
+import static org.firstinspires.ftc.teamcode.Utilities.shooterConstants.SCORE_HEIGHT_FAR;
+import static org.firstinspires.ftc.teamcode.Utilities.shooterConstants.flywheelOffSetMultiplier_CLOSE;
+import static org.firstinspires.ftc.teamcode.Utilities.shooterConstants.flywheelOffSetMultiplier_FAR;
+import static org.firstinspires.ftc.teamcode.Utilities.shooterConstants.flywheelOffSet_CLOSE;
+import static org.firstinspires.ftc.teamcode.Utilities.shooterConstants.flywheelOffSet_FAR;
+import static org.firstinspires.ftc.teamcode.Utilities.shooterConstants.goalX_CLOSE;
+import static org.firstinspires.ftc.teamcode.Utilities.shooterConstants.goalX_FAR;
+import static org.firstinspires.ftc.teamcode.Utilities.shooterConstants.goalY_CLOSE;
+import static org.firstinspires.ftc.teamcode.Utilities.shooterConstants.goalY_FAR;
+import static org.firstinspires.ftc.teamcode.Utilities.shooterConstants.hoodAdjustment;
+import static org.firstinspires.ftc.teamcode.Utilities.shooterConstants.velocityShooterDeadPoint;
 
 import com.arcrobotics.ftclib.geometry.Vector2d;
 import com.bylazar.telemetry.PanelsTelemetry;
@@ -15,8 +29,6 @@ import com.seattlesolvers.solverslib.command.CommandBase;
 import com.seattlesolvers.solverslib.geometry.Pose2d;
 import com.seattlesolvers.solverslib.geometry.Translation2d;
 
-import org.firstinspires.ftc.robotcore.external.navigation.MotionDetection;
-
 public class aimCMD extends CommandBase {
 
     ShooterSubsystem shooterSb;
@@ -24,18 +36,70 @@ public class aimCMD extends CommandBase {
     double hoodAngle = 0;
     double flywheelSpeed = 0;
 
-    public aimCMD(ShooterSubsystem shootertSubsystem) {
+    int goalX = goalX_FAR;
+    int goalY = goalY_FAR;
+    double SCORE_HEIGHT = SCORE_HEIGHT_FAR; //inches
+    double SCORE_ANGLE = SCORE_ANGLE_FAR; //inches
 
-        this.shooterSb = shootertSubsystem;
+    double PASS_THROUGH_POINT_RADIUS = PASS_THROUGH_POINT_RADIUS_FAR; //inches
 
-        addRequirements(shootertSubsystem);
+    double flywheelOffSetMultiplier = flywheelOffSetMultiplier_FAR;
+
+    double flywheelOffSet = flywheelOffSet_FAR;
+
+
+    boolean isShooting = false;
+
+    boolean reAnguled = false;
+
+    public aimCMD(ShooterSubsystem shooterSubsystem) {
+
+        this.shooterSb = shooterSubsystem;
+
+        this.isShooting = false;
+
+        addRequirements(shooterSubsystem);
     }
 
+    public aimCMD(ShooterSubsystem shooterSubsystem, boolean isShooting) {
+
+        this.shooterSb = shooterSubsystem;
+
+        this.isShooting = isShooting;
+
+        addRequirements(shooterSubsystem);
+    }
     @Override
     public void execute() {
+
         Pose2d robotPose = new Pose2d(shooterSb.follower.getPose().getX(), shooterSb.follower.getPose().getY(), shooterSb.follower.getPose().getHeading());
 
-        Translation2d goalPosition = new Translation2d(shooterSb.goalX, shooterSb.goalY);
+        if (robotPose.getY() < 50){
+            goalX = goalX_FAR;
+            goalY = goalY_FAR;
+            SCORE_HEIGHT = SCORE_HEIGHT_FAR; //inches
+            SCORE_ANGLE = SCORE_ANGLE_FAR; //inches
+
+            PASS_THROUGH_POINT_RADIUS = PASS_THROUGH_POINT_RADIUS_FAR; //inches
+
+            flywheelOffSetMultiplier = flywheelOffSetMultiplier_FAR;
+
+            flywheelOffSet = flywheelOffSet_FAR;
+
+        }else {
+            goalX = goalX_CLOSE;
+            goalY = goalY_CLOSE;
+            SCORE_HEIGHT = SCORE_HEIGHT_CLOSE; //inches
+            SCORE_ANGLE = SCORE_ANGLE_CLOSE; //inches
+
+            PASS_THROUGH_POINT_RADIUS = PASS_THROUGH_POINT_RADIUS_CLOSE;
+
+            flywheelOffSetMultiplier = flywheelOffSetMultiplier_CLOSE;
+
+            flywheelOffSet = flywheelOffSet_CLOSE;
+        }
+
+        Translation2d goalPosition = new Translation2d(goalX, goalY);
 
         Translation2d robotToGoal =
                 goalPosition.minus(robotPose.getTranslation());
@@ -72,7 +136,7 @@ public class aimCMD extends CommandBase {
         //recalculate launch components
         hoodAngle = MathFunctions.clamp(Math.atan(vz / nvr),
                 Math.toRadians(MAX_HOOD_ANGLE), Math.toRadians(MIN_HOOD_ANGLE));
-
+        
         flywheelSpeed = Math.sqrt(g * ndr * ndr / (2 * Math.pow(Math.cos(hoodAngle), 2)
                 * (ndr * Math.tan(hoodAngle) - y)));
 
@@ -82,13 +146,36 @@ public class aimCMD extends CommandBase {
 
         //double turretAngle = shooterSb.turretToGoalAngle - Math.toDegrees(turretVelCompOffset);
 
-        shooterSb.setShooterTarget(getFlywheelTicksFromVelocity(flywheelSpeed));
+        double finalHoodAngle;
+
+        if (isShooting && Math.abs(shooterSb.shooterError) > velocityShooterDeadPoint && !reAnguled){
+            hoodAngle += hoodAdjustment;
+            reAnguled = true;
+        }else {
+            reAnguled = false;
+            finalHoodAngle = hoodAngle;
+        }
+
+        shooterSb.setShooterTarget(getFlywheelTicksFromVelocitya(flywheelSpeed));
         shooterSb.setHoodPose(MathFunctions.clamp(Math.toDegrees(hoodAngle), MAX_HOOD_ANGLE, MIN_HOOD_ANGLE));
         shooterSb.setTurretTarget(turretAngle);
 
         PanelsTelemetry.INSTANCE.getFtcTelemetry().addData("flywheelSpeed", flywheelSpeed);
         PanelsTelemetry.INSTANCE.getFtcTelemetry().addData("hoodPose", hoodAngle);
         PanelsTelemetry.INSTANCE.getFtcTelemetry().addData("turretTargetAngle", turretAngle);
-
     }
+
+    public double getFlywheelTicksFromVelocitya(double velocity) {
+        double wheelRadius = 1.889; // inches (CHANGE THIS)
+        double ticksPerRev = 28;  // goBILDA encoder (adjust if geared)
+
+        double ticksPerSecond = (velocity / wheelRadius) * (ticksPerRev / (2 * Math.PI));
+
+        return MathFunctions.clamp(
+                Math.pow((ticksPerSecond + flywheelOffSet),  flywheelOffSetMultiplier),
+                MIN_FLYWHEEL_SPEED,
+                MAX_FLYWHEEL_SPEED
+        );
+    }
+
 }

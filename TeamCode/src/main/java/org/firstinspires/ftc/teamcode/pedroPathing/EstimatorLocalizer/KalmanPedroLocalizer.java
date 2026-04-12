@@ -43,6 +43,9 @@ public class KalmanPedroLocalizer implements Localizer {
         this.pinpointLocalizer = pinpointLocalizer;
         this.limelight = ll;
 
+        pinpointLocalizer.getPinpoint().resetPosAndIMU();
+        pinpointLocalizer.getPinpoint().recalibrateIMU();
+
         estimatedPose = pinpointLocalizer.getPose();
         lastOdoPose = estimatedPose;
 
@@ -100,6 +103,10 @@ public class KalmanPedroLocalizer implements Localizer {
         // Compute odometry delta
         double dx = odoPose.getX() - lastOdoPose.getX();
         double dy = odoPose.getY() - lastOdoPose.getY();
+
+        if (dx < 0.01) dx = 0;
+
+        if (dy < 0.01) dy = 0;
 
         // Apply delta to FILTERED state
         estimatedPose = new Pose(

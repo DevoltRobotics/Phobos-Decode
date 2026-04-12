@@ -1,9 +1,11 @@
 package org.firstinspires.ftc.teamcode.Subsystems.ShooterSubsystem;
 
-import static org.firstinspires.ftc.teamcode.Utilities.shooterConstants.GOAL_POSE_BLUE;
-import static org.firstinspires.ftc.teamcode.Utilities.shooterConstants.GOAL_POSE_RED;
 import static org.firstinspires.ftc.teamcode.Utilities.shooterConstants.capstanRatio;
 import static org.firstinspires.ftc.teamcode.Utilities.shooterConstants.gethoodTicksFromDegrees;
+import static org.firstinspires.ftc.teamcode.Utilities.shooterConstants.goalX_CLOSE;
+import static org.firstinspires.ftc.teamcode.Utilities.shooterConstants.goalX_FAR;
+import static org.firstinspires.ftc.teamcode.Utilities.shooterConstants.goalY_CLOSE;
+import static org.firstinspires.ftc.teamcode.Utilities.shooterConstants.goalY_FAR;
 import static org.firstinspires.ftc.teamcode.Utilities.shooterConstants.lowerLimit;
 import static org.firstinspires.ftc.teamcode.Utilities.shooterConstants.minimunPower;
 import static org.firstinspires.ftc.teamcode.Utilities.shooterConstants.principalTurretCoeffs;
@@ -28,6 +30,7 @@ import com.seattlesolvers.solverslib.controller.PIDFController;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.teamcode.Utilities.Alliance;
 
 public class ShooterSubsystem extends SubsystemBase {
@@ -42,7 +45,7 @@ public class ShooterSubsystem extends SubsystemBase {
 
     public double shooterTarget = 0;
 
-    public double error = 0;
+    public double shooterError = 0;
 
     //HOOD
 
@@ -97,6 +100,8 @@ public class ShooterSubsystem extends SubsystemBase {
 
         turretM.setDirection(DcMotorSimple.Direction.REVERSE);
 
+        turretM.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
         this.follower = follower;
 
         this.isAuto = isAuto;
@@ -110,11 +115,11 @@ public class ShooterSubsystem extends SubsystemBase {
         this.alliance = alliance;
 
         if (alliance.equals(Alliance.RED)){
-            goalX = GOAL_POSE_RED.getX();
-            goalY = GOAL_POSE_RED.getY();
+            goalX = goalX_CLOSE;
+            goalY = goalY_CLOSE;
         }else{
-            goalX = GOAL_POSE_BLUE.getX();
-            goalY = GOAL_POSE_BLUE.getX();
+            goalX = 144 - goalY_CLOSE;
+            goalY = goalY_CLOSE;
 
         }
 
@@ -126,6 +131,25 @@ public class ShooterSubsystem extends SubsystemBase {
     @Override
     public void periodic() {
 
+        if (follower.getPose().getY() > 50){
+            if (alliance.equals(Alliance.RED)){
+                goalX = goalX_CLOSE;
+                goalY = goalY_CLOSE;
+            }else{
+                goalX = 144 - goalY_CLOSE;
+                goalY = goalY_CLOSE;
+
+            }
+        }else{
+            if (alliance.equals(Alliance.RED)){
+                goalX = goalX_FAR;
+                goalY = goalY_FAR;
+            }else{
+                goalX = 144 - goalY_FAR;
+                goalY = goalY_FAR;
+
+            }
+        }
         //SHOOTER
         shooterController.setCoefficients(shooterCoeffs);
 
@@ -137,11 +161,14 @@ public class ShooterSubsystem extends SubsystemBase {
 
         shooterM.setPower(shooterTargetPwr);
 
-        error = shooterTarget - motorVel;
+        shooterError = shooterTarget - motorVel;
 
         PanelsTelemetry.INSTANCE.getFtcTelemetry().addData("shooterTargetPwr", shooterTargetPwr);
         PanelsTelemetry.INSTANCE.getFtcTelemetry().addData("shooterTarget", shooterTarget);
-        PanelsTelemetry.INSTANCE.getFtcTelemetry().addData("shooterError", error);
+        PanelsTelemetry.INSTANCE.getFtcTelemetry().addData("shooterError", shooterError);
+
+        PanelsTelemetry.INSTANCE.getFtcTelemetry().addData("shooterCurrent", shooterM.getCurrent(CurrentUnit.AMPS));
+
         //TURRET
 
         Pose robotPos = follower.getPose();
@@ -175,10 +202,10 @@ public class ShooterSubsystem extends SubsystemBase {
 
         turretM.setPower(turretPower);
 
-        /*principalTurretPid.setCoefficients(principalTurretCoeffs);
+        turretPid.setCoefficients(principalTurretCoeffs);
         secondaryTurretPid.setCoefficients(secondaryTurretCoeffs);
 
-         */
+
 
         PanelsTelemetry.INSTANCE.getFtcTelemetry().addData("turretError", error);
         PanelsTelemetry.INSTANCE.getFtcTelemetry().addData("turretTarget", turretTarget);

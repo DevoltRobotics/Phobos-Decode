@@ -16,7 +16,8 @@ import java.util.function.BooleanSupplier;
 @Configurable
 public class SensorsSubsystem extends SubsystemBase {
 
-    public Servo light;
+    public Servo lightR;
+    public Servo lightL;
 
     DigitalChannel laserInput;
 
@@ -25,7 +26,6 @@ public class SensorsSubsystem extends SubsystemBase {
     public boolean fourDetected = false;
 
     boolean laserState = false;
-
 
     public Boolean sorterMode = false;
     public Boolean liftingMode = false;
@@ -39,10 +39,10 @@ public class SensorsSubsystem extends SubsystemBase {
     public double blueInR = 0;
     public double blueInL = 0;
 
-    public static int targetBlueRight = 130;
-    public static int targetGreenRight = 160;
+    public static int targetBlueRight = 115;
+    public static int targetGreenRight = 205;
 
-    public static int targetBlueLeft = 145;
+    public static int targetBlueLeft = 190;
     public static int targetGreenLeft = 190;
 
     public Artifact currentRightArtifact = null;
@@ -77,12 +77,14 @@ public class SensorsSubsystem extends SubsystemBase {
     Telemetry telemetry;
 
     public SensorsSubsystem(HardwareMap hMap, Telemetry telemetry, BooleanSupplier isLifting){
-        light = hMap.get(Servo.class, "rgb");
-        light.setPosition(0);
+        lightR = hMap.get(Servo.class, "rgbR");
+        lightR.setPosition(0);
+
+        lightL = hMap.get(Servo.class, "rgbL");
+        lightL.setPosition(0);
 
         laserInput = hMap.get(DigitalChannel.class, "laser");
         laserInput.setMode(DigitalChannel.Mode.INPUT);
-
 
         colorR = hMap.get(RevColorSensorV3.class, "colorR");
         colorL = hMap.get(RevColorSensorV3.class, "colorL");
@@ -133,7 +135,7 @@ public class SensorsSubsystem extends SubsystemBase {
             leftDetected = false;
         }
 
-        /*telemetry.addData("RightGreen", greenInR);
+        telemetry.addData("RightGreen", greenInR);
         telemetry.addData("LeftGreen", greenInL);
         telemetry.addData("RightBlue", blueInR);
         telemetry.addData("LeftBlue", blueInL);
@@ -141,13 +143,14 @@ public class SensorsSubsystem extends SubsystemBase {
         telemetry.addData("WhatIsRightArt", currentRightArtifact);
         telemetry.addData("WhatIsLefttArt", currentLeftArtifact);
 
-
-         */
-
         fourDetected = (rightDetected && leftDetected) && laserState;
 
-
         telemetry.addData("relaseOrder", relaseOrder);
+    }
+
+    public void setLightPos(double pos){
+        lightL.setPosition(pos);
+        lightR.setPosition(pos);
 
 
     }

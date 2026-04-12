@@ -3,20 +3,27 @@ package org.firstinspires.ftc.teamcode.Utilities;
 import com.bylazar.configurables.annotations.Configurable;
 import com.pedropathing.geometry.Pose;
 import com.pedropathing.math.MathFunctions;
-import com.pedropathing.math.Vector;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
-import com.seattlesolvers.solverslib.controller.PIDFController;
 
 @Configurable
 public class shooterConstants {
 
     //POSES
-    public static Pose GOAL_POSE_RED = new Pose(138, 138);
-    public static Pose GOAL_POSE_BLUE = GOAL_POSE_RED.mirror();
-    public static double SCORE_HEIGHT = 27; //inches
-    public static double SCORE_ANGLE = Math.toRadians(-30); //inches
+    public static int goalX_CLOSE = 138;
+    public static int goalY_CLOSE = 138;
+    public static double SCORE_HEIGHT_CLOSE = 30; //inches
+    public static double SCORE_ANGLE_CLOSE = Math.toRadians(-30); //inches
 
-    public static double PASS_THROUGH_POINT_RADIUS = 5; //inches
+    public static double PASS_THROUGH_POINT_RADIUS_CLOSE = 5; //inches
+
+    ////
+
+    public static int goalX_FAR = 136;
+    public static int goalY_FAR = 138;
+    public static double SCORE_HEIGHT_FAR = 24; //inches
+    public static double SCORE_ANGLE_FAR = -0.43;// Math.toRadians(-30); //inches
+
+    public static double PASS_THROUGH_POINT_RADIUS_FAR = 7; //inches
 
     //HOOD
     public static double MAX_HOOD_ANGLE = 42;
@@ -24,6 +31,8 @@ public class shooterConstants {
     public static double MIN_HOOD_ANGLE = 67;
 
     public static double servoHoodRatio = (double) 259 / 25;
+
+    public static double hoodAdjustment = 0.13; //inches
 
     public static double gethoodTicksFromDegrees(double degrees){
         double range = MIN_HOOD_ANGLE - MAX_HOOD_ANGLE; //25
@@ -38,23 +47,12 @@ public class shooterConstants {
     //FLYWHEEL
 
     public static double shooterkV = 0.00057;
-    public static PIDFCoefficients shooterCoeffs = new PIDFCoefficients(0.01, 0.0, 0.0, 0);
+    public static PIDFCoefficients shooterCoeffs = new PIDFCoefficients(0.02, 0.0, 0.0, 0);
 
     // ===============================
 // Convert flywheel linear velocity (in/s) → ticks/sec
 // ===============================
 
-    public static double FLYWHEEL_RADIUS = 1.89;
-    public static double TICKS_PER_REV = 28.0;
-    public static double MAX_TICKS_PER_SEC = 1600.0; // 6000 RPM motor
-
-    /*public static double ticksFromSpeedFlyWheel (double flywheelSpeed){
-        return Math.min(flywheelSpeed * (TICKS_PER_REV / (2.0 * Math.PI * FLYWHEEL_RADIUS)), MAX_TICKS_PER_SEC);
-    }
-
-
-
-     */
 // Clamp to motor capability
 
 
@@ -62,9 +60,16 @@ public class shooterConstants {
 
     public static double MIN_FLYWHEEL_SPEED = 800;
 
-    public static double flywheelOffSet = 420;
+    public static double flywheelOffSet_CLOSE = 170;
 
-    public static double flywheelOffSetMultiplier = 1.4;
+    public static double flywheelOffSetMultiplier_CLOSE = 1.085;
+
+    public static double flywheelOffSet_FAR = 190;
+
+    public static double flywheelOffSetMultiplier_FAR = 1.11;
+
+    public static double velocityShooterDeadPoint = 60;
+
 
     public static double getFlywheelTicksFromVelocity(double velocity) {
         double wheelRadius = 1.889; // inches (CHANGE THIS)
@@ -73,7 +78,7 @@ public class shooterConstants {
         double ticksPerSecond = (velocity / wheelRadius) * (ticksPerRev / (2 * Math.PI));
 
         return MathFunctions.clamp(
-                Math.pow((ticksPerSecond + flywheelOffSet), flywheelOffSetMultiplier),
+                Math.pow((ticksPerSecond + flywheelOffSet_CLOSE),  flywheelOffSetMultiplier_CLOSE),
                 MIN_FLYWHEEL_SPEED,
                 MAX_FLYWHEEL_SPEED
         );
@@ -87,9 +92,9 @@ public class shooterConstants {
 
     public static double turretPidSwitch = 10; // start SMALL
 
-    public static double minimunPower = 0.03;
+    public static double minimunPower = 0.032;
 
-    public static double capstanRatio = 0.331; //0.331
+    public static double capstanRatio = 0.315; //0.331
 
     public static double ticktsToDegrees = (double) 360 / 537.7;
 

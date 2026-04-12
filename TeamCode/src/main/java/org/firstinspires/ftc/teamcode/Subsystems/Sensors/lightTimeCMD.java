@@ -3,8 +3,6 @@ package org.firstinspires.ftc.teamcode.Subsystems.Sensors;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.seattlesolvers.solverslib.command.CommandBase;
 
-import org.firstinspires.ftc.teamcode.Subsystems.Vision.VisionSubsystem;
-
 public class lightTimeCMD extends CommandBase {
 
     private final SensorsSubsystem sensorsSubsystem;
@@ -28,13 +26,13 @@ public class lightTimeCMD extends CommandBase {
     @Override
     public void execute() {
 
-        sensorsSubsystem.light.setPosition(position);
+        sensorsSubsystem.lightR.setPosition(position);
 
     }
 
     @Override
     public void end(boolean interrupted) {
-        sensorsSubsystem.light.setPosition(0);
+        sensorsSubsystem.lightR.setPosition(0);
 
     }
 

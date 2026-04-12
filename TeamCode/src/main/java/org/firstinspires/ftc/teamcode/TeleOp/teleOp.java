@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.TeleOp;
 
 import static org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.SorterSubsystem.blockerHFreePos;
 import static org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.SorterSubsystem.blockerHHidePos;
+import static org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.SorterSubsystem.blockerHSortingPos;
 import static org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.SorterSubsystem.blockersUp;
 import static org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.SorterSubsystem.downRampPos;
 import static org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.SorterSubsystem.upRampPos;
@@ -71,7 +72,11 @@ public abstract class teleOp extends OpModeCommand {
         Trigger intakeIn = new Trigger(() -> gamepad2.right_trigger >= 0.5);
         Trigger intakeOut = new Trigger(() -> gamepad2.left_trigger >= 0.5);
 
-        intakeIn.whileActiveOnce(new moveIntakeTeleOpCMD(intakeSb, 1, 0.8));
+        intakeIn.whileActiveOnce(new ConditionalCommand(
+                new moveIntakeTeleOpCMD(intakeSb, 1, 0.5),
+                new moveIntakeTeleOpCMD(intakeSb, 1, 0.8),
+                () -> sensorsSb.sorterMode));
+
         intakeOut.whileActiveOnce(new moveIntakeTeleOpCMD(intakeSb, -0.7, -1));
 
         Trigger turretRight = new Trigger(() -> gamepad2.right_bumper);
@@ -82,12 +87,14 @@ public abstract class teleOp extends OpModeCommand {
         turretLeft.whileActiveOnce(new InstantCommand(
                 () -> shooterSb.setTurretTarget(shooterSb.getCurrentPosition() - manualIncrement)));
 
-        Button resetTurretButton = new GamepadButton(
+        /*Button resetTurretButton = new GamepadButton(
                 garra,
                 GamepadKeys.Button.START);
 
         resetTurretButton.whenPressed(new InstantCommand(() -> shooterSb.resetTurret()));
+q
 
+         */
         Button blockerUpButton = new GamepadButton(
                 garra,
                 GamepadKeys.Button.Y);
@@ -96,12 +103,21 @@ public abstract class teleOp extends OpModeCommand {
                 new InstantCommand(() -> sorterSb.setLateralPositions(blockersUp, blockersUp))
         );
 
-        Button blockerDownButton = new GamepadButton(
+        Button oneBlockerDownButton = new GamepadButton(
                 garra,
                 GamepadKeys.Button.X);
 
-        blockerDownButton.whileHeld(
+        oneBlockerDownButton.whileHeld(
                 new InstantCommand(() -> sorterSb.setLateralPositions(blockersUp, 0))
+
+        );
+
+        Button twoBlockersDown = new GamepadButton(
+                garra,
+                GamepadKeys.Button.B);
+
+        twoBlockersDown.whileHeld(
+                new InstantCommand(() -> sorterSb.setLateralPositions(0, 0))
 
         );
 
@@ -151,7 +167,7 @@ public abstract class teleOp extends OpModeCommand {
         shootButton.whenPressed(
                 new ParallelCommandGroup(
 
-                        new aimCMD(shooterSb),
+                        new aimCMD(shooterSb, true),
 
                         new InstantCommand(
                                 () ->
@@ -184,7 +200,12 @@ public abstract class teleOp extends OpModeCommand {
 
                         new InstantCommand(()-> shooterSb.setTurretTarget(0)),
                         new SequentialCommandGroup(
-                                new horizontalBlockerCMD(sorterSb, blockerHHidePos),
+                                new ConditionalCommand(
+                                        new InstantCommand(() -> sorterSb.setHorizontalPos(blockerHSortingPos)),
+                                        new InstantCommand(() -> sorterSb.setHorizontalPos(blockerHHidePos)),
+                                        () -> sensorsSb.sorterMode
+
+                                ),
 
                                 new ConditionalCommand(
                                         new InstantCommand(() -> sorterSb.setLateralPositions(blockersUp, blockersUp)),
@@ -246,6 +267,13 @@ public abstract class teleOp extends OpModeCommand {
                         new ConditionalCommand(
                                 new InstantCommand(()-> sorterSb.setRampPos(downRampPos)),
                                 new InstantCommand(()-> sorterSb.setRampPos(upRampPos)),
+                                () -> sensorsSb.sorterMode
+
+                        ),
+
+                        new ConditionalCommand(
+                                new InstantCommand(() -> sorterSb.setHorizontalPos(blockerHSortingPos)),
+                                new InstantCommand(() -> sorterSb.setHorizontalPos(blockerHHidePos)),
                                 () -> sensorsSb.sorterMode
 
                         )
