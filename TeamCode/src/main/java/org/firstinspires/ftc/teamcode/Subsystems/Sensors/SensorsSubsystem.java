@@ -33,11 +33,11 @@ public class SensorsSubsystem extends SubsystemBase {
     RevColorSensorV3 colorR;
     RevColorSensorV3 colorL;
 
-    public double greenInR = 0;
-    public double greenInL = 0;
+    public float greenInR = 0;
+    public float greenInL = 0;
 
-    public double blueInR = 0;
-    public double blueInL = 0;
+    public float blueInR = 0;
+    public float blueInL = 0;
 
     public static int targetBlueRight = 115;
     public static int targetGreenRight = 205;
@@ -97,13 +97,14 @@ public class SensorsSubsystem extends SubsystemBase {
     @Override
     public void periodic() {
         if (colorSensorsDelay.milliseconds() > 80) {
-            greenInR = colorR.green();
-            greenInL = colorL.green();
-            blueInR = colorR.blue();
-            blueInL = colorL.blue();
+            if (sorterMode) {
+                greenInR = colorR.green();
+                greenInL = colorL.green();
+                blueInR = colorR.blue();
+                blueInL = colorL.blue();
+            }
 
             laserState = laserInput.getState();
-
             colorSensorsDelay.reset();
         }
 

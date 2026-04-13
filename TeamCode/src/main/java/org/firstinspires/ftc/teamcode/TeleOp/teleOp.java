@@ -40,9 +40,12 @@ public abstract class teleOp extends OpModeCommand {
     GamepadEx garra;
 
     double angleOffSet;
-    Boolean isTurretManual = true;
+    boolean isTurretManual = true;
 
-    Boolean isShooting = false;
+    boolean isShooting = false;
+
+    boolean isClose = false;
+
 
     public teleOp(Alliance alliance) {
         super(alliance, false);
@@ -52,7 +55,7 @@ public abstract class teleOp extends OpModeCommand {
     public void initialize() {
         //INIT_CMDS
 
-        new InstantCommand(()-> visionSb.setLLState(VisionSubsystem.llState.posEstimate)).schedule();
+        new InstantCommand(() -> visionSb.setLLState(VisionSubsystem.llState.posEstimate)).schedule();
 
         follower.setPose(new Pose(72, 72, 0));
 
@@ -67,17 +70,20 @@ public abstract class teleOp extends OpModeCommand {
 
         CommandScheduler.getInstance().setDefaultCommand(sensorsSb, new lightSorterCMD(sensorsSb, shooterSb, visionSb));
 
-        CommandScheduler.getInstance().setDefaultCommand(sorterSb, new preSorterTeleopCMD(sorterSb, sensorsSb, gamepad2));
+        //CommandScheduler.getInstance().setDefaultCommand(sorterSb, new preSorterTeleopCMD(sorterSb, sensorsSb, 300));
 
         Trigger intakeIn = new Trigger(() -> gamepad2.right_trigger >= 0.5);
         Trigger intakeOut = new Trigger(() -> gamepad2.left_trigger >= 0.5);
 
         intakeIn.whileActiveOnce(new ConditionalCommand(
-                new moveIntakeTeleOpCMD(intakeSb, 1, 0.5),
+                new ConditionalCommand(
+                        new moveIntakeTeleOpCMD(intakeSb, 1, 1),
+                        new moveIntakeTeleOpCMD(intakeSb, 1, -0.8),
+                        () -> isShooting),
                 new moveIntakeTeleOpCMD(intakeSb, 1, 0.8),
                 () -> sensorsSb.sorterMode));
 
-        intakeOut.whileActiveOnce(new moveIntakeTeleOpCMD(intakeSb, -0.7, -1));
+        intakeOut.whileActiveOnce(new moveIntakeTeleOpCMD(intakeSb, -0.8, -1));
 
         Trigger turretRight = new Trigger(() -> gamepad2.right_bumper);
         Trigger turretLeft = new Trigger(() -> gamepad2.left_bumper);
@@ -127,17 +133,23 @@ q
 
         prepareShootFar.whenPressed(
                 new ParallelCommandGroup(
-
-                        new aimCMD(shooterSb),
-
-
                         new InstantCommand(
                                 () -> isTurretManual = false
                         ),
 
                         new InstantCommand(
                                 () -> isShooting = false
-                        )
+                        ),
+
+                        new InstantCommand(
+                                () -> sorterSb.isShooting = false
+                        ),
+
+                        new InstantCommand(
+                                () -> isClose = false
+                        ),
+
+                        new aimCMD(shooterSb, () -> isClose)
 
                 ));
 
@@ -148,15 +160,23 @@ q
         prepareShootClose.whenPressed(
                 new ParallelCommandGroup(
 
-                        new aimCMD(shooterSb),
-
                         new InstantCommand(
                                 () -> isShooting = false
                         ),
 
                         new InstantCommand(
                                 () -> isTurretManual = false
-                        )
+                        ),
+
+                        new InstantCommand(
+                                () -> sorterSb.isShooting = false
+                        ),
+
+                        new InstantCommand(
+                                () -> isClose = false
+                        ),
+
+                        new aimCMD(shooterSb, () -> isClose)
 
                 ));
 
@@ -167,7 +187,7 @@ q
         shootButton.whenPressed(
                 new ParallelCommandGroup(
 
-                        new aimCMD(shooterSb, true),
+                        new aimCMD(shooterSb, true, () -> isClose),
 
                         new InstantCommand(
                                 () ->
@@ -178,14 +198,15 @@ q
                                 () -> isShooting = true
                         ),
 
-                        new InstantCommand(
-                                () -> sorterSb.isShooting = true
-                        ),
-
                         new moveIntakeAutonomousCMD(intakeSb, 1, 1),
 
+                        new ConditionalCommand(
+                                shootThreesorterCMD(1000),
+                                new InstantCommand(),
+                                () -> sensorsSb.sorterMode
+                        ),
                         new horizontalBlockerCMD(sorterSb, blockerHFreePos).asProxy())
-                );
+        );
 
         Button stopShootButton = new GamepadButton(
                 garra,
@@ -194,11 +215,11 @@ q
         stopShootButton.whenPressed(
                 new ParallelCommandGroup(
                         new InstantCommand(
-                                () -> shooterSb.setShooterTarget(800)
+                                () -> shooterSb.setOffTarget()
                         ),
                         new moveIntakeAutonomousCMD(intakeSb, 0, 0),
 
-                        new InstantCommand(()-> shooterSb.setTurretTarget(0)),
+                        new InstantCommand(() -> shooterSb.setTurretTarget(0)),
                         new SequentialCommandGroup(
                                 new ConditionalCommand(
                                         new InstantCommand(() -> sorterSb.setHorizontalPos(blockerHSortingPos)),
@@ -265,8 +286,8 @@ q
                         ),
 
                         new ConditionalCommand(
-                                new InstantCommand(()-> sorterSb.setRampPos(downRampPos)),
-                                new InstantCommand(()-> sorterSb.setRampPos(upRampPos)),
+                                new InstantCommand(() -> sorterSb.setRampPos(downRampPos)),
+                                new InstantCommand(() -> sorterSb.setRampPos(upRampPos)),
                                 () -> sensorsSb.sorterMode
 
                         ),

@@ -14,17 +14,12 @@ public class postSorterCmd extends CommandBase {
 
     private final SensorsSubsystem sensorsSb;
 
-    private final VisionSubsystem visionSb;
-
     private final ElapsedTime deadTimer = new ElapsedTime();
     private boolean detected = false;
 
-    public postSorterCmd(SorterSubsystem sorterSb, SensorsSubsystem sensorsSubsystem, VisionSubsystem visionSubsystem) {
+    public postSorterCmd(SorterSubsystem sorterSb, SensorsSubsystem sensorsSubsystem) {
         sorterSubsystem = sorterSb;
         sensorsSb = sensorsSubsystem;
-
-        visionSb = visionSubsystem;
-
 
         addRequirements(sensorsSb, sorterSubsystem);
     }

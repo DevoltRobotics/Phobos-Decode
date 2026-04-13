@@ -23,6 +23,8 @@ import org.firstinspires.ftc.teamcode.Subsystems.Intake.moveIntakeAutonomousCMD;
 import org.firstinspires.ftc.teamcode.Subsystems.Lifting.LiftingSubsystem;
 import org.firstinspires.ftc.teamcode.Subsystems.Sensors.SensorsSubsystem;
 import org.firstinspires.ftc.teamcode.Subsystems.ShooterSubsystem.ShooterSubsystem;
+import org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.postSorterCmd;
+import org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.preSorterTeleopCMD;
 import org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.rampCMD;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 import org.firstinspires.ftc.teamcode.pedroPathing.PedroSubsystem;
@@ -193,5 +195,15 @@ public abstract class OpModeCommand extends OpMode {
                 )
         );
 
+    }
+
+    public Command shootThreesorterCMD(int timer) {
+        return new SequentialCommandGroup(
+                new preSorterTeleopCMD(sorterSb, sensorsSb, 300),
+
+                new WaitCommand(timer), // deadline
+
+                new postSorterCmd(sorterSb, sensorsSb)
+        );
     }
 }

@@ -11,7 +11,7 @@ public class shooterConstants {
     //POSES
     public static int goalX_CLOSE = 138;
     public static int goalY_CLOSE = 138;
-    public static double SCORE_HEIGHT_CLOSE = 30; //inches
+    public static double SCORE_HEIGHT_CLOSE = 26; //inches 30
     public static double SCORE_ANGLE_CLOSE = Math.toRadians(-30); //inches
 
     public static double PASS_THROUGH_POINT_RADIUS_CLOSE = 5; //inches
@@ -40,7 +40,7 @@ public class shooterConstants {
 
         double normalizedAngle = MathFunctions.clamp(degrees, MAX_HOOD_ANGLE, MIN_HOOD_ANGLE);
 
-        return servo_Min + (( (MAX_HOOD_ANGLE - normalizedAngle) * servoHoodRatio) / 360);
+        return MathFunctions.clamp((servo_Min + (( (MAX_HOOD_ANGLE - normalizedAngle) * servoHoodRatio) / 360)), 0, 1);
 
     }
 
@@ -56,13 +56,18 @@ public class shooterConstants {
 // Clamp to motor capability
 
 
-    public static double MAX_FLYWHEEL_SPEED = 1700;
+    public static double MAX_FLYWHEEL_SPEED = 2000;
 
     public static double MIN_FLYWHEEL_SPEED = 800;
 
-    public static double flywheelOffSet_CLOSE = 170;
+    public static double minflywheelClose = 800;
+    public static double minflywheelFar = 1600;
 
-    public static double flywheelOffSetMultiplier_CLOSE = 1.085;
+
+
+    public static double flywheelOffSet_CLOSE = 175;
+
+    public static double flywheelOffSetMultiplier_CLOSE = 1.093;
 
     public static double flywheelOffSet_FAR = 190;
 

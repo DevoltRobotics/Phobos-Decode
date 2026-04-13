@@ -222,6 +222,11 @@ public class ShooterSubsystem extends SubsystemBase {
 
     }
 
+    public void setOffTarget(){
+        shooterTarget -= 400;
+
+    }
+
     public void setHoodPose(double angle){
         hoodS.setPosition(gethoodTicksFromDegrees(angle));
 

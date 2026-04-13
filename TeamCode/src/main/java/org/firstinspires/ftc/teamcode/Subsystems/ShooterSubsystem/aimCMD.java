@@ -19,6 +19,8 @@ import static org.firstinspires.ftc.teamcode.Utilities.shooterConstants.goalX_FA
 import static org.firstinspires.ftc.teamcode.Utilities.shooterConstants.goalY_CLOSE;
 import static org.firstinspires.ftc.teamcode.Utilities.shooterConstants.goalY_FAR;
 import static org.firstinspires.ftc.teamcode.Utilities.shooterConstants.hoodAdjustment;
+import static org.firstinspires.ftc.teamcode.Utilities.shooterConstants.minflywheelClose;
+import static org.firstinspires.ftc.teamcode.Utilities.shooterConstants.minflywheelFar;
 import static org.firstinspires.ftc.teamcode.Utilities.shooterConstants.velocityShooterDeadPoint;
 
 import com.arcrobotics.ftclib.geometry.Vector2d;
@@ -28,6 +30,8 @@ import com.pedropathing.math.Vector;
 import com.seattlesolvers.solverslib.command.CommandBase;
 import com.seattlesolvers.solverslib.geometry.Pose2d;
 import com.seattlesolvers.solverslib.geometry.Translation2d;
+
+import java.util.function.BooleanSupplier;
 
 public class aimCMD extends CommandBase {
 
@@ -47,25 +51,29 @@ public class aimCMD extends CommandBase {
 
     double flywheelOffSet = flywheelOffSet_FAR;
 
-
+    BooleanSupplier isClose;
     boolean isShooting = false;
 
     boolean reAnguled = false;
 
-    public aimCMD(ShooterSubsystem shooterSubsystem) {
+    public aimCMD(ShooterSubsystem shooterSubsystem, BooleanSupplier isClose) {
 
         this.shooterSb = shooterSubsystem;
 
         this.isShooting = false;
 
+        this.isClose = isClose;
+
         addRequirements(shooterSubsystem);
     }
 
-    public aimCMD(ShooterSubsystem shooterSubsystem, boolean isShooting) {
+    public aimCMD(ShooterSubsystem shooterSubsystem, boolean isShooting, BooleanSupplier isClose) {
 
         this.shooterSb = shooterSubsystem;
 
         this.isShooting = isShooting;
+
+        this.isClose = isClose;
 
         addRequirements(shooterSubsystem);
     }
@@ -140,6 +148,13 @@ public class aimCMD extends CommandBase {
         flywheelSpeed = Math.sqrt(g * ndr * ndr / (2 * Math.pow(Math.cos(hoodAngle), 2)
                 * (ndr * Math.tan(hoodAngle) - y)));
 
+        if (isClose.getAsBoolean()){
+            flywheelSpeed = MathFunctions.clamp(flywheelSpeed, minflywheelClose, MAX_FLYWHEEL_SPEED);
+
+        }else {
+            flywheelSpeed = MathFunctions.clamp(flywheelSpeed, minflywheelFar, MAX_FLYWHEEL_SPEED);
+
+        }
         //update turret
         double turretVelCompOffset = Math.atan(perpendicularComponent / ivr);
         double turretAngle = Math.toDegrees(robotPose.getHeading() - robotToGoalVector.angle() + turretVelCompOffset);
