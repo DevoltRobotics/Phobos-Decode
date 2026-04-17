@@ -10,6 +10,7 @@ import com.seattlesolvers.solverslib.command.SubsystemBase;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Utilities.Artifact;
+import org.firstinspires.ftc.teamcode.Utilities.Pattern;
 
 import java.util.function.BooleanSupplier;
 
@@ -43,7 +44,7 @@ public class SensorsSubsystem extends SubsystemBase {
     public static int targetGreenRight = 205;
 
     public static int targetBlueLeft = 190;
-    public static int targetGreenLeft = 190;
+    public static int targetGreenLeft = 150;
 
     public Artifact currentRightArtifact = null;
     public Artifact currentLeftArtifact = null;
@@ -58,9 +59,6 @@ public class SensorsSubsystem extends SubsystemBase {
     public static double lightRed = 0.28;
     public static double lightBlue = 0.65;
 
-
-
-
     public enum RelaseOrder{
         RL,
         LR,
@@ -72,6 +70,7 @@ public class SensorsSubsystem extends SubsystemBase {
 
     public Artifact targetArtifact = Artifact.Purple;
 
+    public Pattern teleOpPattern = Pattern.PPG;
     private final ElapsedTime colorSensorsDelay;
 
     Telemetry telemetry;
@@ -147,13 +146,18 @@ public class SensorsSubsystem extends SubsystemBase {
         fourDetected = (rightDetected && leftDetected) && laserState;
 
         telemetry.addData("relaseOrder", relaseOrder);
+
+        telemetry.addData("pattern", teleOpPattern);
     }
 
     public void setLightPos(double pos){
-        lightL.setPosition(pos);
         lightR.setPosition(pos);
+        lightL.setPosition(pos);
+    }
 
-
+    public void setLightPos(double posR, double posL){
+        lightR.setPosition(posR);
+        lightL.setPosition(posL);
     }
 
 }

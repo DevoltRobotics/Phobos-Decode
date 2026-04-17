@@ -19,6 +19,7 @@ import static org.firstinspires.ftc.teamcode.Utilities.shooterConstants.upperLim
 import com.bylazar.telemetry.PanelsTelemetry;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.Pose;
+import com.pedropathing.math.MathFunctions;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
@@ -33,6 +34,8 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.teamcode.Utilities.Alliance;
 
+import java.util.function.DoubleSupplier;
+
 public class ShooterSubsystem extends SubsystemBase {
 
     public Follower follower;
@@ -45,7 +48,7 @@ public class ShooterSubsystem extends SubsystemBase {
 
     public double shooterTarget = 0;
 
-    public double shooterError = 0;
+    public DoubleSupplier shooterError;
 
     //HOOD
 
@@ -64,7 +67,6 @@ public class ShooterSubsystem extends SubsystemBase {
     public static double turretP = 0;
 
     public double turretTarget = 0;
-
     double turretPower = 0;
 
     public double robotToGoalAngle;
@@ -161,7 +163,7 @@ public class ShooterSubsystem extends SubsystemBase {
 
         shooterM.setPower(shooterTargetPwr);
 
-        shooterError = shooterTarget - motorVel;
+        shooterError = ()-> (shooterTarget - motorVel);
 
         PanelsTelemetry.INSTANCE.getFtcTelemetry().addData("shooterTargetPwr", shooterTargetPwr);
         PanelsTelemetry.INSTANCE.getFtcTelemetry().addData("shooterTarget", shooterTarget);
@@ -228,7 +230,7 @@ public class ShooterSubsystem extends SubsystemBase {
     }
 
     public void setHoodPose(double angle){
-        hoodS.setPosition(gethoodTicksFromDegrees(angle));
+        hoodS.setPosition(MathFunctions.clamp(gethoodTicksFromDegrees(angle), 0.001, 0.999));
 
     }
 
@@ -248,7 +250,6 @@ public class ShooterSubsystem extends SubsystemBase {
     public double getDistanceToGoal() {
         return distanceToGoal;
     }
-
 
     public double getCurrentPosition() {
         return turretP;

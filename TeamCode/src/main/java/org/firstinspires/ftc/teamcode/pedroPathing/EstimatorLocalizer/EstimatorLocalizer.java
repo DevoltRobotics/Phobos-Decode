@@ -25,7 +25,6 @@ public class EstimatorLocalizer implements Localizer {
 
     private final ElapsedTime timer = new ElapsedTime();
 
-
     private final double MAX_ANGULAR_VELOCITY =
             Math.toRadians(180);
 
@@ -39,6 +38,9 @@ public class EstimatorLocalizer implements Localizer {
 
         this.currentPose = pinpoint.getPose();
 
+        pinpoint.getPinpoint().recalibrateIMU();
+
+
         /*estimator = new PinpointPoseEstimator(
                 currentPose,
                 0.02, 0.02,
@@ -49,8 +51,8 @@ public class EstimatorLocalizer implements Localizer {
 
         estimator = new PinpointPoseEstimator(
                 currentPose,
-                0.2, 0.2,
-                0.03, 0.03
+                0.02, 0.02,
+                0.25, 0.25
 
         );
         timer.reset();
@@ -77,7 +79,7 @@ public class EstimatorLocalizer implements Localizer {
         lastHeading = heading;
         lastTime = currentTime;
 
-        limelight.updateRobotOrientation(Units.radiansToDegrees(heading) + 90);
+        limelight.updateRobotOrientation(Math.toDegrees(heading) + 90);
 
         // Handle vision
         LLResult result = limelight.getLatestResult();

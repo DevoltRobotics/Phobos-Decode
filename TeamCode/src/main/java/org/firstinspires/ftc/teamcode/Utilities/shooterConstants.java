@@ -20,9 +20,8 @@ public class shooterConstants {
 
     public static int goalX_FAR = 136;
     public static int goalY_FAR = 138;
-    public static double SCORE_HEIGHT_FAR = 24; //inches
-    public static double SCORE_ANGLE_FAR = -0.43;// Math.toRadians(-30); //inches
-
+    public static double SCORE_HEIGHT_FAR = 18; //inches
+    public static double SCORE_ANGLE_FAR = -0.4;// Math.toRadians(-30); //inches
     public static double PASS_THROUGH_POINT_RADIUS_FAR = 7; //inches
 
     //HOOD
@@ -32,7 +31,7 @@ public class shooterConstants {
 
     public static double servoHoodRatio = (double) 259 / 25;
 
-    public static double hoodAdjustment = 0.13; //inches
+    public static double hoodAdjustment = 0.16; //inches
 
     public static double gethoodTicksFromDegrees(double degrees){
         double range = MIN_HOOD_ANGLE - MAX_HOOD_ANGLE; //25
@@ -40,7 +39,7 @@ public class shooterConstants {
 
         double normalizedAngle = MathFunctions.clamp(degrees, MAX_HOOD_ANGLE, MIN_HOOD_ANGLE);
 
-        return MathFunctions.clamp((servo_Min + (( (MAX_HOOD_ANGLE - normalizedAngle) * servoHoodRatio) / 360)), 0, 1);
+        return MathFunctions.clamp((servo_Min + (( (MAX_HOOD_ANGLE - normalizedAngle) * servoHoodRatio) / 360)), 0.001, 0.999);
 
     }
 
@@ -63,15 +62,13 @@ public class shooterConstants {
     public static double minflywheelClose = 800;
     public static double minflywheelFar = 1600;
 
-
-
     public static double flywheelOffSet_CLOSE = 175;
 
     public static double flywheelOffSetMultiplier_CLOSE = 1.093;
 
     public static double flywheelOffSet_FAR = 190;
 
-    public static double flywheelOffSetMultiplier_FAR = 1.11;
+    public static double flywheelOffSetMultiplier_FAR = 1.115;
 
     public static double velocityShooterDeadPoint = 60;
 
@@ -90,6 +87,7 @@ public class shooterConstants {
     }
 
     //TURRET
+    public static double kTurretvel = 1;
 
     public static PIDFCoefficients principalTurretCoeffs = new PIDFCoefficients(0.02, 0.0, 0.0015, 0.00049);
 
@@ -97,7 +95,7 @@ public class shooterConstants {
 
     public static double turretPidSwitch = 10; // start SMALL
 
-    public static double minimunPower = 0.032;
+    public static double minimunPower = 0.034;
 
     public static double capstanRatio = 0.315; //0.331
 

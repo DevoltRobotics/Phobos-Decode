@@ -36,13 +36,13 @@ public class postSorterCmd extends CommandBase {
             switch (sensorsSb.relaseOrder) {
                 case RL:
                 case LL:
-                    sorterSubsystem.setLateralPositions(0, blockersUp);
+                    sorterSubsystem.setLateralPositions(blockersUp, 0);
 
                     break;
 
                 case LR:
                 case RR:
-                    sorterSubsystem.setLateralPositions(blockersUp, 0);
+                    sorterSubsystem.setLateralPositions(0, blockersUp);
 
                     break;
 

@@ -8,6 +8,8 @@ import static org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.SorterSu
 import static org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.SorterSubsystem.upRampPos;
 import static org.firstinspires.ftc.teamcode.Utilities.shooterConstants.manualIncrement;
 
+import com.bylazar.configurables.annotations.Configurable;
+import com.pedropathing.ftc.localization.localizers.PinpointLocalizer;
 import com.pedropathing.geometry.Pose;
 import com.seattlesolvers.solverslib.command.CommandScheduler;
 import com.seattlesolvers.solverslib.command.ConditionalCommand;
@@ -23,20 +25,19 @@ import com.seattlesolvers.solverslib.gamepad.GamepadKeys;
 
 import org.firstinspires.ftc.teamcode.Subsystems.Intake.moveIntakeAutonomousCMD;
 import org.firstinspires.ftc.teamcode.Subsystems.Intake.moveIntakeTeleOpCMD;
-import org.firstinspires.ftc.teamcode.Subsystems.Lifting.moveLiftCMD;
 import org.firstinspires.ftc.teamcode.Subsystems.Sensors.lightSorterCMD;
 import org.firstinspires.ftc.teamcode.Subsystems.ShooterSubsystem.aimCMD;
 import org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.horizontalBlockerCMD;
-import org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.preSorterTeleopCMD;
 import org.firstinspires.ftc.teamcode.Subsystems.Vision.VisionSubsystem;
 import org.firstinspires.ftc.teamcode.Utilities.Alliance;
 import org.firstinspires.ftc.teamcode.Utilities.Artifact;
 import org.firstinspires.ftc.teamcode.Utilities.OpModeCommand;
 import org.firstinspires.ftc.teamcode.pedroPathing.PedroSubsystem;
 
+@Configurable
 public abstract class teleOp extends OpModeCommand {
 
-    GamepadEx chasis;
+    GamepadEx chassis;
     GamepadEx garra;
 
     double angleOffSet;
@@ -44,7 +45,11 @@ public abstract class teleOp extends OpModeCommand {
 
     boolean isShooting = false;
 
+    boolean preparingShoot = false;
+
     boolean isClose = false;
+
+    public static int timerSorting = 300;
 
 
     public teleOp(Alliance alliance) {
@@ -57,18 +62,29 @@ public abstract class teleOp extends OpModeCommand {
 
         new InstantCommand(() -> visionSb.setLLState(VisionSubsystem.llState.posEstimate)).schedule();
 
-        follower.setPose(new Pose(72, 72, 0));
+        follower.setPose(new Pose(7.5, 8.2, 0));
 
-        chasis = new GamepadEx(gamepad1);
+        chassis = new GamepadEx(gamepad1);
         garra = new GamepadEx(gamepad2);
 
         ///CHASSIS
 
         CommandScheduler.getInstance().setDefaultCommand(pedroSb, pedroSb.fieldCentricCmd(gamepad1, angleOffSet));
 
+
+        Button restartPinpoint = new GamepadButton(
+                chassis,
+                GamepadKeys.Button.DPAD_RIGHT);
+
+        /*restartPinpoint.whenPressed(
+                new InstantCommand(() -> pinpoint.recalibrateIMU())
+        );
+
+         */
+
         /// GARRA
 
-        CommandScheduler.getInstance().setDefaultCommand(sensorsSb, new lightSorterCMD(sensorsSb, shooterSb, visionSb));
+        CommandScheduler.getInstance().setDefaultCommand(sensorsSb, new lightSorterCMD(sensorsSb, shooterSb, visionSb, ()-> preparingShoot, gamepad2));
 
         //CommandScheduler.getInstance().setDefaultCommand(sorterSb, new preSorterTeleopCMD(sorterSb, sensorsSb, 300));
 
@@ -98,7 +114,7 @@ public abstract class teleOp extends OpModeCommand {
                 GamepadKeys.Button.START);
 
         resetTurretButton.whenPressed(new InstantCommand(() -> shooterSb.resetTurret()));
-q
+
 
          */
         Button blockerUpButton = new GamepadButton(
@@ -109,11 +125,11 @@ q
                 new InstantCommand(() -> sorterSb.setLateralPositions(blockersUp, blockersUp))
         );
 
-        Button oneBlockerDownButton = new GamepadButton(
+        Button leftBlockerDownButton = new GamepadButton(
                 garra,
                 GamepadKeys.Button.X);
 
-        oneBlockerDownButton.whileHeld(
+        leftBlockerDownButton.whileHeld(
                 new InstantCommand(() -> sorterSb.setLateralPositions(blockersUp, 0))
 
         );
@@ -138,11 +154,11 @@ q
                         ),
 
                         new InstantCommand(
-                                () -> isShooting = false
+                                () -> preparingShoot = true
                         ),
 
                         new InstantCommand(
-                                () -> sorterSb.isShooting = false
+                                () -> isShooting = false
                         ),
 
                         new InstantCommand(
@@ -169,11 +185,11 @@ q
                         ),
 
                         new InstantCommand(
-                                () -> sorterSb.isShooting = false
+                                () -> preparingShoot = true
                         ),
 
                         new InstantCommand(
-                                () -> isClose = false
+                                () -> isClose = true
                         ),
 
                         new aimCMD(shooterSb, () -> isClose)
@@ -198,10 +214,14 @@ q
                                 () -> isShooting = true
                         ),
 
+                        new InstantCommand(
+                                () -> preparingShoot = true
+                        ),
+                        
                         new moveIntakeAutonomousCMD(intakeSb, 1, 1),
 
                         new ConditionalCommand(
-                                shootThreesorterCMD(1000),
+                                shootThreesorterCMD(timerSorting),
                                 new InstantCommand(),
                                 () -> sensorsSb.sorterMode
                         ),
@@ -217,9 +237,13 @@ q
                         new InstantCommand(
                                 () -> shooterSb.setOffTarget()
                         ),
+
+                        new InstantCommand(
+                                () -> preparingShoot = false
+                        ),
                         new moveIntakeAutonomousCMD(intakeSb, 0, 0),
 
-                        new InstantCommand(() -> shooterSb.setTurretTarget(0)),
+                        //new InstantCommand(() -> shooterSb.setTurretTarget(0)),
                         new SequentialCommandGroup(
                                 new ConditionalCommand(
                                         new InstantCommand(() -> sorterSb.setHorizontalPos(blockerHSortingPos)),
@@ -242,29 +266,8 @@ q
 
                         new InstantCommand(
                                 () -> isShooting = false
-                        ),
-
-                        new InstantCommand(
-                                () -> sorterSb.isShooting = false
                         )
                 ));
-
-
-        Button toggleSorterTarget = new GamepadButton(
-                garra,
-                GamepadKeys.Button.A);
-
-        toggleSorterTarget.whenPressed(
-                new InstantCommand(() -> {
-                    if (Artifact.Green.equals(sensorsSb.targetArtifact)) {
-                        sensorsSb.targetArtifact = Artifact.Purple;
-
-                    } else {
-                        sensorsSb.targetArtifact = Artifact.Green;
-
-                    }
-                })
-        );
 
         Button toggleSorterMode = new GamepadButton(
                 garra,
@@ -300,6 +303,12 @@ q
                         )
                 )
         );
+
+        Button toggleSorterTarget = new GamepadButton(
+                garra,
+                GamepadKeys.Button.A);
+
+        toggleSorterTarget.whenPressed( switchPatternTarget());
 
     }
 

@@ -8,8 +8,12 @@ import com.pedropathing.localization.Localizer;
 import com.pedropathing.math.Vector;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.hardware.limelightvision.LLResult;
+import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
+import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.teamcode.PoseEstimate.wpilib.Units;
 
 public class KalmanPedroLocalizer implements Localizer {
@@ -42,6 +46,7 @@ public class KalmanPedroLocalizer implements Localizer {
     ) {
         this.pinpointLocalizer = pinpointLocalizer;
         this.limelight = ll;
+        //this.imu = imu;
 
         //pinpointLocalizer.getPinpoint().resetPosAndIMU();
         pinpointLocalizer.getPinpoint().recalibrateIMU();
@@ -53,7 +58,7 @@ public class KalmanPedroLocalizer implements Localizer {
     }
 
     // ------------------------------------------------
-    // PREDRO REQUIRED METHODS
+    // PEDRO REQUIRED METHODS
     // ------------------------------------------------
 
     @Override
@@ -102,6 +107,8 @@ public class KalmanPedroLocalizer implements Localizer {
 
         double heading = odoPose.getHeading();
 
+        //double heading = imu.getRobotOrientation(AxesReference.EXTRINSIC, AxesOrder.ZYX, AngleUnit.RADIANS);
+
         // Compute odometry delta
         double dx = odoPose.getX() - lastOdoPose.getX();
         double dy = odoPose.getY() - lastOdoPose.getY();
@@ -109,7 +116,9 @@ public class KalmanPedroLocalizer implements Localizer {
         /*if (dx < 0.01) dx = 0;
 
         if (dy < 0.01) dy = 0;
-*/
+
+
+         */
         // Apply delta to FILTERED state
         estimatedPose = new Pose(
                 estimatedPose.getX() + dx,
@@ -211,6 +220,11 @@ public class KalmanPedroLocalizer implements Localizer {
     public boolean isNAN() {
         return pinpointLocalizer.isNAN();
     }
+
+    public void recalibrate() throws InterruptedException{
+        pinpointLocalizer.recalibrate();
+    }
+
 
     public Pose getPose() {
         return estimatedPose;

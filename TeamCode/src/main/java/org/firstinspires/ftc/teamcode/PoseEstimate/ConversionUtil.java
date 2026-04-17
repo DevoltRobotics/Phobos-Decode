@@ -9,6 +9,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
+import org.firstinspires.ftc.teamcode.PoseEstimate.wpilib.Units;
 import org.firstinspires.ftc.teamcode.PoseEstimate.wpilib.geometry.Pose2d;
 import org.firstinspires.ftc.teamcode.PoseEstimate.wpilib.geometry.Rotation2d;
 
@@ -36,6 +37,27 @@ public class ConversionUtil {
 
         // 3) heading conversion
         double headingPedro = -headingRad;
+
+        return new Pose(
+                xPedro,
+                yPedro,
+                headingPedro
+        );
+    }
+
+    public static Pose from3DToPedroMT1(Pose3D pose3d, double headingDeg) {
+        double xFtc = pose3d.getPosition().x * 39.37;
+        double yFtc = pose3d.getPosition().y * 39.37;
+        // 1) shift origin: center → corner
+        double xShifted = 72 - xFtc;
+        double yShifted = yFtc + 72.0;
+
+        // 2) axis swap
+        double xPedro = yShifted;
+        double yPedro = xShifted;
+
+        // 3) heading conversion
+        double headingPedro = Units.degreesToRadians(headingDeg) - 90;
 
         return new Pose(
                 xPedro,

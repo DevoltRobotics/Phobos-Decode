@@ -29,12 +29,13 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.teamcode.pedroPathing.EstimatorLocalizer.EKFLocalizer;
 import org.firstinspires.ftc.teamcode.pedroPathing.EstimatorLocalizer.EstimatorLocalizer;
 import org.firstinspires.ftc.teamcode.pedroPathing.EstimatorLocalizer.KalmanPedroLocalizer;
 
 public class Constants {
     public static FollowerConstants followerConstants = new FollowerConstants()
-            .mass(15)
+            .mass(14)
             .forwardZeroPowerAcceleration(-32.2)
             .lateralZeroPowerAcceleration(-60.2)
             .translationalPIDFCoefficients(new PIDFCoefficients(0.09, 0, 0.005, 0.028))
@@ -72,8 +73,8 @@ public class Constants {
 
 
     public static PinpointConstants localizerConstants = new PinpointConstants()
-            .forwardPodY(-4)
-            .strafePodX(2)
+            .forwardPodY(-2)
+            .strafePodX(-4)
             .distanceUnit(DistanceUnit.INCH)
             .hardwareMapName("pinpoint")
 

@@ -5,15 +5,26 @@ import static org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.SorterSu
 import static org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.SorterSubsystem.blockersUp;
 import static org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.SorterSubsystem.upRampPos;
 
+import com.bylazar.field.FieldManager;
+import com.bylazar.field.PanelsField;
+import com.bylazar.field.Style;
 import com.bylazar.telemetry.JoinedTelemetry;
 import com.bylazar.telemetry.PanelsTelemetry;
 import com.bylazar.telemetry.TelemetryManager;
 import com.pedropathing.follower.Follower;
+import com.pedropathing.geometry.Pose;
+import com.pedropathing.math.Vector;
+import com.pedropathing.paths.Path;
+import com.pedropathing.paths.PathChain;
+import com.pedropathing.util.PoseHistory;
+import com.qualcomm.hardware.gobilda.GoBildaPinpointDriver;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.util.ElapsedTime;
 import com.seattlesolvers.solverslib.command.Command;
 import com.seattlesolvers.solverslib.command.CommandScheduler;
 import com.seattlesolvers.solverslib.command.ConditionalCommand;
+import com.seattlesolvers.solverslib.command.InstantCommand;
 import com.seattlesolvers.solverslib.command.ParallelDeadlineGroup;
 import com.seattlesolvers.solverslib.command.SequentialCommandGroup;
 import com.seattlesolvers.solverslib.command.Subsystem;
@@ -39,7 +50,9 @@ import java.util.function.BooleanSupplier;
 public abstract class OpModeCommand extends OpMode {
 
     public Follower follower;
+    private final ElapsedTime timer = new ElapsedTime();
 
+    private double lastTime = 0 ;
     public final Alliance currentAliance;
 
     public final boolean isAuto;
@@ -103,8 +116,10 @@ public abstract class OpModeCommand extends OpMode {
 
         follower.update();
 
+        //Drawing.init();
+
         register(
-                pedroSb = new PedroSubsystem(follower, telemetry, isLiftingSupplier),
+                pedroSb = new PedroSubsystem(follower, telemetry, currentAliance),
                 intakeSb = new IntakeSubsystem(hardwareMap),
                 sorterSb = new SorterSubsystem(hardwareMap, telemetry),
                 sensorsSb = new SensorsSubsystem(hardwareMap, telemetry, isLiftingSupplier),
@@ -125,18 +140,25 @@ public abstract class OpModeCommand extends OpMode {
 
         }
     }
-
-
     @Override
     public void loop() {
-
         CommandScheduler.getInstance().run();
         run();
 
         telemetry.addData("Heading", Math.toDegrees(follower.poseTracker.getPose().getHeading()));
 
-        //telemetryM.update(telemetry);
         PanelsTelemetry.INSTANCE.getFtcTelemetry().update();
+
+        double dt = timer.seconds() - lastTime;
+
+        telemetry.addData("deltaT", dt);
+
+        lastTime = timer.seconds();
+
+        /*Drawing.drawRobot(follower.getPose());
+        Drawing.sendPacket();
+
+         */
     }
 
     public void stop() {
@@ -204,6 +226,24 @@ public abstract class OpModeCommand extends OpMode {
                 new WaitCommand(timer), // deadline
 
                 new postSorterCmd(sorterSb, sensorsSb)
+        );
+    }
+
+    public Command switchPatternTarget() {
+        return new InstantCommand(
+                ()-> {
+                    switch (sensorsSb.teleOpPattern){
+                        case PPG:
+                            sensorsSb.teleOpPattern = Pattern.PGP;
+                            break;
+                        case PGP:
+                            sensorsSb.teleOpPattern = Pattern.GPP;
+                            break;
+                        case GPP:
+                            sensorsSb.teleOpPattern = Pattern.PPG;
+                            break;
+                    }
+                }
         );
     }
 }

@@ -17,6 +17,7 @@ import com.seattlesolvers.solverslib.command.CommandBase;
 import com.seattlesolvers.solverslib.command.SubsystemBase;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.teamcode.Utilities.Alliance;
 
 import java.util.function.BooleanSupplier;
 
@@ -26,19 +27,29 @@ public class PedroSubsystem extends SubsystemBase {
     public Follower follower;
 
     public static double slowModeMultiplier = 0.4;
+    public static double xBlueFarCorner = 7.5;
+    public static double yBlueFarCorner = 8.075;
+    public static double xRedFarCorner = 144 - xBlueFarCorner;
+    public static double yRedFarCorner = yBlueFarCorner;
+
+    public static double xBlueCloseCorner = 14.5;
+    public static double yBlueCloseCorner = 106.925;
+    public static double xRedCloseCorner = 144 - xBlueCloseCorner;
+    public static double yRedCloseCorner = yBlueCloseCorner;
+
 
     Telemetry telemetry;
 
     public static Pose EndPose = new Pose();
 
-    public BooleanSupplier isLifting;
+    Alliance alliance;
 
-    public PedroSubsystem(Follower follower, Telemetry telemetry, BooleanSupplier isLifting) {
+    public PedroSubsystem(Follower follower, Telemetry telemetry, Alliance alliance) {
         this.follower = follower;
 
         this.telemetry = telemetry;
+        this.alliance = alliance;
 
-        this.isLifting = isLifting;
     }
 
     @Override
@@ -50,9 +61,6 @@ public class PedroSubsystem extends SubsystemBase {
 
          */
 
-        if (!isLifting.getAsBoolean()) {
-            follower.update();
-        }
     }
 
     public Command followPathCmd(Path path) {
@@ -64,14 +72,12 @@ public class PedroSubsystem extends SubsystemBase {
         return new FollowPathChainCmd(path);
     }
 
-
     public Command fieldCentricCmd(Gamepad gamepad, double angleOffset) {
         return new FieldCentricCmd(gamepad, angleOffset);
     }
 
     public Command turnToCmd(Pose pose) {
         return new TurnToCommand(pose);
-
     }
 
     class FieldCentricCmd extends CommandBase {
@@ -100,7 +106,6 @@ public class PedroSubsystem extends SubsystemBase {
                 multiplier = slowModeMultiplier;
             }
 
-
             follower.setTeleOpDrive(
                     -gamepad.left_stick_y * multiplier,
                     -gamepad.left_stick_x * multiplier,
@@ -111,6 +116,32 @@ public class PedroSubsystem extends SubsystemBase {
 
             if (gamepad.yWasPressed()) {
                 follower.setPose(new Pose(follower.getPose().getX(), follower.getPose().getY(), angleOffset));
+            }
+
+            switch (alliance){
+                case RED:
+                    if (gamepad.dpadUpWasPressed()){
+                        follower.setPose(new Pose(xRedFarCorner, yRedFarCorner, angleOffset));
+                    } else if (gamepad.dpadRightWasPressed()) {
+                        follower.setPose(new Pose(xBlueFarCorner, yBlueFarCorner, angleOffset));
+                    }else if (gamepad.dpadDownWasPressed()) {
+                        follower.setPose(new Pose(xBlueCloseCorner, yBlueCloseCorner, angleOffset));
+                    }else if (gamepad.dpadLeftWasPressed()) {
+                        follower.setPose(new Pose(xRedCloseCorner, yRedCloseCorner, angleOffset));
+                    }
+                    break;
+                case BLUE:
+                    if (gamepad.dpadRightWasPressed()){
+                        follower.setPose(new Pose(xRedFarCorner, yRedFarCorner, angleOffset));
+                    } else if (gamepad.dpadUpWasPressed()) {
+                        follower.setPose(new Pose(xBlueFarCorner, yBlueFarCorner, angleOffset));
+                    }else if (gamepad.dpadLeftWasPressed()) {
+                        follower.setPose(new Pose(xBlueCloseCorner, yBlueCloseCorner, angleOffset));
+                    }else if (gamepad.dpadDownWasPressed()) {
+                        follower.setPose(new Pose(xRedCloseCorner, yRedCloseCorner, angleOffset));
+                    }
+                    break;
+
             }
         }
 
@@ -170,9 +201,7 @@ public class PedroSubsystem extends SubsystemBase {
 
             return !follower.isBusy();
 
-
         }
-
     }
 
     class TurnToCommand extends CommandBase {

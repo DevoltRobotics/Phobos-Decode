@@ -38,29 +38,29 @@ public class preSorterTeleopCMD extends CommandBase {
 
         if ((sensorsSb.rightDetected || sensorsSb.leftDetected) && sorterSubsystem.blockersStatus.equals(closed)) {
 
-            switch (visionSb.pattern) {
+            switch (sensorsSb.teleOpPattern) {
                 case GPP:
                     if (Artifact.Green.equals(sensorsSb.currentRightArtifact)) {
-                        sorterSubsystem.setLateralPositions(blockersUp, 0);
+                        sorterSubsystem.setLateralPositions(0, blockersUp);
 
                         sensorsSb.relaseOrder = SensorsSubsystem.RelaseOrder.RR;
 
                         detected = true;
                     } else if (Artifact.Green.equals(sensorsSb.currentLeftArtifact)) {
-                        sorterSubsystem.setLateralPositions(0, blockersUp);
+                        sorterSubsystem.setLateralPositions(blockersUp, 0);
 
                         sensorsSb.relaseOrder = SensorsSubsystem.RelaseOrder.LL;
 
                         detected = true;
                     } else if (Artifact.Purple.equals(sensorsSb.currentRightArtifact)) {
-                        sorterSubsystem.setLateralPositions(0, blockersUp);
+                        sorterSubsystem.setLateralPositions(blockersUp, 0);
 
                         sensorsSb.relaseOrder = SensorsSubsystem.RelaseOrder.LL;
 
                         detected = true;
 
                     } else if (Artifact.Purple.equals(sensorsSb.currentLeftArtifact)) {
-                        sorterSubsystem.setLateralPositions(blockersUp, 0);
+                        sorterSubsystem.setLateralPositions(0, blockersUp);
 
                         sensorsSb.relaseOrder = SensorsSubsystem.RelaseOrder.RR;
                         detected = true;
@@ -70,7 +70,7 @@ public class preSorterTeleopCMD extends CommandBase {
 
                 case PGP:
                     if (Artifact.Purple.equals(sensorsSb.currentRightArtifact)) {
-                        sorterSubsystem.setLateralPositions(blockersUp, 0);
+                        sorterSubsystem.setLateralPositions(0, blockersUp);
 
                         if (Artifact.Green.equals(sensorsSb.currentLeftArtifact)) {
                             sensorsSb.relaseOrder = SensorsSubsystem.RelaseOrder.RL;
@@ -80,7 +80,7 @@ public class preSorterTeleopCMD extends CommandBase {
                         detected = true;
 
                     } else if (Artifact.Purple.equals(sensorsSb.currentLeftArtifact)) {
-                        sorterSubsystem.setLateralPositions(0, blockersUp);
+                        sorterSubsystem.setLateralPositions(blockersUp, 0);
 
                         if (Artifact.Green.equals(sensorsSb.currentRightArtifact)) {
                             sensorsSb.relaseOrder = SensorsSubsystem.RelaseOrder.LR;
@@ -89,16 +89,16 @@ public class preSorterTeleopCMD extends CommandBase {
 
                         detected = true;
 
-                    }else if (Artifact.Green.equals(sensorsSb.currentRightArtifact)) {
+                    } else if (Artifact.Green.equals(sensorsSb.currentRightArtifact)) {
 
-                        sorterSubsystem.setLateralPositions(0, blockersUp);
+                        sorterSubsystem.setLateralPositions(blockersUp, 0);
                         sensorsSb.relaseOrder = SensorsSubsystem.RelaseOrder.LR;
 
                         detected = true;
 
-                    }else if (Artifact.Green.equals(sensorsSb.currentLeftArtifact)) {
+                    } else if (Artifact.Green.equals(sensorsSb.currentLeftArtifact)) {
 
-                        sorterSubsystem.setLateralPositions(blockersUp, 0);
+                        sorterSubsystem.setLateralPositions(0, blockersUp);
                         sensorsSb.relaseOrder = SensorsSubsystem.RelaseOrder.RL;
 
                         detected = true;
@@ -110,20 +110,20 @@ public class preSorterTeleopCMD extends CommandBase {
 
                     if (Artifact.Green.equals(sensorsSb.currentRightArtifact)) {
 
-                        sorterSubsystem.setLateralPositions(0, blockersUp);
+                        sorterSubsystem.setLateralPositions(blockersUp, 0);
                         sensorsSb.relaseOrder = SensorsSubsystem.RelaseOrder.LL;
 
                         detected = true;
 
-                    }else if (Artifact.Green.equals(sensorsSb.currentLeftArtifact)) {
+                    } else if (Artifact.Green.equals(sensorsSb.currentLeftArtifact)) {
 
-                        sorterSubsystem.setLateralPositions(blockersUp, 0);
+                        sorterSubsystem.setLateralPositions(0, blockersUp);
                         sensorsSb.relaseOrder = SensorsSubsystem.RelaseOrder.RR;
 
                         detected = true;
 
                     } else if (Artifact.Purple.equals(sensorsSb.currentRightArtifact)) {
-                        sorterSubsystem.setLateralPositions(blockersUp, 0);
+                        sorterSubsystem.setLateralPositions(0, blockersUp);
 
                         if (Artifact.Purple.equals(sensorsSb.currentLeftArtifact)) {
                             sensorsSb.relaseOrder = SensorsSubsystem.RelaseOrder.RL;
@@ -133,7 +133,9 @@ public class preSorterTeleopCMD extends CommandBase {
                         detected = true;
 
                     } else if (Artifact.Purple.equals(sensorsSb.currentLeftArtifact)) {
-                        sorterSubsystem.setLateralPositions(0, blockersUp);
+                        sorterSubsystem.setLateralPositions(blockersUp, 0);
+
+                        sensorsSb.relaseOrder = SensorsSubsystem.RelaseOrder.LL;
 
                         detected = true;
 
@@ -144,6 +146,20 @@ public class preSorterTeleopCMD extends CommandBase {
             }
 
         }
+    }
+
+    @Override
+    public void end(boolean interrupted) {
+        if (!detected) {
+            sorterSubsystem.setLateralPositions(blockersUp, 0);
+        }
+    }
+
+    @Override
+    public boolean isFinished() {
+        return deadTimer.seconds() > deadTime || detected;
+    }
+
 
 
         /*
@@ -174,5 +190,5 @@ public class preSorterTeleopCMD extends CommandBase {
          */
 
 
-    }
+
 }
