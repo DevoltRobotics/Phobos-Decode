@@ -19,6 +19,7 @@ import static org.firstinspires.ftc.teamcode.Utilities.shooterConstants.goalX_FA
 import static org.firstinspires.ftc.teamcode.Utilities.shooterConstants.goalY_CLOSE;
 import static org.firstinspires.ftc.teamcode.Utilities.shooterConstants.goalY_FAR;
 import static org.firstinspires.ftc.teamcode.Utilities.shooterConstants.hoodAdjustment;
+import static org.firstinspires.ftc.teamcode.Utilities.shooterConstants.kTurretvel;
 import static org.firstinspires.ftc.teamcode.Utilities.shooterConstants.minflywheelClose;
 import static org.firstinspires.ftc.teamcode.Utilities.shooterConstants.minflywheelFar;
 import static org.firstinspires.ftc.teamcode.Utilities.shooterConstants.velocityShooterDeadPoint;
@@ -82,7 +83,18 @@ public class aimCMD extends CommandBase {
 
     @Override
     public void execute() {
-        Pose2d shooterPose = new Pose2d(shooterSb.follower.getPose().getX(), shooterSb.follower.getPose().getY(), shooterSb.follower.getPose().getHeading());
+        Pose2d robotPose = new Pose2d(shooterSb.follower.getPose().getX(), shooterSb.follower.getPose().getY(), shooterSb.follower.getPose().getHeading());
+
+        double heading = robotPose.getHeading();
+
+// shooter is 2.5 inches behind robot center
+        double offsetX = -2.5;
+
+// rotate offset into global frame
+        double shooterX = robotPose.getX() + offsetX * Math.cos(heading);
+        double shooterY = robotPose.getY() + offsetX * Math.sin(heading);
+
+        Pose2d shooterPose = new Pose2d(shooterX, shooterY, heading);
 
         if (shooterPose.getY() < 50) {
             goalX = goalX_FAR;
@@ -127,6 +139,8 @@ public class aimCMD extends CommandBase {
 
         double denom = 2 * Math.pow(Math.cos(hoodAngle), 2) * (x * Math.tan(hoodAngle) - y);
 
+        PanelsTelemetry.INSTANCE.getFtcTelemetry().addData("denominador", (g * x * x / (2 * Math.pow(Math.cos(hoodAngle), 2) * (x * Math.tan(hoodAngle) - y))));
+
         flywheelSpeed = Math.sqrt(g * x * x / (2 * Math.pow(Math.cos(hoodAngle), 2) * (x * Math.tan(hoodAngle) - y)));
 
         Vector robotVelocity = shooterSb.follower.getVelocity();
@@ -160,14 +174,14 @@ public class aimCMD extends CommandBase {
 
         }
 //update turret
-        double turretVelCompOffset = Math.atan(perpendicularComponent / ivr);
+        double turretVelCompOffset = Math.atan(perpendicularComponent / ivr) * kTurretvel;
         double turretAngle = Math.toDegrees(shooterPose.getHeading() - robotToGoalVector.angle() + turretVelCompOffset);
 
 //double turretAngle = shooterSb.turretToGoalAngle - Math.toDegrees(turretVelCompOffset);
 
         double finalHoodAngle;
 
-        if (isShooting && Math.abs(shooterSb.shooterError.getAsDouble()) > velocityShooterDeadPoint && !reAnguled) {
+        if (isShooting && Math.abs(shooterSb.shooterError) > velocityShooterDeadPoint && !reAnguled) {
             hoodAngle += hoodAdjustment;
             reAnguled = true;
         } else {

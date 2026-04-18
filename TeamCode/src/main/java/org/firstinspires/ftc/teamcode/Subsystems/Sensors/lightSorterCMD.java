@@ -69,7 +69,7 @@ public class lightSorterCMD extends CommandBase {
             if (sensorsSubsystem.laserState && gamepad.right_trigger > 0.5) {
                 sensorsSubsystem.setLightPos(lightRed);
 
-            }else if (preparingShoot.getAsBoolean() && Math.abs(shooterSb.shooterError.getAsDouble()) < errorShooterLightTarget) {
+            }else if (preparingShoot.getAsBoolean() && Math.abs(shooterSb.shooterError) < errorShooterLightTarget) {
                 sensorsSubsystem.setLightPos(lightBlue);
 
             } else {

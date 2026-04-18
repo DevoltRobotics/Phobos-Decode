@@ -140,6 +140,8 @@ public abstract class OpModeCommand extends OpMode {
 
         }
     }
+
+    double dt;
     @Override
     public void loop() {
         CommandScheduler.getInstance().run();
@@ -149,11 +151,15 @@ public abstract class OpModeCommand extends OpMode {
 
         PanelsTelemetry.INSTANCE.getFtcTelemetry().update();
 
-        double dt = timer.seconds() - lastTime;
+        /*dt = timer.seconds() - lastTime;
 
         telemetry.addData("deltaT", dt);
 
+
+         */
         lastTime = timer.seconds();
+
+        follower.update();
 
         /*Drawing.drawRobot(follower.getPose());
         Drawing.sendPacket();

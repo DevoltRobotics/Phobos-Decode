@@ -20,8 +20,8 @@ public class shooterConstants {
 
     public static int goalX_FAR = 136;
     public static int goalY_FAR = 138;
-    public static double SCORE_HEIGHT_FAR = 18; //inches
-    public static double SCORE_ANGLE_FAR = -0.4;// Math.toRadians(-30); //inches
+    public static double SCORE_HEIGHT_FAR = 16; //inches
+    public static double SCORE_ANGLE_FAR = -0.5;// Math.toRadians(-30); //inches
     public static double PASS_THROUGH_POINT_RADIUS_FAR = 7; //inches
 
     //HOOD
@@ -66,12 +66,11 @@ public class shooterConstants {
 
     public static double flywheelOffSetMultiplier_CLOSE = 1.093;
 
-    public static double flywheelOffSet_FAR = 190;
+    public static double flywheelOffSet_FAR = 1653;
 
-    public static double flywheelOffSetMultiplier_FAR = 1.115;
+    public static double flywheelOffSetMultiplier_FAR = 1.118;
 
     public static double velocityShooterDeadPoint = 60;
-
 
     public static double getFlywheelTicksFromVelocity(double velocity) {
         double wheelRadius = 1.889; // inches (CHANGE THIS)
@@ -87,7 +86,7 @@ public class shooterConstants {
     }
 
     //TURRET
-    public static double kTurretvel = 1;
+    public static double kTurretvel = 1.15;
 
     public static PIDFCoefficients principalTurretCoeffs = new PIDFCoefficients(0.02, 0.0, 0.0015, 0.00049);
 

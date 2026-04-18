@@ -7,6 +7,14 @@ import static org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.SorterSu
 import static org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.SorterSubsystem.downRampPos;
 import static org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.SorterSubsystem.upRampPos;
 import static org.firstinspires.ftc.teamcode.Utilities.shooterConstants.manualIncrement;
+import static org.firstinspires.ftc.teamcode.pedroPathing.PedroSubsystem.xBlueCloseCorner;
+import static org.firstinspires.ftc.teamcode.pedroPathing.PedroSubsystem.xBlueFarCorner;
+import static org.firstinspires.ftc.teamcode.pedroPathing.PedroSubsystem.xRedCloseCorner;
+import static org.firstinspires.ftc.teamcode.pedroPathing.PedroSubsystem.xRedFarCorner;
+import static org.firstinspires.ftc.teamcode.pedroPathing.PedroSubsystem.yBlueCloseCorner;
+import static org.firstinspires.ftc.teamcode.pedroPathing.PedroSubsystem.yBlueFarCorner;
+import static org.firstinspires.ftc.teamcode.pedroPathing.PedroSubsystem.yRedCloseCorner;
+import static org.firstinspires.ftc.teamcode.pedroPathing.PedroSubsystem.yRedFarCorner;
 
 import com.bylazar.configurables.annotations.Configurable;
 import com.pedropathing.ftc.localization.localizers.PinpointLocalizer;
@@ -49,7 +57,7 @@ public abstract class teleOp extends OpModeCommand {
 
     boolean isClose = false;
 
-    public static int timerSorting = 300;
+    public static int timerSorting = 400;
 
 
     public teleOp(Alliance alliance) {
@@ -71,22 +79,63 @@ public abstract class teleOp extends OpModeCommand {
 
         CommandScheduler.getInstance().setDefaultCommand(pedroSb, pedroSb.fieldCentricCmd(gamepad1, angleOffSet));
 
+        /// GARRA
 
-        Button restartPinpoint = new GamepadButton(
+        CommandScheduler.getInstance().setDefaultCommand(sensorsSb, new lightSorterCMD(sensorsSb, shooterSb, visionSb, () -> preparingShoot, gamepad2));
+
+        Button upChassis = new GamepadButton(
+                chassis,
+                GamepadKeys.Button.DPAD_UP);
+
+        upChassis.whenPressed(
+                new ConditionalCommand(
+                        new InstantCommand(() -> follower.setPose(new Pose(xRedFarCorner, yRedFarCorner, angleOffSet))),
+                        new InstantCommand(() -> follower.setPose(new Pose(xBlueFarCorner, yBlueFarCorner, angleOffSet))),
+                        () -> Alliance.RED.equals(currentAliance))
+        );
+
+        Button rightChassis = new GamepadButton(
                 chassis,
                 GamepadKeys.Button.DPAD_RIGHT);
 
-        /*restartPinpoint.whenPressed(
-                new InstantCommand(() -> pinpoint.recalibrateIMU())
+        rightChassis.whenPressed(
+                new ConditionalCommand(
+                        new InstantCommand(() -> follower.setPose(new Pose(xBlueFarCorner, yBlueFarCorner, angleOffSet))),
+                        new InstantCommand(() -> follower.setPose(new Pose(xRedFarCorner, yRedFarCorner, angleOffSet))),
+                        () -> Alliance.RED.equals(currentAliance))
         );
 
-         */
+        Button downChassis = new GamepadButton(
+                chassis,
+                GamepadKeys.Button.DPAD_DOWN);
 
-        /// GARRA
+        downChassis.whenPressed(
+                new ConditionalCommand(
+                        new InstantCommand(() -> follower.setPose(new Pose(xBlueCloseCorner, yBlueCloseCorner, angleOffSet))),
+                        new InstantCommand(() -> follower.setPose(new Pose(xRedCloseCorner, yRedCloseCorner, angleOffSet))),
+                        () -> Alliance.RED.equals(currentAliance))
+        );
 
-        CommandScheduler.getInstance().setDefaultCommand(sensorsSb, new lightSorterCMD(sensorsSb, shooterSb, visionSb, ()-> preparingShoot, gamepad2));
+        Button leftChassis = new GamepadButton(
+                chassis,
+                GamepadKeys.Button.DPAD_LEFT);
 
-        //CommandScheduler.getInstance().setDefaultCommand(sorterSb, new preSorterTeleopCMD(sorterSb, sensorsSb, 300));
+        leftChassis.whenPressed(
+                new ConditionalCommand(
+                        new InstantCommand(() -> follower.setPose(new Pose(xRedCloseCorner, yRedCloseCorner, angleOffSet))),
+                        new InstantCommand(() -> follower.setPose(new Pose(xBlueCloseCorner, yBlueCloseCorner, angleOffSet))),
+                        () -> Alliance.RED.equals(currentAliance))
+        );
+
+        Button yChassis = new GamepadButton(
+                chassis,
+                GamepadKeys.Button.DPAD_LEFT);
+
+        yChassis.whenPressed(
+                new InstantCommand(() -> follower.setPose(new Pose(follower.poseTracker.getPose().getX(), follower.poseTracker.getPose().getY(), angleOffSet)))
+        );
+
+        /// //////////////////////////////////
 
         Trigger intakeIn = new Trigger(() -> gamepad2.right_trigger >= 0.5);
         Trigger intakeOut = new Trigger(() -> gamepad2.left_trigger >= 0.5);
@@ -217,7 +266,7 @@ public abstract class teleOp extends OpModeCommand {
                         new InstantCommand(
                                 () -> preparingShoot = true
                         ),
-                        
+
                         new moveIntakeAutonomousCMD(intakeSb, 1, 1),
 
                         new ConditionalCommand(
@@ -308,7 +357,7 @@ public abstract class teleOp extends OpModeCommand {
                 garra,
                 GamepadKeys.Button.A);
 
-        toggleSorterTarget.whenPressed( switchPatternTarget());
+        toggleSorterTarget.whenPressed(switchPatternTarget());
 
     }
 

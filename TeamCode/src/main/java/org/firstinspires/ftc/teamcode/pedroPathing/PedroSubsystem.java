@@ -114,35 +114,11 @@ public class PedroSubsystem extends SubsystemBase {
                     angleOffset// Robot Centric
             );
 
-            if (gamepad.yWasPressed()) {
+            /*if (gamepad.yWasPressed()) {
                 follower.setPose(new Pose(follower.getPose().getX(), follower.getPose().getY(), angleOffset));
             }
 
-            switch (alliance){
-                case RED:
-                    if (gamepad.dpadUpWasPressed()){
-                        follower.setPose(new Pose(xRedFarCorner, yRedFarCorner, angleOffset));
-                    } else if (gamepad.dpadRightWasPressed()) {
-                        follower.setPose(new Pose(xBlueFarCorner, yBlueFarCorner, angleOffset));
-                    }else if (gamepad.dpadDownWasPressed()) {
-                        follower.setPose(new Pose(xBlueCloseCorner, yBlueCloseCorner, angleOffset));
-                    }else if (gamepad.dpadLeftWasPressed()) {
-                        follower.setPose(new Pose(xRedCloseCorner, yRedCloseCorner, angleOffset));
-                    }
-                    break;
-                case BLUE:
-                    if (gamepad.dpadRightWasPressed()){
-                        follower.setPose(new Pose(xRedFarCorner, yRedFarCorner, angleOffset));
-                    } else if (gamepad.dpadUpWasPressed()) {
-                        follower.setPose(new Pose(xBlueFarCorner, yBlueFarCorner, angleOffset));
-                    }else if (gamepad.dpadLeftWasPressed()) {
-                        follower.setPose(new Pose(xBlueCloseCorner, yBlueCloseCorner, angleOffset));
-                    }else if (gamepad.dpadDownWasPressed()) {
-                        follower.setPose(new Pose(xRedCloseCorner, yRedCloseCorner, angleOffset));
-                    }
-                    break;
-
-            }
+             */
         }
 
         @Override

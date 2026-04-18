@@ -48,7 +48,7 @@ public class ShooterSubsystem extends SubsystemBase {
 
     public double shooterTarget = 0;
 
-    public DoubleSupplier shooterError;
+    public double shooterError;
 
     //HOOD
 
@@ -163,7 +163,7 @@ public class ShooterSubsystem extends SubsystemBase {
 
         shooterM.setPower(shooterTargetPwr);
 
-        shooterError = ()-> (shooterTarget - motorVel);
+        shooterError = (shooterTarget - motorVel);
 
         PanelsTelemetry.INSTANCE.getFtcTelemetry().addData("shooterTargetPwr", shooterTargetPwr);
         PanelsTelemetry.INSTANCE.getFtcTelemetry().addData("shooterTarget", shooterTarget);
@@ -230,8 +230,9 @@ public class ShooterSubsystem extends SubsystemBase {
     }
 
     public void setHoodPose(double angle){
-        hoodS.setPosition(MathFunctions.clamp(gethoodTicksFromDegrees(angle), 0.001, 0.999));
-
+        if(!Double.isNaN(angle)) {
+            hoodS.setPosition(MathFunctions.clamp(gethoodTicksFromDegrees(angle), 0.001, 0.999));
+        }
     }
 
     public void setTurretTarget(double target){
