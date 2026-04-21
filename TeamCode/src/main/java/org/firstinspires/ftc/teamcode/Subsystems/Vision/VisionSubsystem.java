@@ -7,6 +7,7 @@ import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.seattlesolvers.solverslib.command.ConditionalCommand;
 import com.seattlesolvers.solverslib.command.SubsystemBase;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
@@ -27,8 +28,6 @@ public class VisionSubsystem extends SubsystemBase {
     public LLResult result;
 
     static double RIGHT_BOUND = 10;
-    static double LEFT_BOUND = 10;
-
     private static final int PPG_TAG_ID = 23;
     private static final int PGP_TAG_ID = 22;
     private static final int GPP_TAG_ID = 21;
@@ -41,13 +40,7 @@ public class VisionSubsystem extends SubsystemBase {
 
     public Telemetry telemetry;
 
-    Follower follower;
-
-    public enum TargetArtifactSide {
-        right,
-        center,
-        left
-    }
+    private boolean hasMovedServo = false;
 
     public enum llState {
         artifact,
@@ -57,7 +50,7 @@ public class VisionSubsystem extends SubsystemBase {
 
     public llState llStatus;
 
-    public VisionSubsystem(HardwareMap hMap, Telemetry telemetry, Alliance alliance, boolean isAuto, Follower follower) {
+    public VisionSubsystem(HardwareMap hMap, Telemetry telemetry, Alliance alliance, boolean isAuto) {
         ll = hMap.get(Limelight3A.class, "limelight");
         llS = hMap.get(Servo.class, "llS");
 
@@ -67,27 +60,36 @@ public class VisionSubsystem extends SubsystemBase {
 
         this.telemetry = telemetry;
 
-        this.follower = follower;
-
         ll.setPollRateHz(100);
         ll.start();
 
-        ll.pipelineSwitch(2);
+        if (isAuto) {
+            if (Alliance.RED.equals(alliance)) {
+                ll.pipelineSwitch(0);
+            } else {
+                ll.pipelineSwitch(1);
+            }
+
+        } else {
+            ll.pipelineSwitch(2);
+        }
 
     }
 
     public void periodic() {
         result = ll.getLatestResult();
 
-        /*if (llState.artifact.equals(llStatus)) {
-            setLLServoPos(llSDownPos);
+        if (!hasMovedServo) {
+            if (llState.artifact.equals(llStatus)) {
+                setLLServoPos(llSDownPos);
 
-        } else {
-            setLLServoPos(llSUpPos);
+            } else {
+                setLLServoPos(llSUpPos);
 
-        }*/
+            }
+            hasMovedServo = true;
 
-        setLLServoPos(llSUpPos);
+        }
 
         PanelsTelemetry.INSTANCE.getFtcTelemetry().addData("llA", getAllianceTA());
     }
@@ -107,23 +109,19 @@ public class VisionSubsystem extends SubsystemBase {
     }
 
 
-    public TargetArtifactSide getArtifactsSide() {
+    public boolean isArtifactsCorner() {
         if (result.isValid()) {
-            if (result.getTx() > RIGHT_BOUND) {
-                return TargetArtifactSide.right;
-            } else if (result.getTx() < LEFT_BOUND) {
-                return TargetArtifactSide.left;
-            } else {
-                return TargetArtifactSide.center;
+
+            if (Alliance.RED.equals(alliance)) {
+                return !(result.getTx() < -RIGHT_BOUND);
+
+            }else {
+                return !(result.getTx() > RIGHT_BOUND);
+
             }
 
         } else {
-            if (Alliance.RED.equals(alliance)) {
-                return TargetArtifactSide.right;
-            } else {
-                return TargetArtifactSide.left;
-
-            }
+            return true;
         }
     }
 

@@ -34,7 +34,7 @@ public class FarDeimos_GLOBAL extends OpModeCommand {
 
     public void createPaths() {
 
-        if (currentAliance == Alliance.RED) {
+        if (currentAlliance == Alliance.RED) {
 
             park = new Path(new BezierLine(startingPose, parkPose));
             park.setConstantHeadingInterpolation(parkPose.getHeading());
@@ -50,7 +50,7 @@ public class FarDeimos_GLOBAL extends OpModeCommand {
 
     @Override
     public void initialize() {
-        if (currentAliance.equals(Alliance.RED)) {
+        if (currentAlliance.equals(Alliance.RED)) {
             follower.setStartingPose(startingPose);
 
         } else {

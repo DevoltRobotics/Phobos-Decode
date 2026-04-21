@@ -1,6 +1,6 @@
 package org.firstinspires.ftc.teamcode.pedroPathing.EstimatorLocalizer;
 
-import static org.firstinspires.ftc.teamcode.PoseEstimate.ConversionUtil.from3DToPedro;
+import static org.firstinspires.ftc.teamcode.pedroPathing.EstimatorLocalizer.ConversionUtil.from3DToPedro;
 
 import com.pedropathing.ftc.localization.localizers.PinpointLocalizer;
 import com.pedropathing.geometry.Pose;
@@ -11,7 +11,6 @@ import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
-import org.firstinspires.ftc.teamcode.PoseEstimate.wpilib.Units;
 
 public class EstimatorLocalizer implements Localizer {
 

@@ -75,7 +75,7 @@ public class SensorsSubsystem extends SubsystemBase {
 
     Telemetry telemetry;
 
-    public SensorsSubsystem(HardwareMap hMap, Telemetry telemetry, BooleanSupplier isLifting){
+    public SensorsSubsystem(HardwareMap hMap, Telemetry telemetry){
         lightR = hMap.get(Servo.class, "rgbR");
         lightR.setPosition(0);
 
@@ -89,13 +89,12 @@ public class SensorsSubsystem extends SubsystemBase {
         colorL = hMap.get(RevColorSensorV3.class, "colorL");
 
         colorSensorsDelay = new ElapsedTime();
-        liftingMode = isLifting.getAsBoolean();
         this.telemetry = telemetry;
     }
 
     @Override
     public void periodic() {
-        if (colorSensorsDelay.milliseconds() > 80) {
+        /*if (colorSensorsDelay.milliseconds() > 80) {
             if (sorterMode) {
                 greenInR = colorR.green();
                 greenInL = colorL.green();
@@ -103,11 +102,12 @@ public class SensorsSubsystem extends SubsystemBase {
                 blueInL = colorL.blue();
             }
 
-            laserState = laserInput.getState();
             colorSensorsDelay.reset();
         }
 
+         */
 
+        laserState = laserInput.getState();
 
         if (greenInR > targetGreenRight && greenInR > blueInR) {
             currentRightArtifact = Artifact.Green;

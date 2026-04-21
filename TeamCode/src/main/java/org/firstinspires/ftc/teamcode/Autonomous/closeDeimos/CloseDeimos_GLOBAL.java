@@ -55,13 +55,13 @@ public class CloseDeimos_GLOBAL extends OpModeCommand {
 
     static Pose parkPose = new Pose(108.0, 70.0, Math.toRadians(0));
 
-    public CloseDeimos_GLOBAL(Alliance aliance) {
-        super(aliance, true);
+    public CloseDeimos_GLOBAL(Alliance alliance) {
+        super(alliance, true);
     }
 
     public void createPaths() {
 
-        if (currentAliance == Alliance.RED) {
+        if (currentAlliance == Alliance.RED) {
 
             launchPreload = new Path(new BezierLine(startingPose, shootPreloadPose));
             launchPreload.setConstantHeadingInterpolation(startingPose.getHeading());
@@ -314,7 +314,7 @@ public class CloseDeimos_GLOBAL extends OpModeCommand {
     @Override
     public void initialize() {
 
-        if (currentAliance.equals(Alliance.RED)) {
+        if (currentAlliance.equals(Alliance.RED)) {
             follower.setStartingPose(startingPose);
 
         } else {

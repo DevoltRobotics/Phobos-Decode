@@ -16,6 +16,7 @@ import static org.firstinspires.ftc.teamcode.Utilities.shooterConstants.ticktsTo
 import static org.firstinspires.ftc.teamcode.Utilities.shooterConstants.turretPidSwitch;
 import static org.firstinspires.ftc.teamcode.Utilities.shooterConstants.upperLimit;
 
+import com.bylazar.configurables.annotations.Configurable;
 import com.bylazar.telemetry.PanelsTelemetry;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.Pose;
@@ -36,6 +37,7 @@ import org.firstinspires.ftc.teamcode.Utilities.Alliance;
 
 import java.util.function.DoubleSupplier;
 
+@Configurable
 public class ShooterSubsystem extends SubsystemBase {
 
     public Follower follower;
@@ -80,7 +82,7 @@ public class ShooterSubsystem extends SubsystemBase {
 
     boolean isAuto;
 
-    public static boolean useSecondaryPID = false;
+    public static boolean useSecondaryPID = true;
 
 
     public ShooterSubsystem(HardwareMap hMap, Telemetry telemetry, Follower follower, Alliance alliance, boolean isAuto) {
@@ -127,6 +129,11 @@ public class ShooterSubsystem extends SubsystemBase {
 
         turretPid = new PIDFController(principalTurretCoeffs);
         secondaryTurretPid = new PIDFController(secondaryTurretCoeffs);
+
+        turretPid.setMinimumOutput(minimunPower);
+        secondaryTurretPid.setMinimumOutput(minimunPower);
+
+
         this.telemetry = telemetry;
     }
 
@@ -153,7 +160,7 @@ public class ShooterSubsystem extends SubsystemBase {
             }
         }
         //SHOOTER
-        shooterController.setCoefficients(shooterCoeffs);
+        //shooterController.setCoefficients(shooterCoeffs);
 
         double motorVel = shooterM.getVelocity();
 
@@ -193,13 +200,13 @@ public class ShooterSubsystem extends SubsystemBase {
         double error = target - turretP;
 
         turretPid.setMinimumOutput(minimunPower);
+
         secondaryTurretPid.setMinimumOutput(minimunPower);
 
         if (Math.abs(error) > turretPidSwitch || !useSecondaryPID) {
             turretPower = Range.clip(turretPid.calculate(turretP, target), -1, 1);
         }else{
             turretPower = Range.clip(secondaryTurretPid.calculate(turretP, target), -1, 1);
-
         }
 
         turretM.setPower(turretPower);
@@ -207,16 +214,12 @@ public class ShooterSubsystem extends SubsystemBase {
         turretPid.setCoefficients(principalTurretCoeffs);
         secondaryTurretPid.setCoefficients(secondaryTurretCoeffs);
 
-
-
         PanelsTelemetry.INSTANCE.getFtcTelemetry().addData("turretError", error);
         PanelsTelemetry.INSTANCE.getFtcTelemetry().addData("turretTarget", turretTarget);
 
         PanelsTelemetry.INSTANCE.getFtcTelemetry().addData("turret angle", turretP);
         PanelsTelemetry.INSTANCE.getFtcTelemetry().addData("turret to goal angle", getTurretToGoalAngle());
         PanelsTelemetry.INSTANCE.getFtcTelemetry().addData("distance to goal", getDistanceToGoal());
-
-
     }
 
     public void setShooterTarget(double target){
@@ -225,7 +228,7 @@ public class ShooterSubsystem extends SubsystemBase {
     }
 
     public void setOffTarget(){
-        shooterTarget -= 400;
+        shooterTarget -= 300;
 
     }
 
@@ -236,6 +239,7 @@ public class ShooterSubsystem extends SubsystemBase {
     }
 
     public void setTurretTarget(double target){
+
         turretTarget = target;
 
     }

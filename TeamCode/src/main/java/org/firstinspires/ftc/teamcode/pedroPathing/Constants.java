@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.pedroPathing;
 
 import com.bylazar.configurables.annotations.Configurable;
+import com.pedropathing.control.PredictiveBrakingCoefficients;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.follower.FollowerConstants;
 import com.pedropathing.ftc.FollowerBuilder;
@@ -36,21 +37,24 @@ import org.firstinspires.ftc.teamcode.pedroPathing.EstimatorLocalizer.KalmanPedr
 public class Constants {
     public static FollowerConstants followerConstants = new FollowerConstants()
             .mass(14)
-            .forwardZeroPowerAcceleration(-32.2)
-            .lateralZeroPowerAcceleration(-60.2)
-            .translationalPIDFCoefficients(new PIDFCoefficients(0.09, 0, 0.005, 0.028))
-            .headingPIDFCoefficients(new PIDFCoefficients(0.8,0,0.03,0.031))
-            .drivePIDFCoefficients(new FilteredPIDFCoefficients(0.03, 0,0.005, 0.7, 0.095))
+            .forwardZeroPowerAcceleration(-37.8)
+            .lateralZeroPowerAcceleration(-58.4)
 
-            .secondaryTranslationalPIDFCoefficients(new PIDFCoefficients(0.2, 0, 0.02, 0.015))
-            .secondaryHeadingPIDFCoefficients(new PIDFCoefficients(0.6,0,0.09,0.02))
-            .secondaryDrivePIDFCoefficients(new FilteredPIDFCoefficients(0, 0,0 , 0.6, 0))
+            .headingPIDFCoefficients(new PIDFCoefficients(0.095,0,0.05,0.025))
+            .translationalPIDFCoefficients(new PIDFCoefficients(0.085, 0, 0.0105, 0.05))
+            .drivePIDFCoefficients(new FilteredPIDFCoefficients(0.01, 0,0.002, 0.6, 0.098))
 
-            .useSecondaryTranslationalPIDF(false)
-            .useSecondaryHeadingPIDF(false)
+            .secondaryHeadingPIDFCoefficients(new PIDFCoefficients(0.5,0,0.13,0.025))
+            .secondaryTranslationalPIDFCoefficients(new PIDFCoefficients(0.14, 0, 0.017, 0.04))
+            .secondaryDrivePIDFCoefficients(new FilteredPIDFCoefficients(0.04, 0,0.13, 0.6, 0.11))
+
+            .useSecondaryHeadingPIDF(true)
+            .useSecondaryTranslationalPIDF(true)
             .useSecondaryDrivePIDF(false)
 
-            .centripetalScaling(0.00052)
+            .centripetalScaling(0.00052) //0.00052
+
+            //.predictiveBrakingCoefficients(new PredictiveBrakingCoefficients(0.05, 0.0485, 0.00262))
             ;
 
 
@@ -65,16 +69,18 @@ public class Constants {
             .leftRearMotorDirection(DcMotorSimple.Direction.REVERSE)
             .rightFrontMotorDirection(DcMotorSimple.Direction.FORWARD)
             .rightRearMotorDirection(DcMotorSimple.Direction.FORWARD)
-            .xVelocity(77.5)
-            .yVelocity(58.9)
+            .xVelocity(75.9)
+            .yVelocity(59.5)
 
             ;
 
-
-
     public static PinpointConstants localizerConstants = new PinpointConstants()
-            .forwardPodY(-2)
-            .strafePodX(-4)
+            //.forwardPodY(-1.85) //-2
+            //.strafePodX(-5) //-4
+
+            .forwardPodY(-2) //-2
+            .strafePodX(-4) //-4
+
             .distanceUnit(DistanceUnit.INCH)
             .hardwareMapName("pinpoint")
 
@@ -96,7 +102,6 @@ public class Constants {
     );
 
     public static Follower createFollower(HardwareMap hardwareMap, Limelight3A limelight) {
-
         return new FollowerBuilder(followerConstants, hardwareMap)
                 .pathConstraints(pathConstraints)
                 .mecanumDrivetrain(driveConstants)

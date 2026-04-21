@@ -1,6 +1,6 @@
 package org.firstinspires.ftc.teamcode.pedroPathing.EstimatorLocalizer;
 
-import static org.firstinspires.ftc.teamcode.PoseEstimate.ConversionUtil.from3DToPedro;
+import static org.firstinspires.ftc.teamcode.pedroPathing.EstimatorLocalizer.ConversionUtil.from3DToPedro;
 
 import com.pedropathing.ftc.localization.localizers.PinpointLocalizer;
 import com.pedropathing.geometry.Pose;

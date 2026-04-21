@@ -17,7 +17,6 @@ import static org.firstinspires.ftc.teamcode.pedroPathing.PedroSubsystem.yRedClo
 import static org.firstinspires.ftc.teamcode.pedroPathing.PedroSubsystem.yRedFarCorner;
 
 import com.bylazar.configurables.annotations.Configurable;
-import com.pedropathing.ftc.localization.localizers.PinpointLocalizer;
 import com.pedropathing.geometry.Pose;
 import com.seattlesolvers.solverslib.command.CommandScheduler;
 import com.seattlesolvers.solverslib.command.ConditionalCommand;
@@ -38,7 +37,6 @@ import org.firstinspires.ftc.teamcode.Subsystems.ShooterSubsystem.aimCMD;
 import org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.horizontalBlockerCMD;
 import org.firstinspires.ftc.teamcode.Subsystems.Vision.VisionSubsystem;
 import org.firstinspires.ftc.teamcode.Utilities.Alliance;
-import org.firstinspires.ftc.teamcode.Utilities.Artifact;
 import org.firstinspires.ftc.teamcode.Utilities.OpModeCommand;
 import org.firstinspires.ftc.teamcode.pedroPathing.PedroSubsystem;
 
@@ -56,9 +54,7 @@ public abstract class teleOp extends OpModeCommand {
     boolean preparingShoot = false;
 
     boolean isClose = false;
-
     public static int timerSorting = 400;
-
 
     public teleOp(Alliance alliance) {
         super(alliance, false);
@@ -91,7 +87,7 @@ public abstract class teleOp extends OpModeCommand {
                 new ConditionalCommand(
                         new InstantCommand(() -> follower.setPose(new Pose(xRedFarCorner, yRedFarCorner, angleOffSet))),
                         new InstantCommand(() -> follower.setPose(new Pose(xBlueFarCorner, yBlueFarCorner, angleOffSet))),
-                        () -> Alliance.RED.equals(currentAliance))
+                        () -> Alliance.RED.equals(currentAlliance))
         );
 
         Button rightChassis = new GamepadButton(
@@ -102,7 +98,7 @@ public abstract class teleOp extends OpModeCommand {
                 new ConditionalCommand(
                         new InstantCommand(() -> follower.setPose(new Pose(xBlueFarCorner, yBlueFarCorner, angleOffSet))),
                         new InstantCommand(() -> follower.setPose(new Pose(xRedFarCorner, yRedFarCorner, angleOffSet))),
-                        () -> Alliance.RED.equals(currentAliance))
+                        () -> Alliance.RED.equals(currentAlliance))
         );
 
         Button downChassis = new GamepadButton(
@@ -113,7 +109,7 @@ public abstract class teleOp extends OpModeCommand {
                 new ConditionalCommand(
                         new InstantCommand(() -> follower.setPose(new Pose(xBlueCloseCorner, yBlueCloseCorner, angleOffSet))),
                         new InstantCommand(() -> follower.setPose(new Pose(xRedCloseCorner, yRedCloseCorner, angleOffSet))),
-                        () -> Alliance.RED.equals(currentAliance))
+                        () -> Alliance.RED.equals(currentAlliance))
         );
 
         Button leftChassis = new GamepadButton(
@@ -124,7 +120,7 @@ public abstract class teleOp extends OpModeCommand {
                 new ConditionalCommand(
                         new InstantCommand(() -> follower.setPose(new Pose(xRedCloseCorner, yRedCloseCorner, angleOffSet))),
                         new InstantCommand(() -> follower.setPose(new Pose(xBlueCloseCorner, yBlueCloseCorner, angleOffSet))),
-                        () -> Alliance.RED.equals(currentAliance))
+                        () -> Alliance.RED.equals(currentAlliance))
         );
 
         Button yChassis = new GamepadButton(
@@ -283,9 +279,11 @@ public abstract class teleOp extends OpModeCommand {
 
         stopShootButton.whenPressed(
                 new ParallelCommandGroup(
-                        new InstantCommand(
+                        /*new InstantCommand(
                                 () -> shooterSb.setOffTarget()
                         ),
+
+                         */
 
                         new InstantCommand(
                                 () -> preparingShoot = false

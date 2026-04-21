@@ -4,7 +4,6 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 import org.firstinspires.ftc.teamcode.Utilities.Alliance;
 
-@Autonomous
 public class BLUE_CLOSE_DEIMOS extends CloseDeimos_GLOBAL {
     public BLUE_CLOSE_DEIMOS() {
         super(Alliance.BLUE);

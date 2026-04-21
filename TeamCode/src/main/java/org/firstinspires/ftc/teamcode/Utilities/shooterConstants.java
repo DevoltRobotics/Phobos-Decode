@@ -20,7 +20,7 @@ public class shooterConstants {
 
     public static int goalX_FAR = 136;
     public static int goalY_FAR = 138;
-    public static double SCORE_HEIGHT_FAR = 16; //inches
+    public static double SCORE_HEIGHT_FAR = 14; //inches
     public static double SCORE_ANGLE_FAR = -0.5;// Math.toRadians(-30); //inches
     public static double PASS_THROUGH_POINT_RADIUS_FAR = 7; //inches
 
@@ -66,9 +66,9 @@ public class shooterConstants {
 
     public static double flywheelOffSetMultiplier_CLOSE = 1.093;
 
-    public static double flywheelOffSet_FAR = 1653;
+    public static double flywheelOffSet_FAR = 165;
 
-    public static double flywheelOffSetMultiplier_FAR = 1.118;
+    public static double flywheelOffSetMultiplier_FAR = 1.115;
 
     public static double velocityShooterDeadPoint = 60;
 
@@ -86,19 +86,19 @@ public class shooterConstants {
     }
 
     //TURRET
-    public static double kTurretvel = 1.15;
+    public static double kTurretvel = 1.17;
 
-    public static PIDFCoefficients principalTurretCoeffs = new PIDFCoefficients(0.02, 0.0, 0.0015, 0.00049);
+    public static PIDFCoefficients principalTurretCoeffs = new PIDFCoefficients(0.04, 0.0, 0.00125, 0.001);
 
-    public static PIDFCoefficients secondaryTurretCoeffs = new PIDFCoefficients(0.035, 0.0, 0.0011, 0.00049);
+    public static PIDFCoefficients secondaryTurretCoeffs = new PIDFCoefficients(0.07, 0.0, 0.0002, 0.001);
 
-    public static double turretPidSwitch = 10; // start SMALL
+    public static double turretPidSwitch = 3.5; // start SMALL
 
-    public static double minimunPower = 0.034;
+    public static double minimunPower = 0.042;
 
     public static double capstanRatio = 0.315; //0.331
 
-    public static double ticktsToDegrees = (double) 360 / 537.7;
+    public static double ticktsToDegrees = (double) 360 / 8192;
 
     public static int upperLimit = 110;
 

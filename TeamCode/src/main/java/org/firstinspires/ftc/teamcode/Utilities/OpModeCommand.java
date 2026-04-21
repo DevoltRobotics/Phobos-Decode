@@ -5,19 +5,12 @@ import static org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.SorterSu
 import static org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.SorterSubsystem.blockersUp;
 import static org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.SorterSubsystem.upRampPos;
 
-import com.bylazar.field.FieldManager;
-import com.bylazar.field.PanelsField;
-import com.bylazar.field.Style;
+import android.os.Trace;
+
 import com.bylazar.telemetry.JoinedTelemetry;
 import com.bylazar.telemetry.PanelsTelemetry;
 import com.bylazar.telemetry.TelemetryManager;
 import com.pedropathing.follower.Follower;
-import com.pedropathing.geometry.Pose;
-import com.pedropathing.math.Vector;
-import com.pedropathing.paths.Path;
-import com.pedropathing.paths.PathChain;
-import com.pedropathing.util.PoseHistory;
-import com.qualcomm.hardware.gobilda.GoBildaPinpointDriver;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -52,8 +45,8 @@ public abstract class OpModeCommand extends OpMode {
     public Follower follower;
     private final ElapsedTime timer = new ElapsedTime();
 
-    private double lastTime = 0 ;
-    public final Alliance currentAliance;
+    private double lastTime = 0;
+    public final Alliance currentAlliance;
 
     public final boolean isAuto;
 
@@ -62,18 +55,12 @@ public abstract class OpModeCommand extends OpMode {
     public IntakeSubsystem intakeSb;
     public SorterSubsystem sorterSb;
     public SensorsSubsystem sensorsSb;
-    public LiftingSubsystem liftingSb;
     public ShooterSubsystem shooterSb;
-
-    public TelemetryManager telemetryM;
 
     public boolean isLifting = false;
 
-    public BooleanSupplier isLiftingSupplier = ()-> isLifting;
-
-
     public OpModeCommand(Alliance alliance, boolean isAuto) {
-        this.currentAliance = alliance;
+        this.currentAlliance = alliance;
         this.isAuto = isAuto;
     }
 
@@ -84,7 +71,7 @@ public abstract class OpModeCommand extends OpMode {
 
     //corre el scheduler
     public void run() {
-        run();
+        //run();
 
     }
 
@@ -108,9 +95,8 @@ public abstract class OpModeCommand extends OpMode {
         );
 
         register(
-                visionSb = new VisionSubsystem(hardwareMap, telemetry, currentAliance, isAuto, follower)
-
-        );
+                visionSb = new VisionSubsystem(hardwareMap, telemetry, currentAlliance, isAuto)
+                );
 
         follower = Constants.createFollower(hardwareMap, visionSb.ll);
 
@@ -119,14 +105,19 @@ public abstract class OpModeCommand extends OpMode {
         //Drawing.init();
 
         register(
-                pedroSb = new PedroSubsystem(follower, telemetry, currentAliance),
+                visionSb = new VisionSubsystem(hardwareMap, telemetry, currentAlliance, isAuto),
+                pedroSb = new PedroSubsystem(follower, telemetry, currentAlliance),
                 intakeSb = new IntakeSubsystem(hardwareMap),
                 sorterSb = new SorterSubsystem(hardwareMap, telemetry),
-                sensorsSb = new SensorsSubsystem(hardwareMap, telemetry, isLiftingSupplier),
-                //liftingSb = new LiftingSubsystem(hardwareMap, isLiftingSupplier),
-                shooterSb = new ShooterSubsystem(hardwareMap, telemetry, follower, currentAliance, isAuto)
+                sensorsSb = new SensorsSubsystem(hardwareMap, telemetry),
+                shooterSb = new ShooterSubsystem(hardwareMap, telemetry, follower, currentAlliance, isAuto)
         );
 
+        if (isAuto) {
+            visionSb.setLLState(VisionSubsystem.llState.artifact);
+        } else {
+            visionSb.setLLState(VisionSubsystem.llState.posEstimate);
+        }
 
         //imu = hardwareMap.get(IMU.class, "imu");
 
@@ -142,6 +133,7 @@ public abstract class OpModeCommand extends OpMode {
     }
 
     double dt;
+
     @Override
     public void loop() {
         CommandScheduler.getInstance().run();
@@ -149,14 +141,12 @@ public abstract class OpModeCommand extends OpMode {
 
         telemetry.addData("Heading", Math.toDegrees(follower.poseTracker.getPose().getHeading()));
 
-        PanelsTelemetry.INSTANCE.getFtcTelemetry().update();
-
-        /*dt = timer.seconds() - lastTime;
+        dt = timer.seconds() - lastTime;
 
         telemetry.addData("deltaT", dt);
 
+        PanelsTelemetry.INSTANCE.getFtcTelemetry().update();
 
-         */
         lastTime = timer.seconds();
 
         follower.update();
@@ -199,7 +189,7 @@ public abstract class OpModeCommand extends OpMode {
     public Command shootThreeSpamerCloseCMD() {
         return new ParallelDeadlineGroup(
 
-                new WaitCommand(1700), // deadline
+                new WaitCommand(800), // deadline
 
                 new SequentialCommandGroup(
                         new horizontalBlockerCMD(sorterSb, blockerHFreePos),
@@ -220,7 +210,11 @@ public abstract class OpModeCommand extends OpMode {
                         new lateralBlockersCMD(sorterSb, 0, 0),
                         new lateralBlockersCMD(sorterSb, blockersUp, 0),
                         () -> isSorter
-                )
+                ),
+
+                //new InstantCommand(() -> shooterSb.setOffTarget()),
+                new InstantCommand(() -> shooterSb.setTurretTarget(0))
+
         );
 
     }
@@ -237,8 +231,8 @@ public abstract class OpModeCommand extends OpMode {
 
     public Command switchPatternTarget() {
         return new InstantCommand(
-                ()-> {
-                    switch (sensorsSb.teleOpPattern){
+                () -> {
+                    switch (sensorsSb.teleOpPattern) {
                         case PPG:
                             sensorsSb.teleOpPattern = Pattern.PGP;
                             break;

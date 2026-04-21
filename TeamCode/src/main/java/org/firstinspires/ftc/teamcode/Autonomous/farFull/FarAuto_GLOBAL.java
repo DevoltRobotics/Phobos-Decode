@@ -43,7 +43,7 @@ public class FarAuto_GLOBAL extends OpModeCommand {
 
     public void createPaths() {
 
-        if (currentAliance == Alliance.RED) {
+        if (currentAlliance == Alliance.RED) {
 
             intakeFirst = new Path(new BezierCurve(startingPose, controlPick1Point, pick1Pose));
             intakeFirst.setTangentHeadingInterpolation();
@@ -171,7 +171,7 @@ public class FarAuto_GLOBAL extends OpModeCommand {
 
     @Override
     public void initialize() {
-        if (currentAliance.equals(Alliance.RED)) {
+        if (currentAlliance.equals(Alliance.RED)) {
             follower.setStartingPose(startingPose);
 
         } else {

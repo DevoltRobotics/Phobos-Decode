@@ -1,6 +1,6 @@
 package org.firstinspires.ftc.teamcode.pedroPathing.EstimatorLocalizer;
 
-import static org.firstinspires.ftc.teamcode.PoseEstimate.ConversionUtil.from3DToPedro;
+import static org.firstinspires.ftc.teamcode.pedroPathing.EstimatorLocalizer.ConversionUtil.from3DToPedro;
 
 import com.pedropathing.ftc.localization.localizers.PinpointLocalizer;
 import com.pedropathing.geometry.Pose;
@@ -8,14 +8,7 @@ import com.pedropathing.localization.Localizer;
 import com.pedropathing.math.Vector;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.hardware.limelightvision.LLResult;
-import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.util.ElapsedTime;
-
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
-import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
-import org.firstinspires.ftc.teamcode.PoseEstimate.wpilib.Units;
-
 public class KalmanPedroLocalizer implements Localizer {
 
     private final PinpointLocalizer pinpointLocalizer;
@@ -150,7 +143,7 @@ public class KalmanPedroLocalizer implements Localizer {
         // VISION UPDATE (MT2 X/Y ONLY)
         // ----------------------------
 
-        limelight.updateRobotOrientation(Units.radiansToDegrees(heading) + 90);
+        limelight.updateRobotOrientation(Math.toDegrees(heading) + 90);
         LLResult result = limelight.getLatestResult();
 
         if (result != null && result.isValid()) {

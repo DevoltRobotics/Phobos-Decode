@@ -24,7 +24,6 @@ import static org.firstinspires.ftc.teamcode.Utilities.shooterConstants.minflywh
 import static org.firstinspires.ftc.teamcode.Utilities.shooterConstants.minflywheelFar;
 import static org.firstinspires.ftc.teamcode.Utilities.shooterConstants.velocityShooterDeadPoint;
 
-import com.arcrobotics.ftclib.geometry.Vector2d;
 import com.bylazar.configurables.annotations.Configurable;
 import com.bylazar.telemetry.PanelsTelemetry;
 import com.pedropathing.geometry.Pose;
@@ -33,6 +32,7 @@ import com.pedropathing.math.Vector;
 import com.seattlesolvers.solverslib.command.CommandBase;
 import com.seattlesolvers.solverslib.geometry.Pose2d;
 import com.seattlesolvers.solverslib.geometry.Translation2d;
+import com.seattlesolvers.solverslib.geometry.Vector2d;
 
 import java.util.function.BooleanSupplier;
 
@@ -77,6 +77,17 @@ public class aimCMD extends CommandBase {
         this.isShooting = isShooting;
 
         this.isClose = isClose;
+
+        addRequirements(shooterSubsystem);
+    }
+
+    public aimCMD(ShooterSubsystem shooterSubsystem, boolean isShooting, boolean isClose) {
+
+        this.shooterSb = shooterSubsystem;
+
+        this.isShooting = isShooting;
+
+        this.isClose = ()-> isClose;
 
         addRequirements(shooterSubsystem);
     }
