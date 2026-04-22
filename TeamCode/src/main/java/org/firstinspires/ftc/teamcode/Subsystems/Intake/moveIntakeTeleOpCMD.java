@@ -29,15 +29,14 @@ public class moveIntakeTeleOpCMD extends CommandBase {
 
     @Override
     public void execute() {
-        intakeSubsystem.intakePower = inPower;
+        intakeSubsystem.setIntakePower(inPower, transPower);
 
-        intakeSubsystem.transferPower = transPower;
     }
 
 
     @Override
     public void end(boolean interruptible) {
-        intakeSubsystem.intakePower = 0;
-        intakeSubsystem.transferPower = 0;
+        intakeSubsystem.setIntakePower(0, 0);
+
     }
 }

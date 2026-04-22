@@ -128,7 +128,7 @@ public abstract class teleOp extends OpModeCommand {
                 GamepadKeys.Button.DPAD_LEFT);
 
         yChassis.whenPressed(
-                new InstantCommand(() -> follower.setPose(new Pose(follower.poseTracker.getPose().getX(), follower.poseTracker.getPose().getY(), angleOffSet)))
+                new InstantCommand(() -> follower.setPose(new Pose(follower.getPose().getX(), follower.getPose().getY(), angleOffSet)))
         );
 
         /// //////////////////////////////////
@@ -369,7 +369,7 @@ public abstract class teleOp extends OpModeCommand {
     public void run() {
         PedroSubsystem.EndPose = follower.getPose();
 
-        telemetry.addData("Heading", Math.toDegrees(follower.poseTracker.getPose().getHeading()));
+        telemetry.addData("Heading", Math.toDegrees(follower.getPose().getHeading()));
 
         telemetry.addData("EndPose", PedroSubsystem.EndPose);
 

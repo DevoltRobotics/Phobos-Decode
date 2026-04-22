@@ -61,7 +61,7 @@ public class CLOSE_TRAJ extends OpModeCommand {
     Pose shoot4Pose = m(new Pose(88.0, 83.0, Math.toRadians(0)));
     Pose pickUp5Pose = m(new Pose(125.0, 84.0, Math.toRadians(0)));
 
-    Pose shoot5Pose = m(new Pose(92.0, 84.0, Math.toRadians(320)));
+    Pose shoot5Pose = m(new Pose(92.0, 85.0, Math.toRadians(0)));
     Pose parkPose = m(new Pose(115.0, 85.0, Math.toRadians(0)));
 
     PathChain fullAuto;
@@ -72,8 +72,9 @@ public class CLOSE_TRAJ extends OpModeCommand {
         launchPreload = new Path(new BezierLine(startingPose, shootPreloadPose));
         launchPreload.setConstantHeadingInterpolation(startingPose.getHeading());
         intakeFirst = follower.pathBuilder()
-                .addPath(new BezierLine(
+                .addPath(new BezierCurve(
                         shootPreloadPose,
+                        pickUp1ControlPoint,
                         pickUp1Pose))
                 .setLinearHeadingInterpolation(shootPreloadPose.getHeading(), pickUp1Pose.getHeading())
                 .build();

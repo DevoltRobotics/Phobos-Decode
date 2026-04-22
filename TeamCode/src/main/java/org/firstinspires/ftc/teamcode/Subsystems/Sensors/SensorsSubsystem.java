@@ -94,7 +94,7 @@ public class SensorsSubsystem extends SubsystemBase {
 
     @Override
     public void periodic() {
-        /*if (colorSensorsDelay.milliseconds() > 80) {
+        if (colorSensorsDelay.milliseconds() > 80) {
             if (sorterMode) {
                 greenInR = colorR.green();
                 greenInL = colorL.green();
@@ -102,12 +102,10 @@ public class SensorsSubsystem extends SubsystemBase {
                 blueInL = colorL.blue();
             }
 
+            laserState = laserInput.getState();
+
             colorSensorsDelay.reset();
         }
-
-         */
-
-        laserState = laserInput.getState();
 
         if (greenInR > targetGreenRight && greenInR > blueInR) {
             currentRightArtifact = Artifact.Green;

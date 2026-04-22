@@ -31,10 +31,9 @@ public class moveIntakeAutonomousCMD extends CommandBase {
 
     @Override
     public void execute() {
-        intakeSubsystem.intakePower = inPower;
-        intakeSubsystem.transferPower = transPower;
-    }
+        intakeSubsystem.setIntakePower(inPower, transPower);
 
+    }
 
 
     @Override

@@ -35,9 +35,13 @@ public class IntakeSubsystem extends SubsystemBase {
 
     @Override
     public void periodic() {
-        intakeM.setPower(intakePower);
 
-        transferM.setPower(transferPower);
+    }
+
+    public void setIntakePower(double inPower, double transPower){
+        intakeM.setPower(inPower);
+
+        transferM.setPower(transPower);
 
     }
 }

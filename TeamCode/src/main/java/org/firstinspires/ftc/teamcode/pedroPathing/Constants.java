@@ -42,15 +42,17 @@ public class Constants {
 
             .headingPIDFCoefficients(new PIDFCoefficients(0.095,0,0.05,0.025))
             .translationalPIDFCoefficients(new PIDFCoefficients(0.085, 0, 0.0105, 0.05))
-            .drivePIDFCoefficients(new FilteredPIDFCoefficients(0.01, 0,0.002, 0.6, 0.098))
+            .drivePIDFCoefficients(new FilteredPIDFCoefficients(0.05, 0,0.009, 0.6, 0.098))
 
             .secondaryHeadingPIDFCoefficients(new PIDFCoefficients(0.5,0,0.13,0.025))
             .secondaryTranslationalPIDFCoefficients(new PIDFCoefficients(0.14, 0, 0.017, 0.04))
-            .secondaryDrivePIDFCoefficients(new FilteredPIDFCoefficients(0.04, 0,0.13, 0.6, 0.11))
+            .secondaryDrivePIDFCoefficients(new FilteredPIDFCoefficients(0.008, 0,0.01, 0.6, 0.098))
 
             .useSecondaryHeadingPIDF(true)
             .useSecondaryTranslationalPIDF(true)
-            .useSecondaryDrivePIDF(false)
+            .useSecondaryDrivePIDF(true)
+
+            .drivePIDFSwitch(10)
 
             .centripetalScaling(0.00052) //0.00052
 
@@ -96,9 +98,9 @@ public class Constants {
             0.1,
             0.009, //0.009
                 150,
-            2,
+            1.8,
             10,
-            1
+            1.3
     );
 
     public static Follower createFollower(HardwareMap hardwareMap, Limelight3A limelight) {

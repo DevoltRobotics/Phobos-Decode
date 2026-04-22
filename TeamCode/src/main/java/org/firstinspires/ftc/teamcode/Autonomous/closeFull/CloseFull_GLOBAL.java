@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.Autonomous.closeFull;
 
 import static org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.SorterSubsystem.blockerHFreePos;
 import static org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.SorterSubsystem.blockerHHidePos;
+import static org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.SorterSubsystem.blockerHSortingPos;
 import static org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.SorterSubsystem.blockersUp;
 import static org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.SorterSubsystem.upRampPos;
 
@@ -15,6 +16,7 @@ import com.seattlesolvers.solverslib.command.ConditionalCommand;
 import com.seattlesolvers.solverslib.command.InstantCommand;
 import com.seattlesolvers.solverslib.command.ParallelCommandGroup;
 import com.seattlesolvers.solverslib.command.ParallelDeadlineGroup;
+import com.seattlesolvers.solverslib.command.ParallelRaceGroup;
 import com.seattlesolvers.solverslib.command.SequentialCommandGroup;
 import com.seattlesolvers.solverslib.command.WaitCommand;
 
@@ -29,22 +31,23 @@ import org.firstinspires.ftc.teamcode.pedroPathing.PedroSubsystem;
 
 public class CloseFull_GLOBAL extends OpModeCommand {
 
-    private Path launchPreload, park;
-    private PathChain fullAuto, intakeFirst, launchFirst, intakeSecond, launchSecond, openGate1, intakeThird, launchThird, openGate2, intakeFourth, launchFourth, openGate3, intakeFive, launchFive;
-    Command autoCommand;
-
     public CloseFull_GLOBAL(Alliance alliance) {
         super(alliance, true);
     }
 
-    private Pose m(Pose p) {
+    private Path launchPreload, park;
+    private PathChain intakeFirst, launchFirst, intakeSecond, launchSecond, openGate1, intakeThird, launchThird, openGate2, intakeFourth, launchFourth, openGate3, intakeFive, launchFive;
+
+    private Pose currentStartingPose;
+    Command autoCommand;
+
+    Pose m(Pose p) {
         return Alliance.BLUE.equals(currentAlliance) ? p.mirror() : p;
     }
 
     Pose startingPose = m(new Pose(110.0, 134.5, Math.toRadians(0)));
 
     Pose shootPreloadPose = m(new Pose(87.0, 85.0, Math.toRadians(320)));
-
     Pose pickUp1ControlPoint = m(new Pose(92.0, 56.0, Math.toRadians(0)));
     Pose pickUp1Pose = m(new Pose(134.0, 57.0, Math.toRadians(0)));
 
@@ -52,36 +55,37 @@ public class CloseFull_GLOBAL extends OpModeCommand {
     Pose shoot1Pose = m(new Pose(88.0, 81.0, Math.toRadians(320)));
 
     Pose openGate1ControlPoint = m(new Pose(106.0, 62.0, Math.toRadians(0)));
-    Pose openGate1Pose = m(new Pose(127.0, 63.0, Math.toRadians(0)));
+    Pose openGate1Pose = m(new Pose(125.0, 64.0, Math.toRadians(0)));
 
-    Pose pickUp2Pose = m(new Pose(131.0, 53.0, Math.toRadians(40)));
+    Pose pickUp2Pose = m(new Pose(130.0, 53.0, Math.toRadians(40)));
     Pose shoot2Pose = m(new Pose(88.0, 81.0, Math.toRadians(320)));
 
     Pose openGate2ControlPoint = m(new Pose(106.0, 62.0, Math.toRadians(0)));
-    Pose openGate2Pose = m(new Pose(127.0, 62.0, Math.toRadians(0)));
+    Pose openGate2Pose = m(new Pose(125.0, 64.0, Math.toRadians(0)));
 
     Pose pickUp3Pose = m(new Pose(131.0, 53.0, Math.toRadians(40)));
     Pose shoot3Pose = m(new Pose(88.0, 81.0, Math.toRadians(320)));
 
     Pose openGate3ControlPoint = m(new Pose(106.0, 62.0, Math.toRadians(0)));
-    Pose openGate3Pose = m(new Pose(127.0, 62.0, Math.toRadians(0)));
+    Pose openGate3Pose = m(new Pose(125.0, 64.0, Math.toRadians(0)));
 
     Pose pickUp4Pose = m(new Pose(131.0, 53.0, Math.toRadians(40)));
     Pose shoot4Pose = m(new Pose(88.0, 83.0, Math.toRadians(0)));
+    Pose pickUp5Pose = m(new Pose(125.0, 84.0, Math.toRadians(0)));
 
-    Pose pickUp5Pose = m(new Pose(127.0, 84.0, Math.toRadians(0)));
+    Pose shoot5Pose = m(new Pose(92.0, 85.0, Math.toRadians(0)));
+    Pose parkPose = m(new Pose(115.0, 85.0, Math.toRadians(0)));
 
-    Pose shoot5Pose = m(new Pose(92.0, 84.0, Math.toRadians(320)));
-    Pose parkPose = m(new Pose(115.0, 83.0, Math.toRadians(0)));
+    PathChain fullAuto;
 
     public void createPaths() {
-
-
         launchPreload = new Path(new BezierLine(startingPose, shootPreloadPose));
         launchPreload.setConstantHeadingInterpolation(startingPose.getHeading());
+
         intakeFirst = follower.pathBuilder()
-                .addPath(new BezierLine(
+                .addPath(new BezierCurve(
                         shootPreloadPose,
+                        pickUp1ControlPoint,
                         pickUp1Pose))
                 .setLinearHeadingInterpolation(shootPreloadPose.getHeading(), pickUp1Pose.getHeading())
                 .build();
@@ -91,6 +95,8 @@ public class CloseFull_GLOBAL extends OpModeCommand {
                         pickUp1Pose,
                         shoot1Pose))
                 .setTangentHeadingInterpolation()
+                .setReversed()
+                .setTimeoutConstraint(1)
                 .build();
 
         openGate1 = follower.pathBuilder()
@@ -105,17 +111,19 @@ public class CloseFull_GLOBAL extends OpModeCommand {
                 .addPath(new BezierLine(
                         openGate1Pose,
                         pickUp2Pose))
-                .setTangentHeadingInterpolation()
+                .setLinearHeadingInterpolation(
+                        openGate1Pose.getHeading(),
+                        pickUp2Pose.getHeading()
+                )
                 .build();
 
         launchSecond = follower.pathBuilder()
                 .addPath(new BezierLine(
                         pickUp2Pose,
                         shoot2Pose))
-                .setLinearHeadingInterpolation(
-                        pickUp2Pose.getHeading(),
-                        shoot2Pose.getHeading()
-                )
+                .setTangentHeadingInterpolation()
+                .setReversed()
+                .setTimeoutConstraint(1)
                 .build();
 
         openGate2 = follower.pathBuilder()
@@ -139,10 +147,9 @@ public class CloseFull_GLOBAL extends OpModeCommand {
                 .addPath(new BezierLine(
                         pickUp3Pose,
                         shoot3Pose))
-                .setLinearHeadingInterpolation(
-                        pickUp3Pose.getHeading(),
-                        shoot3Pose.getHeading()
-                )
+                .setTangentHeadingInterpolation()
+                .setReversed()
+                .setTimeoutConstraint(0)
                 .build();
 
         openGate3 = follower.pathBuilder()
@@ -166,10 +173,8 @@ public class CloseFull_GLOBAL extends OpModeCommand {
                 .addPath(new BezierLine(
                         pickUp4Pose,
                         shoot4Pose))
-                .setLinearHeadingInterpolation(
-                        pickUp4Pose.getHeading(),
-                        shoot4Pose.getHeading()
-                )
+                .setTangentHeadingInterpolation()
+                .setReversed()
                 .build();
 
         intakeFive = follower.pathBuilder()
@@ -187,10 +192,11 @@ public class CloseFull_GLOBAL extends OpModeCommand {
                 .setConstantHeadingInterpolation(
                         pickUp5Pose.getHeading()
                 )
+                .setTimeoutConstraint(0)
                 .build();
 
         park = new Path(new BezierLine(shoot5Pose, parkPose));
-        park.setLinearHeadingInterpolation(shoot5Pose.getHeading(), parkPose.getHeading());
+        park.setConstantHeadingInterpolation(shoot5Pose.getHeading());
 
     }
 
@@ -227,25 +233,21 @@ public class CloseFull_GLOBAL extends OpModeCommand {
 
         autoCommand = new SequentialCommandGroup(
 
-                new ParallelDeadlineGroup(
+                new ParallelRaceGroup(
                         new SequentialCommandGroup(
-                                new moveIntakeAutonomousCMD(intakeSb, 0.3, 0),
+                                new InstantCommand(() -> intakeSb.setIntakePower(0.3, 0)),
 
                                 pedroSb.followPathCmd(launchPreload).withTimeout(1400),
 
-                                new ParallelDeadlineGroup(
-                                        new WaitCommand(1000),
+                                new InstantCommand(() -> sorterSb.setHorizontalPos(blockerHFreePos)),
 
-                                        new SequentialCommandGroup(
+                                new WaitCommand(1000),
 
-                                                new WaitCommand(200),
+                                new InstantCommand(() -> intakeSb.setIntakePower(1, 1)),
 
-                                                new moveIntakeAutonomousCMD(intakeSb, 1),
-                                                new horizontalBlockerCMD(sorterSb, blockerHFreePos)
+                                new WaitCommand(950)
 
-                                        )
-                                )
-                        ),
+                                ),
 
                         new aimCMD(shooterSb, false, true)
 
@@ -255,17 +257,16 @@ public class CloseFull_GLOBAL extends OpModeCommand {
 
                 stopShootCMD(false),
 
-                new moveIntakeAutonomousCMD(intakeSb, 1, 0.8),
+                new InstantCommand(() -> intakeSb.setIntakePower(1, 0.8)),
 
                 pedroSb.followPathCmd(intakeFirst).withTimeout(2000),
 
-                new ParallelDeadlineGroup(
-
+                new ParallelRaceGroup(
                         new SequentialCommandGroup(
                                 pedroSb.followPathCmd(launchFirst).withTimeout(2300),
                                 shootThreeSpamerCloseCMD()
-
                         ),
+
                         new aimCMD(shooterSb, false, true)
                 ),
 
@@ -273,12 +274,12 @@ public class CloseFull_GLOBAL extends OpModeCommand {
 
                 stopShootCMD(false),
 
-                new moveIntakeAutonomousCMD(intakeSb, 1, 0.8),
+                new InstantCommand(() -> intakeSb.setIntakePower(1, 0.8)),
 
                 new ParallelCommandGroup(
                         pedroSb.followPathCmd(openGate1).withTimeout(2200),
                         new SequentialCommandGroup(
-                                new WaitCommand(150),
+                                new WaitCommand(500),
                                 new InstantCommand(() -> pedroSb.follower.setMaxPower(0.6))
                         )),
 
@@ -288,7 +289,7 @@ public class CloseFull_GLOBAL extends OpModeCommand {
 
                 new WaitCommand(800),
 
-                new ParallelDeadlineGroup(
+                new ParallelRaceGroup(
                         new SequentialCommandGroup(
                                 pedroSb.followPathCmd(launchSecond).withTimeout(2300),
                                 shootThreeSpamerCloseCMD()
@@ -301,12 +302,12 @@ public class CloseFull_GLOBAL extends OpModeCommand {
 
                 stopShootCMD(false),
 
-                new moveIntakeAutonomousCMD(intakeSb, 1, 0.8),
+                new InstantCommand(() -> intakeSb.setIntakePower(1, 0.8)),
 
                 new ParallelCommandGroup(
                         pedroSb.followPathCmd(openGate2).withTimeout(2200),
                         new SequentialCommandGroup(
-                                new WaitCommand(150),
+                                new WaitCommand(500),
                                 new InstantCommand(() -> pedroSb.follower.setMaxPower(0.6))
                         )),
 
@@ -316,7 +317,7 @@ public class CloseFull_GLOBAL extends OpModeCommand {
 
                 new WaitCommand(800),
 
-                new ParallelDeadlineGroup(
+                new ParallelRaceGroup(
                         new SequentialCommandGroup(
                                 pedroSb.followPathCmd(launchThird).withTimeout(2300),
                                 shootThreeSpamerCloseCMD()
@@ -328,14 +329,15 @@ public class CloseFull_GLOBAL extends OpModeCommand {
                 ///THIRD_LAUNCHED
                 stopShootCMD(false),
 
-                new moveIntakeAutonomousCMD(intakeSb, 1, 0.8),
+                new InstantCommand(() -> intakeSb.setIntakePower(1, 0.8)),
 
                 new ParallelCommandGroup(
                         pedroSb.followPathCmd(openGate3).withTimeout(2200),
                         new SequentialCommandGroup(
-                                new WaitCommand(150),
+                                new WaitCommand(600),
                                 new InstantCommand(() -> pedroSb.follower.setMaxPower(0.6))
                         )),
+                new WaitCommand(200),
 
                 new InstantCommand(() -> follower.setMaxPower(1)),
 
@@ -343,7 +345,7 @@ public class CloseFull_GLOBAL extends OpModeCommand {
 
                 new WaitCommand(800),
 
-                new ParallelDeadlineGroup(
+                new ParallelRaceGroup(
                         new SequentialCommandGroup(
                                 pedroSb.followPathCmd(launchFourth).withTimeout(2300),
                                 shootThreeSpamerCloseCMD()
@@ -356,15 +358,15 @@ public class CloseFull_GLOBAL extends OpModeCommand {
 
                 stopShootCMD(false),
 
-                new moveIntakeAutonomousCMD(intakeSb, 1, 0.8),
-
-                new InstantCommand(() -> follower.setMaxPower(0.7)),
-
-                pedroSb.followPathCmd(intakeFive).withTimeout(800),
+                new InstantCommand(() -> intakeSb.setIntakePower(1, 0.8)),
 
                 new InstantCommand(() -> follower.setMaxPower(1)),
 
-                new ParallelDeadlineGroup(
+                pedroSb.followPathCmd(intakeFive).withTimeout(1200),
+
+                new InstantCommand(() -> follower.setMaxPower(1)),
+
+                new ParallelRaceGroup(
                         new SequentialCommandGroup(
                                 pedroSb.followPathCmd(launchFive).withTimeout(2300),
                                 shootThreeSpamerCloseCMD()
@@ -377,11 +379,10 @@ public class CloseFull_GLOBAL extends OpModeCommand {
 
                 stopShootCMD(false),
 
-                new moveIntakeAutonomousCMD(intakeSb, 1, 0.8),
+                new InstantCommand(() -> intakeSb.setIntakePower(1, 0.8)),
                 new InstantCommand(() -> shooterSb.setShooterTarget(0)),
 
                 pedroSb.followPathCmd(park)
-
         );
 
     }

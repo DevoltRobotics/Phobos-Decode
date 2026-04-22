@@ -60,7 +60,7 @@ public class VisionSubsystem extends SubsystemBase {
 
         this.telemetry = telemetry;
 
-        ll.setPollRateHz(100);
+        ll.setPollRateHz(75);
         ll.start();
 
         if (isAuto) {

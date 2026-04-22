@@ -96,7 +96,7 @@ public abstract class OpModeCommand extends OpMode {
 
         register(
                 visionSb = new VisionSubsystem(hardwareMap, telemetry, currentAlliance, isAuto)
-                );
+        );
 
         follower = Constants.createFollower(hardwareMap, visionSb.ll);
 
@@ -138,8 +138,6 @@ public abstract class OpModeCommand extends OpMode {
     public void loop() {
         CommandScheduler.getInstance().run();
         run();
-
-        telemetry.addData("Heading", Math.toDegrees(follower.poseTracker.getPose().getHeading()));
 
         dt = timer.seconds() - lastTime;
 
@@ -187,24 +185,20 @@ public abstract class OpModeCommand extends OpMode {
 
 
     public Command shootThreeSpamerCloseCMD() {
-        return new ParallelDeadlineGroup(
+        return new SequentialCommandGroup(
+                new InstantCommand(() -> sorterSb.setHorizontalPos(blockerHFreePos)),
+                new InstantCommand(() -> intakeSb.setIntakePower(1, 1)),
+                new WaitCommand(800) // deadline
 
-                new WaitCommand(800), // deadline
-
-                new SequentialCommandGroup(
-                        new horizontalBlockerCMD(sorterSb, blockerHFreePos),
-                        new moveIntakeAutonomousCMD(intakeSb, 1)
-
-                )
 
         );
     }
 
     public Command stopShootCMD(boolean isSorter) {
         return new SequentialCommandGroup(
-                new moveIntakeAutonomousCMD(intakeSb, 0, 0),
+                new InstantCommand(() -> intakeSb.setIntakePower(0, 0)),
 
-                new horizontalBlockerCMD(sorterSb, blockerHHidePos),
+                new InstantCommand(() -> sorterSb.setHorizontalPos(blockerHHidePos)),
 
                 new ConditionalCommand(
                         new lateralBlockersCMD(sorterSb, 0, 0),

@@ -179,6 +179,7 @@ public class ShooterSubsystem extends SubsystemBase {
         PanelsTelemetry.INSTANCE.getFtcTelemetry().addData("shooterCurrent", shooterM.getCurrent(CurrentUnit.AMPS));
 
         //TURRET
+        /*
 
         Pose robotPos = follower.getPose();
 
@@ -191,6 +192,8 @@ public class ShooterSubsystem extends SubsystemBase {
 
         turretToGoalAngle = AngleUnit.normalizeDegrees(Math.toDegrees(robotPos.getHeading()) - robotToGoalAngle);
 
+
+         */
         turretP =  (turretM.getCurrentPosition() * capstanRatio * ticktsToDegrees);
 
         turretEndPose = turretP;
@@ -199,9 +202,11 @@ public class ShooterSubsystem extends SubsystemBase {
 
         double error = target - turretP;
 
-        turretPid.setMinimumOutput(minimunPower);
+        /*turretPid.setMinimumOutput(minimunPower);
 
         secondaryTurretPid.setMinimumOutput(minimunPower);
+
+         */
 
         if (Math.abs(error) > turretPidSwitch || !useSecondaryPID) {
             turretPower = Range.clip(turretPid.calculate(turretP, target), -1, 1);
@@ -211,15 +216,15 @@ public class ShooterSubsystem extends SubsystemBase {
 
         turretM.setPower(turretPower);
 
-        turretPid.setCoefficients(principalTurretCoeffs);
+        /*turretPid.setCoefficients(principalTurretCoeffs);
         secondaryTurretPid.setCoefficients(secondaryTurretCoeffs);
 
+
+         */
         PanelsTelemetry.INSTANCE.getFtcTelemetry().addData("turretError", error);
         PanelsTelemetry.INSTANCE.getFtcTelemetry().addData("turretTarget", turretTarget);
 
         PanelsTelemetry.INSTANCE.getFtcTelemetry().addData("turret angle", turretP);
-        PanelsTelemetry.INSTANCE.getFtcTelemetry().addData("turret to goal angle", getTurretToGoalAngle());
-        PanelsTelemetry.INSTANCE.getFtcTelemetry().addData("distance to goal", getDistanceToGoal());
     }
 
     public void setShooterTarget(double target){
