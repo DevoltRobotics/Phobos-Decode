@@ -22,7 +22,7 @@ public class TURRET_PID_TUNER extends OpModeCommand {
 
     public static double turretTargetTest = 40;
     public TURRET_PID_TUNER() {
-        super(Alliance.RED, false);
+        super(Alliance.RED, false, true);
     }
 
     @Override

@@ -1,11 +1,10 @@
 package org.firstinspires.ftc.teamcode.Autonomous;
 
-import com.pedropathing.geometry.BezierCurve;
 import com.pedropathing.geometry.BezierLine;
 import com.pedropathing.geometry.Pose;
 import com.pedropathing.paths.Path;
 import com.pedropathing.paths.PathChain;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.seattlesolvers.solverslib.command.Command;
 import com.seattlesolvers.solverslib.command.ConditionalCommand;
@@ -14,35 +13,36 @@ import com.seattlesolvers.solverslib.command.SequentialCommandGroup;
 import org.firstinspires.ftc.teamcode.Utilities.Alliance;
 import org.firstinspires.ftc.teamcode.Utilities.OpModeCommand;
 
-@Disabled
+@Autonomous
 public class FAR_TRAJ extends OpModeCommand {
 
     public FAR_TRAJ() {
-        super(Alliance.RED, true);
+        super(Alliance.RED, true, false);
     }
 
     private ElapsedTime timer = new ElapsedTime();
+
     Pose m(Pose p) {
         return Alliance.BLUE.equals(currentAlliance) ? p.mirror() : p;
     }
 
     private Path intakeFirst, park;
-    private PathChain backIntakeFirst, launchFirst, prepareIntakeSeond, intakeSecond, launchSecond, pickCorner, pickCenter;
+    private PathChain backIntakeFirst, launchFirst, prepareIntakeSeond, intakeSecond, launchSecond, pickCorner, pickCenter, launchCorner, launchCenter;
 
 
     Pose startingPose = m(new Pose(88.0, 8.2, Math.toRadians(0)));
-    static Pose pick1Pose = new Pose(134.0, 8.2, Math.toRadians(0));
-    static Pose backPick1Pose = new Pose(130.0, 8.2, Math.toRadians(0));
+    static Pose pick1Pose = new Pose(131.0, 9, Math.toRadians(0));
+    static Pose backPick1Pose = new Pose(128.0, 9, Math.toRadians(0));
 
-    static Pose shoot1Pose = new Pose(96, 8.2, Math.toRadians(25));
+    static Pose shoot1Pose = new Pose(96, 9, Math.toRadians(25));
     static Pose preparePick2Pose = new Pose(100, 35.0, Math.toRadians(0));
-    static Pose pick2Pose = new Pose(134.0, 35, Math.toRadians(0));
+    static Pose pick2Pose = new Pose(130.0, 35, Math.toRadians(0));
     static Pose shoot2Pose = new Pose(92.0, 10.0, Math.toRadians(0));
 
-    static Pose pickCornerPose = new Pose(134.0, 9, Math.toRadians(0));
+    static Pose pickCornerPose = new Pose(128.0, 9, Math.toRadians(0));
 
     static Pose pickCenterControlPoint = new Pose(93.0, 40.0, Math.toRadians(0));
-    static Pose pickCenterPose = new Pose(134.0, 36, Math.toRadians(0));
+    static Pose pickCenterPose = new Pose(130.0, 36, Math.toRadians(0));
 
 
     static Pose parkPose = new Pose(100.0, 25.0, Math.toRadians(0));
@@ -110,6 +110,26 @@ public class FAR_TRAJ extends OpModeCommand {
                 .setTangentHeadingInterpolation()
                 .build();
 
+        launchCorner = follower.pathBuilder()
+                .addPath(new BezierLine(
+                        pickCornerPose,
+                        shoot2Pose))
+                .setLinearHeadingInterpolation(
+                        pickCornerPose.getHeading(),
+                        shoot2Pose.getHeading()
+                )
+                .build();
+
+        launchCenter = follower.pathBuilder()
+                .addPath(new BezierLine(
+                        pickCenterPose,
+                        shoot2Pose))
+                .setLinearHeadingInterpolation(
+                        pickCenterPose.getHeading(),
+                        shoot2Pose.getHeading()
+                )
+                .build();
+
         park = new Path(new BezierLine(shoot2Pose, parkPose));
         park.setConstantHeadingInterpolation(parkPose.getHeading());
 
@@ -130,46 +150,80 @@ public class FAR_TRAJ extends OpModeCommand {
 
         autoCommand =
                 new ConditionalCommand(
-                new SequentialCommandGroup(
+                        new SequentialCommandGroup(
 
-                        pedroSb.followPathCmd(intakeFirst),
-                        pedroSb.followPathCmd(backIntakeFirst),
+                                pedroSb.followPathCmd(intakeFirst),
+                                pedroSb.followPathCmd(backIntakeFirst),
 
-                        pedroSb.followPathCmd(launchFirst),
-                        pedroSb.followPathCmd(prepareIntakeSeond),
+                                pedroSb.followPathCmd(launchFirst),
+                                pedroSb.followPathCmd(prepareIntakeSeond),
 
-                        pedroSb.followPathCmd(intakeSecond),
-                        pedroSb.followPathCmd(launchSecond),
+                                pedroSb.followPathCmd(intakeSecond),
+                                pedroSb.followPathCmd(launchSecond),
 
-                        new ConditionalCommand(
-                                pedroSb.followPathCmd(pickCorner),
-                                pedroSb.followPathCmd(pickCenter),
-                                () -> visionSb.isArtifactsCorner()
+                                new ConditionalCommand(
+                                        new SequentialCommandGroup(
+                                                pedroSb.followPathCmd(pickCorner),
+                                                pedroSb.followPathCmd(launchCorner)
+                                        ),
+                                        new SequentialCommandGroup(
+                                                pedroSb.followPathCmd(pickCenter),
+                                                pedroSb.followPathCmd(launchCenter)
+                                        ), () -> visionSb.isArtifactsCorner()
 
+                                ),
+
+                                new ConditionalCommand(
+                                        new SequentialCommandGroup(
+                                                pedroSb.followPathCmd(pickCorner),
+                                                pedroSb.followPathCmd(launchCorner)
+                                        ),
+                                        new SequentialCommandGroup(
+                                                pedroSb.followPathCmd(pickCenter),
+                                                pedroSb.followPathCmd(launchCenter)
+                                        ), () -> visionSb.isArtifactsCorner()
+
+                                ),
+
+                                new ConditionalCommand(
+                                        new SequentialCommandGroup(
+                                                pedroSb.followPathCmd(pickCorner),
+                                                pedroSb.followPathCmd(launchCorner)
+                                        ),
+                                        new SequentialCommandGroup(
+                                                pedroSb.followPathCmd(pickCenter),
+                                                pedroSb.followPathCmd(launchCenter)
+                                        ), () -> visionSb.isArtifactsCorner()
+
+                                ),
+
+                                new ConditionalCommand(
+                                        new SequentialCommandGroup(
+                                                pedroSb.followPathCmd(pickCorner),
+                                                pedroSb.followPathCmd(launchCorner)
+                                        ),
+                                        new SequentialCommandGroup(
+                                                pedroSb.followPathCmd(pickCenter),
+                                                pedroSb.followPathCmd(launchCenter)
+                                        ), () -> visionSb.isArtifactsCorner()
+
+                                ),
+
+                                new ConditionalCommand(
+                                        new SequentialCommandGroup(
+                                                pedroSb.followPathCmd(pickCorner),
+                                                pedroSb.followPathCmd(launchCorner)
+                                        ),
+                                        new SequentialCommandGroup(
+                                                pedroSb.followPathCmd(pickCenter),
+                                                pedroSb.followPathCmd(launchCenter)
+                                        ), () -> visionSb.isArtifactsCorner()
+
+                                )
                         ),
 
-                        new ConditionalCommand(
-                                pedroSb.followPathCmd(pickCorner),
-                                pedroSb.followPathCmd(pickCenter),
-                                () -> visionSb.isArtifactsCorner()
-
-                        ),
-
-                        new ConditionalCommand(
-                                pedroSb.followPathCmd(pickCorner),
-                                pedroSb.followPathCmd(pickCenter),
-                                () -> visionSb.isArtifactsCorner()
-
-                        ),
-
-                        new ConditionalCommand(
-                                pedroSb.followPathCmd(pickCorner),
-                                pedroSb.followPathCmd(pickCenter),
-                                () -> visionSb.isArtifactsCorner()
-
-                        )),
                         pedroSb.followPathCmd(park),
-                        ()-> timer.seconds() < 28
+                        () -> timer.seconds() < 28
 
                 );
 
@@ -179,6 +233,8 @@ public class FAR_TRAJ extends OpModeCommand {
     public void start() {
         timer.reset();
         autoCommand.schedule();
+
+        telemetry.addData("time", timer.seconds());
 
     }
 }

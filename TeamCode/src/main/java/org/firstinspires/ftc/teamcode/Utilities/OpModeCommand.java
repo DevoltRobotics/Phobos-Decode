@@ -49,6 +49,8 @@ public abstract class OpModeCommand extends OpMode {
     public final Alliance currentAlliance;
 
     public final boolean isAuto;
+    public final boolean closeAuto;
+
 
     public VisionSubsystem visionSb;
     public PedroSubsystem pedroSb;
@@ -59,9 +61,10 @@ public abstract class OpModeCommand extends OpMode {
 
     public boolean isLifting = false;
 
-    public OpModeCommand(Alliance alliance, boolean isAuto) {
+    public OpModeCommand(Alliance alliance, boolean isAuto, boolean closeAuto) {
         this.currentAlliance = alliance;
         this.isAuto = isAuto;
+        this.closeAuto = closeAuto;
     }
 
     //reinicia la lista de comandos
@@ -95,7 +98,7 @@ public abstract class OpModeCommand extends OpMode {
         );
 
         register(
-                visionSb = new VisionSubsystem(hardwareMap, telemetry, currentAlliance, isAuto)
+                visionSb = new VisionSubsystem(hardwareMap, telemetry, currentAlliance, isAuto, closeAuto)
         );
 
         follower = Constants.createFollower(hardwareMap, visionSb.ll);
@@ -105,7 +108,7 @@ public abstract class OpModeCommand extends OpMode {
         //Drawing.init();
 
         register(
-                visionSb = new VisionSubsystem(hardwareMap, telemetry, currentAlliance, isAuto),
+                visionSb = new VisionSubsystem(hardwareMap, telemetry, currentAlliance, isAuto, closeAuto),
                 pedroSb = new PedroSubsystem(follower, telemetry, currentAlliance),
                 intakeSb = new IntakeSubsystem(hardwareMap),
                 sorterSb = new SorterSubsystem(hardwareMap, telemetry),
@@ -113,7 +116,7 @@ public abstract class OpModeCommand extends OpMode {
                 shooterSb = new ShooterSubsystem(hardwareMap, telemetry, follower, currentAlliance, isAuto)
         );
 
-        if (isAuto) {
+        if (isAuto && !closeAuto) {
             visionSb.setLLState(VisionSubsystem.llState.artifact);
         } else {
             visionSb.setLLState(VisionSubsystem.llState.posEstimate);
@@ -170,16 +173,13 @@ public abstract class OpModeCommand extends OpMode {
         );
     }
 
-    public Command shootThreeSpamerFarCMD(double shooterVel) {
-        return new ParallelDeadlineGroup(
+    public Command shootThreeSpamerFarCMD() {
+        return new SequentialCommandGroup(
+                new InstantCommand(() -> sorterSb.setHorizontalPos(blockerHFreePos)),
+                new InstantCommand(() -> intakeSb.setIntakePower(1, 1)),
+                new WaitCommand(900) // deadline
 
-                new WaitCommand(1300), // deadline
 
-                new SequentialCommandGroup(
-                        new horizontalBlockerCMD(sorterSb, blockerHFreePos),
-                        new moveIntakeAutonomousCMD(intakeSb, 0.9, 0.75)
-
-                )
         );
     }
 

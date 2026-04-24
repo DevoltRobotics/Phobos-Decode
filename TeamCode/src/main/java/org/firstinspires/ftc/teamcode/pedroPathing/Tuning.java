@@ -104,7 +104,7 @@ public class Tuning extends SelectableOpMode {
     public void onSelect() {
 
         register(
-                visionSb = new VisionSubsystem(hardwareMap, telemetry, Alliance.RED, true)
+                visionSb = new VisionSubsystem(hardwareMap, telemetry, Alliance.RED, true, true)
 
         );
         if (follower == null) {

@@ -9,7 +9,7 @@ import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 public class shooterConstants {
 
     //POSES
-    public static int goalX_CLOSE = 142;
+    public static int goalX_CLOSE = 144;
     public static int goalY_CLOSE = 138;
     public static double SCORE_HEIGHT_CLOSE = 26; //inches 30
     public static double SCORE_ANGLE_CLOSE = Math.toRadians(-30); //inches
@@ -20,7 +20,7 @@ public class shooterConstants {
 
     public static int goalX_FAR = 136;
     public static int goalY_FAR = 138;
-    public static double SCORE_HEIGHT_FAR = 14; //inches
+    public static double SCORE_HEIGHT_FAR = 16; //inches
     public static double SCORE_ANGLE_FAR = -0.5;// Math.toRadians(-30); //inches
     public static double PASS_THROUGH_POINT_RADIUS_FAR = 7; //inches
 
@@ -86,11 +86,14 @@ public class shooterConstants {
     }
 
     //TURRET
-    public static double kTurretvel = 0.4;
+    public static double kTurretvel = 0.75;
 
-    public static PIDFCoefficients principalTurretCoeffs = new PIDFCoefficients(0.04, 0.0, 0.002, 0.001);
+    public static PIDFCoefficients principalTurretCoeffs = new PIDFCoefficients(0.04, 0.0, 0.002, 0.001); //f = 0.001
 
-    public static PIDFCoefficients secondaryTurretCoeffs = new PIDFCoefficients(0.06, 0.0, 0.0008, 0.001);
+    public static PIDFCoefficients secondaryTurretCoeffs = new PIDFCoefficients(0.07, 0.0, 0.0008, 0.0004);
+
+    public static double kG = 0.02; // start small, tune later
+    public static double thetaOffset = Math.toRadians(120);
 
     public static double turretPidSwitch = 3.5; // start SMALL
 

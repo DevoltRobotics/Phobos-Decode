@@ -29,7 +29,7 @@ public class FarDeimos_GLOBAL extends OpModeCommand {
     Command autoCommand;
 
     public FarDeimos_GLOBAL(Alliance aliance) {
-        super(aliance, true);
+        super(aliance, true, false);
     }
 
     public void createPaths() {

@@ -37,22 +37,23 @@ import org.firstinspires.ftc.teamcode.pedroPathing.EstimatorLocalizer.KalmanPedr
 public class Constants {
     public static FollowerConstants followerConstants = new FollowerConstants()
             .mass(14)
-            .forwardZeroPowerAcceleration(-37.8)
-            .lateralZeroPowerAcceleration(-58.4)
+            .forwardZeroPowerAcceleration(-32.46)
+            .lateralZeroPowerAcceleration(-55.04)
 
             .headingPIDFCoefficients(new PIDFCoefficients(0.095,0,0.05,0.025))
-            .translationalPIDFCoefficients(new PIDFCoefficients(0.085, 0, 0.0105, 0.05))
-            .drivePIDFCoefficients(new FilteredPIDFCoefficients(0.05, 0,0.009, 0.6, 0.098))
+            .translationalPIDFCoefficients(new PIDFCoefficients(0.45, 0, 0.05, 0.05))
+            .drivePIDFCoefficients(new FilteredPIDFCoefficients(0.03, 0,0.008, 0.6, 0.12))
 
             .secondaryHeadingPIDFCoefficients(new PIDFCoefficients(0.5,0,0.13,0.025))
-            .secondaryTranslationalPIDFCoefficients(new PIDFCoefficients(0.14, 0, 0.017, 0.04))
+            .secondaryTranslationalPIDFCoefficients(new PIDFCoefficients(0.18, 0, 0.035, 0.04))
             .secondaryDrivePIDFCoefficients(new FilteredPIDFCoefficients(0.008, 0,0.01, 0.6, 0.098))
 
             .useSecondaryHeadingPIDF(true)
             .useSecondaryTranslationalPIDF(true)
-            .useSecondaryDrivePIDF(true)
+            .useSecondaryDrivePIDF(false)
 
             .drivePIDFSwitch(10)
+            .translationalPIDFSwitch(1.5)
 
             .centripetalScaling(0.00052) //0.00052
 
@@ -90,17 +91,15 @@ public class Constants {
             .forwardEncoderDirection(GoBildaPinpointDriver.EncoderDirection.FORWARD)
             .strafeEncoderDirection(GoBildaPinpointDriver.EncoderDirection.FORWARD);
 
-
-
     public static PathConstraints pathConstraints = new PathConstraints(
             0.995,
             0.1,
             0.1,
             0.009, //0.009
                 150,
-            1.8,
+            2.7,
             10,
-            1.3
+            1.5
     );
 
     public static Follower createFollower(HardwareMap hardwareMap, Limelight3A limelight) {

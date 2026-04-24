@@ -57,7 +57,7 @@ public abstract class teleOp extends OpModeCommand {
     public static int timerSorting = 400;
 
     public teleOp(Alliance alliance) {
-        super(alliance, false);
+        super(alliance, false, true);
     }
 
     @Override

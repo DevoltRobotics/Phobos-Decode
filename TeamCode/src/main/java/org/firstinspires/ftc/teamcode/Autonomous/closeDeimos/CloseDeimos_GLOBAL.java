@@ -56,7 +56,7 @@ public class CloseDeimos_GLOBAL extends OpModeCommand {
     static Pose parkPose = new Pose(108.0, 70.0, Math.toRadians(0));
 
     public CloseDeimos_GLOBAL(Alliance alliance) {
-        super(alliance, true);
+        super(alliance, true, true);
     }
 
     public void createPaths() {

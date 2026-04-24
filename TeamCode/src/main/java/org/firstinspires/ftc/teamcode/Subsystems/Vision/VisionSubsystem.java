@@ -37,6 +37,8 @@ public class VisionSubsystem extends SubsystemBase {
     public final Alliance alliance;
 
     public boolean isAuto;
+    public boolean closeAuto;
+
 
     public Telemetry telemetry;
 
@@ -50,11 +52,13 @@ public class VisionSubsystem extends SubsystemBase {
 
     public llState llStatus;
 
-    public VisionSubsystem(HardwareMap hMap, Telemetry telemetry, Alliance alliance, boolean isAuto) {
+    public VisionSubsystem(HardwareMap hMap, Telemetry telemetry, Alliance alliance, boolean isAuto, boolean closeAuto) {
         ll = hMap.get(Limelight3A.class, "limelight");
         llS = hMap.get(Servo.class, "llS");
 
         this.alliance = alliance;
+
+        this.closeAuto = closeAuto;
 
         this.isAuto = isAuto;
 
@@ -63,9 +67,9 @@ public class VisionSubsystem extends SubsystemBase {
         ll.setPollRateHz(75);
         ll.start();
 
-        if (isAuto) {
-            if (Alliance.RED.equals(alliance)) {
-                ll.pipelineSwitch(0);
+        if (this.isAuto) {
+            if (Alliance.RED.equals(this.alliance)) {
+                ll.pipelineSwitch(2);
             } else {
                 ll.pipelineSwitch(1);
             }

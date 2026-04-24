@@ -10,10 +10,16 @@ import com.pedropathing.geometry.BezierLine;
 import com.pedropathing.geometry.Pose;
 import com.pedropathing.paths.Path;
 import com.pedropathing.paths.PathChain;
+import com.qualcomm.robotcore.util.ElapsedTime;
 import com.seattlesolvers.solverslib.command.Command;
+import com.seattlesolvers.solverslib.command.ConditionalCommand;
+import com.seattlesolvers.solverslib.command.InstantCommand;
+import com.seattlesolvers.solverslib.command.ParallelDeadlineGroup;
+import com.seattlesolvers.solverslib.command.ParallelRaceGroup;
 import com.seattlesolvers.solverslib.command.SequentialCommandGroup;
 import com.seattlesolvers.solverslib.command.WaitCommand;
 
+import org.firstinspires.ftc.teamcode.Subsystems.ShooterSubsystem.aimCMD;
 import org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.horizontalBlockerCMD;
 import org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.lateralBlockersCMD;
 import org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.rampCMD;
@@ -23,148 +29,128 @@ import org.firstinspires.ftc.teamcode.pedroPathing.PedroSubsystem;
 
 public class FarAuto_GLOBAL extends OpModeCommand {
 
-    private Path intakeFirst, park;
-    private PathChain launchFirst, prepareForIntakeSecond, intakeSecond1, backIntakeSecond, intakeSecond2, launchSecond;
-
-    static Pose startingPose = new Pose(88.0, 7.5, Math.toRadians(90));
-    static Pose controlPick1Point = new Pose(83, 37.0, Math.toRadians(0));
-    static Pose pick1Pose = new Pose(130.0, 35.0, Math.toRadians(0));
-    static Pose shoot1Pose = new Pose(87.0, 15.0, Math.toRadians(0));
-    static Pose preparePick2Pose = new Pose(112.0, 7.0, Math.toRadians(0));
-    static Pose pick2Pose = new Pose(135.0, 7.0, Math.toRadians(0));
-    static Pose shoot2Pose = new Pose(87.0, 15.0, Math.toRadians(0));
-    static Pose parkPose = new Pose(100.0, 25.0, Math.toRadians(0));
-
-    Command autoCommand;
-
     public FarAuto_GLOBAL(Alliance aliance) {
-        super(aliance, true);
+        super(aliance, true, false);
     }
+
+    private ElapsedTime timer = new ElapsedTime();
+
+    Pose m(Pose p) {
+        return Alliance.BLUE.equals(currentAlliance) ? p.mirror() : p;
+    }
+
+    private Path park;
+    private PathChain intakeFirst, backIntakeFirst, launchFirst, prepareIntakeSeond, intakeSecond, launchSecond, pickCorner, pickCenter, launchCorner, launchCenter;
+
+
+    Pose startingPose = m(new Pose(88.0, 8.2, Math.toRadians(0)));
+    static Pose pick1Pose = new Pose(131.0, 11, Math.toRadians(354));
+    static Pose backPick1Pose = new Pose(128.0, 10, Math.toRadians(0));
+    static Pose front1Pose = new Pose(131.0, 11, Math.toRadians(354));
+
+    static Pose shoot1Pose = new Pose(96, 9, Math.toRadians(25));
+    static Pose preparePick2Pose = new Pose(100, 35.0, Math.toRadians(0));
+    static Pose pick2Pose = new Pose(130.0, 35, Math.toRadians(0));
+    static Pose shoot2Pose = new Pose(92.0, 10.0, Math.toRadians(0));
+
+    static Pose pickCornerPose = new Pose(128.0, 9, Math.toRadians(0));
+
+    static Pose pickCenterControlPoint = new Pose(93.0, 40.0, Math.toRadians(0));
+    static Pose pickCenterPose = new Pose(130.0, 36, Math.toRadians(0));
+
+
+    static Pose parkPose = new Pose(100.0, 25.0, Math.toRadians(0));
+    Command autoCommand;
 
     public void createPaths() {
 
-        if (currentAlliance == Alliance.RED) {
+        intakeFirst = follower.pathBuilder()
+                .addPath(new BezierLine(
+                        startingPose,
+                        pick1Pose))
+                .addPath(new BezierLine(
+                        backPick1Pose,
+                        pick1Pose))
+                .setTangentHeadingInterpolation()
+                .build();
 
-            intakeFirst = new Path(new BezierCurve(startingPose, controlPick1Point, pick1Pose));
-            intakeFirst.setTangentHeadingInterpolation();
+        backIntakeFirst = follower.pathBuilder()
+                .addPath(new BezierLine(
+                        pick1Pose,
+                        backPick1Pose))
+                .addPath(new BezierLine(
+                        backPick1Pose,
+                        pick1Pose))
+                .setConstantHeadingInterpolation(pick1Pose.getHeading())
+                .build();
 
-            launchFirst = follower.pathBuilder()
-                    .addPath(new BezierLine(
-                            pick1Pose,
-                            shoot1Pose))
-                    .setLinearHeadingInterpolation(
-                            pick1Pose.getHeading(),
-                            shoot1Pose.getHeading()
-                    )
-                    .build();
+        launchFirst = follower.pathBuilder()
+                .addPath(new BezierLine(
+                        pick1Pose,
+                        shoot1Pose))
+                .setTangentHeadingInterpolation()
+                .setReversed()
+                .build();
 
-            prepareForIntakeSecond = follower.pathBuilder()
-                    .addPath(new BezierLine(
-                            shoot1Pose,
-                            preparePick2Pose))
-                    .setLinearHeadingInterpolation(
-                            launchFirst.endPose().getHeading(),
-                            preparePick2Pose.getHeading())
-                    .build();
 
-            intakeSecond1 = follower.pathBuilder()
-                    .addPath(new BezierLine(
-                            preparePick2Pose,
-                            pick2Pose))
-                    .setConstantHeadingInterpolation(
-                            pick2Pose.getHeading())
-                    .build();
+        prepareIntakeSeond = follower.pathBuilder()
+                .addPath(new BezierLine(
+                        preparePick2Pose,
+                        pick2Pose))
+                .setConstantHeadingInterpolation(
+                        pick2Pose.getHeading())
+                .build();
 
-            backIntakeSecond = follower.pathBuilder()
-                    .addPath(new BezierLine(
-                            pick2Pose,
-                            preparePick2Pose))
-                    .setConstantHeadingInterpolation(
-                            pick2Pose.getHeading())
-                    .build();
+        intakeSecond = follower.pathBuilder()
+                .addPath(new BezierLine(
+                        preparePick2Pose,
+                        pick2Pose))
+                .setTangentHeadingInterpolation()
+                .build();
 
-            intakeSecond2 = follower.pathBuilder()
-                    .addPath(new BezierLine(
-                            preparePick2Pose,
-                            pick2Pose))
-                    .setConstantHeadingInterpolation(
-                            pick2Pose.getHeading())
-                    .build();
+        launchSecond = follower.pathBuilder()
+                .addPath(new BezierLine(
+                        pick2Pose,
+                        shoot2Pose))
+                .setConstantHeadingInterpolation(shoot2Pose.getHeading())
+                .build();
 
-            launchSecond = follower.pathBuilder()
-                    .addPath(new BezierLine(
-                            pick2Pose,
-                            shoot2Pose))
-                    .setConstantHeadingInterpolation(shoot2Pose.getHeading())
-                    .build();
+        pickCorner = follower.pathBuilder()
+                .addPath(new BezierLine(
+                        shoot2Pose,
+                        pickCornerPose))
+                .setTangentHeadingInterpolation()
+                .build();
 
-            park = new Path(new BezierLine(shoot2Pose, parkPose));
-            park.setConstantHeadingInterpolation(parkPose.getHeading());
+        pickCenter = follower.pathBuilder()
+                .addPath(new BezierLine(
+                        shoot2Pose,
+                        pickCenterPose))
+                .setTangentHeadingInterpolation()
+                .build();
 
-        } else {
-            intakeFirst = new Path(new BezierCurve(
-                    startingPose.mirror(),
-                    controlPick1Point.mirror(),
-                    pick1Pose.mirror()));
-            intakeFirst.setTangentHeadingInterpolation();
+        launchCorner = follower.pathBuilder()
+                .addPath(new BezierLine(
+                        pickCornerPose,
+                        shoot2Pose))
+                .setLinearHeadingInterpolation(
+                        pickCornerPose.getHeading(),
+                        shoot2Pose.getHeading()
+                )
+                .build();
 
-            launchFirst = follower.pathBuilder()
-                    .addPath(new BezierLine(
-                            pick1Pose.mirror(),
-                            shoot1Pose.mirror()))
-                    .setTangentHeadingInterpolation()
-                    .setReversed()
-                    .build();
+        launchCenter = follower.pathBuilder()
+                .addPath(new BezierLine(
+                        pickCenterPose,
+                        shoot2Pose))
+                .setLinearHeadingInterpolation(
+                        pickCenterPose.getHeading(),
+                        shoot2Pose.getHeading()
+                )
+                .build();
 
-            prepareForIntakeSecond = follower.pathBuilder()
-                    .addPath(new BezierLine(
-                            shoot1Pose.mirror(),
-                            preparePick2Pose.mirror()))
-                    .setLinearHeadingInterpolation(
-                            launchFirst.endPose().getHeading(),
-                            preparePick2Pose.mirror().getHeading())
-                    .build();
-
-            intakeSecond1 = follower.pathBuilder()
-                    .addPath(new BezierLine(
-                            preparePick2Pose.mirror(),
-                            pick2Pose.mirror()))
-                    .setConstantHeadingInterpolation(
-                            pick2Pose.mirror().getHeading())
-                    .setTimeoutConstraint(1)
-                    .build();
-
-            backIntakeSecond = follower.pathBuilder()
-                    .addPath(new BezierLine(
-                            pick2Pose.mirror(),
-                            preparePick2Pose.mirror()))
-                    .setConstantHeadingInterpolation(
-                            pick2Pose.mirror().getHeading())
-                    .setTimeoutConstraint(1)
-                    .build();
-
-            intakeSecond2 = follower.pathBuilder()
-                    .addPath(new BezierLine(
-                            preparePick2Pose.mirror(),
-                            pick2Pose.mirror()))
-                    .setConstantHeadingInterpolation(
-                            pick2Pose.mirror().getHeading())
-                    .build();
-
-            launchSecond = follower.pathBuilder()
-                    .addPath(new BezierLine(
-                            pick2Pose.mirror(),
-                            shoot2Pose.mirror()))
-                    .setConstantHeadingInterpolation(
-                            shoot2Pose.mirror().getHeading())
-                    .build();
-
-            park = new Path(new BezierLine(
-                    shoot2Pose.mirror(),
-                    parkPose.mirror()));
-            park.setConstantHeadingInterpolation(
-                    parkPose.mirror().getHeading());
-        }
+        park = new Path(new BezierLine(shoot2Pose, parkPose));
+        park.setConstantHeadingInterpolation(parkPose.getHeading());
 
 
     }
@@ -195,141 +181,71 @@ public class FarAuto_GLOBAL extends OpModeCommand {
         ).schedule();
 
         createPaths();
-/*
+
         autoCommand =
                 new SequentialCommandGroup(
-                        new shooterToVelCMD(shooterSb, 1520),
-
-                        new ConditionalCommand(
-                                new turretToPosCMD(turretSb, 17.0),
-                                new turretToPosCMD(turretSb, -17.0),
-                                () -> currentAliance.equals(Aliance.RED)),
-
-
-                        new ParallelDeadlineGroup(
-
-                                new WaitCommand(3700),
-
+                        new ParallelRaceGroup(
+                                new aimCMD(shooterSb, ()-> false),
                                 new SequentialCommandGroup(
-                                        new WaitCommand(2100),
-                                        new moveIntakeAutonomousCMD(intakeSb, 0.9, 0.75),
+                                        new WaitCommand(3700),
+                                        new InstantCommand(() -> intakeSb.setIntakePower(1, 1)),
 
-                                        new horizontalBlockerCMD(sorterSb, blockerHFreePos)
+                                        new horizontalBlockerCMD(sorterSb, blockerHFreePos),
 
-                                ),
+                                        new WaitCommand(1000)
 
-                                new turretToBasketCMD(turretSb, visionSb)
-                        ),
+                                )),
 
                         ///PRELOAD_LAUNCHED
 
                         stopShootCMD(false),
 
-                        new ParallelDeadlineGroup(
-                                pedroSb.followPathCmd(intakeFirst).withTimeout(2300),
+                        new InstantCommand(() -> intakeSb.setIntakePower(1, 0.8)),
 
+                        pedroSb.followPathCmd(intakeFirst, 0.7).withTimeout(2300),
+                        pedroSb.followPathCmd(backIntakeFirst).withTimeout(2300),
+
+                        new WaitCommand(200),
+
+                        new InstantCommand(() -> intakeSb.setIntakePower(0.5, 0)),
+
+                        new WaitCommand(500),
+
+                        new ParallelRaceGroup(
                                 new SequentialCommandGroup(
-                                        new WaitCommand(300),
-                                        new moveIntakeAutonomousCMD(intakeSb, 1, 0.8)
-                                )),
+                                        pedroSb.followPathCmd(launchFirst),
+                                        shootThreeSpamerFarCMD()
+                                ),
 
-                        new WaitCommand(300),
-
-                        new shooterToVelCMD(shooterSb, 1495),
-
-                        new ConditionalCommand(
-                                new turretToPosCMD(turretSb, -70.0),
-                                new turretToPosCMD(turretSb, 70.0),
-                                () -> currentAliance.equals(Aliance.RED)),
-
-                        new moveIntakeAutonomousCMD(intakeSb, 0.2, 0),
-
-                        pedroSb.followPathCmd(launchFirst).withTimeout(2300),
-
-                        new WaitCommand(800),
-
-                        shootThreeSpamerFarCMD(1500),
-
+                                new aimCMD(shooterSb, false, true)
+                        ),
                         /// FIRST_LAUNCHED
 
                         stopShootCMD(false),
 
-                        new ParallelDeadlineGroup(
-                                pedroSb.followPathCmd(prepareForIntakeSecond).withTimeout(2000),
+                        new InstantCommand(() -> intakeSb.setIntakePower(1, 1)),
 
+                        pedroSb.followPathCmd(intakeSecond).withTimeout(1500),
+
+                        new WaitCommand(200),
+
+                        new InstantCommand(() -> intakeSb.setIntakePower(0.5, 0)),
+
+
+                        new WaitCommand(500),
+
+                        new ParallelRaceGroup(
                                 new SequentialCommandGroup(
-                                        new WaitCommand(400),
-                                        new moveIntakeAutonomousCMD(intakeSb, 1, 1)
-                                )),
+                                        pedroSb.followPathCmd(launchSecond),
+                                        shootThreeSpamerFarCMD()
+                                ),
 
-                        pedroSb.followPathCmd(intakeSecond1).withTimeout(1000),
-
-                        pedroSb.followPathCmd(backIntakeSecond).withTimeout(500),
-
-                        pedroSb.followPathCmd(intakeSecond2).withTimeout(1000),
-
-                        new WaitCommand(300),
-
-                        new shooterToVelCMD(shooterSb, 1505),
-
-                        new ConditionalCommand(
-                                new turretToPosCMD(turretSb, -70.0),
-                                new turretToPosCMD(turretSb, 70.0),
-                                () -> currentAliance.equals(Aliance.RED)),
-                        new moveIntakeAutonomousCMD(intakeSb, 0.4, 0),
-
-                        pedroSb.followPathCmd(launchSecond).withTimeout(2300),
-
-                        new WaitCommand(600),
-
-                        shootThreeSpamerFarCMD(1500),
+                                new aimCMD(shooterSb, false, true)
+                        ),
 
                         /// SECOND_LAUNCHED
 
-                        stopShootCMD(false),
-
-                        new ParallelDeadlineGroup(
-                                pedroSb.followPathCmd(prepareForIntakeSecond).withTimeout(2300),
-
-                                new SequentialCommandGroup(
-                                        new WaitCommand(400),
-                                        new moveIntakeAutonomousCMD(intakeSb, 1, 0.8)
-                                )),
-
-                        new moveIntakeAutonomousCMD(intakeSb, 1, 0.7),
-
-                        pedroSb.followPathCmd(intakeSecond1).withTimeout(1000),
-
-                        pedroSb.followPathCmd(backIntakeSecond).withTimeout(500),
-
-                        pedroSb.followPathCmd(intakeSecond2).withTimeout(1000),
-
-                        new WaitCommand(300),
-
-                        new shooterToVelCMD(shooterSb, 1505),
-
-                        new ConditionalCommand(
-                                new turretToPosCMD(turretSb, -70.0),
-                                new turretToPosCMD(turretSb, 70.0),
-                                () -> currentAliance.equals(Aliance.RED)
-                        ),
-
-                        new moveIntakeAutonomousCMD(intakeSb, 0.4, 0),
-
-                        pedroSb.followPathCmd(launchSecond).withTimeout(2300),
-
-                        new WaitCommand(700),
-
-                        new WaitCommand(600),
-
-                        shootThreeSpamerFarCMD(1500),
-                        /// THIRD_LAUNCHED
-
-                        stopShootCMD(false),
-
-                        pedroSb.followPathCmd(park),
-
-                        new WaitCommand(800)
+                        stopShootCMD(false)
 
                         ///PARK
 
@@ -337,7 +253,7 @@ public class FarAuto_GLOBAL extends OpModeCommand {
                 );
 
 
- */
+
 
     }
 

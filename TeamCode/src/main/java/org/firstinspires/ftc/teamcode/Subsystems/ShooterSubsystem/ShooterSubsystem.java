@@ -6,12 +6,14 @@ import static org.firstinspires.ftc.teamcode.Utilities.shooterConstants.goalX_CL
 import static org.firstinspires.ftc.teamcode.Utilities.shooterConstants.goalX_FAR;
 import static org.firstinspires.ftc.teamcode.Utilities.shooterConstants.goalY_CLOSE;
 import static org.firstinspires.ftc.teamcode.Utilities.shooterConstants.goalY_FAR;
+import static org.firstinspires.ftc.teamcode.Utilities.shooterConstants.kG;
 import static org.firstinspires.ftc.teamcode.Utilities.shooterConstants.lowerLimit;
 import static org.firstinspires.ftc.teamcode.Utilities.shooterConstants.minimunPower;
 import static org.firstinspires.ftc.teamcode.Utilities.shooterConstants.principalTurretCoeffs;
 import static org.firstinspires.ftc.teamcode.Utilities.shooterConstants.secondaryTurretCoeffs;
 import static org.firstinspires.ftc.teamcode.Utilities.shooterConstants.shooterCoeffs;
 import static org.firstinspires.ftc.teamcode.Utilities.shooterConstants.shooterkV;
+import static org.firstinspires.ftc.teamcode.Utilities.shooterConstants.thetaOffset;
 import static org.firstinspires.ftc.teamcode.Utilities.shooterConstants.ticktsToDegrees;
 import static org.firstinspires.ftc.teamcode.Utilities.shooterConstants.turretPidSwitch;
 import static org.firstinspires.ftc.teamcode.Utilities.shooterConstants.upperLimit;
@@ -47,6 +49,9 @@ public class ShooterSubsystem extends SubsystemBase {
 
     PIDFController shooterController;
     Telemetry telemetry;
+
+    double feedforward = 0;
+
 
     public double shooterTarget = 0;
 
@@ -174,7 +179,7 @@ public class ShooterSubsystem extends SubsystemBase {
 
         PanelsTelemetry.INSTANCE.getFtcTelemetry().addData("shooterTargetPwr", shooterTargetPwr);
         PanelsTelemetry.INSTANCE.getFtcTelemetry().addData("shooterTarget", shooterTarget);
-        PanelsTelemetry.INSTANCE.getFtcTelemetry().addData("shooterError", shooterError);
+        telemetry.addData("shooterError", shooterError);
 
         PanelsTelemetry.INSTANCE.getFtcTelemetry().addData("shooterCurrent", shooterM.getCurrent(CurrentUnit.AMPS));
 
@@ -192,8 +197,8 @@ public class ShooterSubsystem extends SubsystemBase {
 
         turretToGoalAngle = AngleUnit.normalizeDegrees(Math.toDegrees(robotPos.getHeading()) - robotToGoalAngle);
 
-
          */
+
         turretP =  (turretM.getCurrentPosition() * capstanRatio * ticktsToDegrees);
 
         turretEndPose = turretP;
@@ -202,11 +207,9 @@ public class ShooterSubsystem extends SubsystemBase {
 
         double error = target - turretP;
 
-        /*turretPid.setMinimumOutput(minimunPower);
+        turretPid.setMinimumOutput(minimunPower);
 
         secondaryTurretPid.setMinimumOutput(minimunPower);
-
-         */
 
         if (Math.abs(error) > turretPidSwitch || !useSecondaryPID) {
             turretPower = Range.clip(turretPid.calculate(turretP, target), -1, 1);
@@ -214,14 +217,23 @@ public class ShooterSubsystem extends SubsystemBase {
             turretPower = Range.clip(secondaryTurretPid.calculate(turretP, target), -1, 1);
         }
 
+        double thetaRad = Math.toRadians(turretP);
+
+        if (turretP < -20) {
+            feedforward = kG;
+        }else {
+            feedforward = 0;
+        }
+
+// --- COMBINE ---
+        turretPower += feedforward;
+
         turretM.setPower(turretPower);
 
-        /*turretPid.setCoefficients(principalTurretCoeffs);
+        turretPid.setCoefficients(principalTurretCoeffs);
         secondaryTurretPid.setCoefficients(secondaryTurretCoeffs);
 
-
-         */
-        PanelsTelemetry.INSTANCE.getFtcTelemetry().addData("turretError", error);
+        telemetry.addData("turretError", error);
         PanelsTelemetry.INSTANCE.getFtcTelemetry().addData("turretTarget", turretTarget);
 
         PanelsTelemetry.INSTANCE.getFtcTelemetry().addData("turret angle", turretP);

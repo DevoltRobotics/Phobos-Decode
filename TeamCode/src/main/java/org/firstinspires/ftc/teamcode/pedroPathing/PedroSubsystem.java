@@ -63,6 +63,10 @@ public class PedroSubsystem extends SubsystemBase {
     public Command followPathCmd(PathChain path) {
         return new FollowPathChainCmd(path);
     }
+    public Command followPathCmd(PathChain path, double maxPower) {
+        return new FollowPathChainCmd(path, maxPower);
+    }
+
 
     public Command fieldCentricCmd(Gamepad gamepad, double angleOffset) {
         return new FieldCentricCmd(gamepad, angleOffset);
@@ -133,7 +137,6 @@ public class PedroSubsystem extends SubsystemBase {
             addRequirements(PedroSubsystem.this);
         }
 
-
         @Override
         public void initialize() {
             follower.followPath(path);
@@ -151,16 +154,25 @@ public class PedroSubsystem extends SubsystemBase {
     class FollowPathChainCmd extends CommandBase {
         PathChain path;
 
+        double maxPower;
+
         FollowPathChainCmd(PathChain path) {
             this.path = path;
+            this.maxPower = 1;
 
             addRequirements(PedroSubsystem.this);
         }
 
+        FollowPathChainCmd(PathChain path, double maxPower) {
+            this.path = path;
+            this.maxPower = maxPower;
+
+            addRequirements(PedroSubsystem.this);
+        }
 
         @Override
         public void initialize() {
-            follower.followPath(path);
+            follower.followPath(path, maxPower, true);
 
         }
 
