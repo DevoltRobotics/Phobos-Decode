@@ -102,12 +102,12 @@ public class Constants {
             1.5
     );
 
-    public static Follower createFollower(HardwareMap hardwareMap, Limelight3A limelight) {
+    public static Follower createFollower(HardwareMap hardwareMap, Limelight3A limelight, boolean isAuto) {
         return new FollowerBuilder(followerConstants, hardwareMap)
                 .pathConstraints(pathConstraints)
                 .mecanumDrivetrain(driveConstants)
                 //.pinpointLocalizer(localizerConstants)
-                .setLocalizer(new KalmanPedroLocalizer(new PinpointLocalizer(hardwareMap, localizerConstants), limelight))
+                .setLocalizer(new KalmanPedroLocalizer(new PinpointLocalizer(hardwareMap, localizerConstants), limelight, isAuto))
                 .build();
 
     }

@@ -117,7 +117,7 @@ public class Full_robot_test extends OpMode {
         limelight3A.start();
 
         startingPose = new Pose(0, 0,0 );
-        follower = Constants.createFollower(hardwareMap, limelight3A);
+        follower = Constants.createFollower(hardwareMap, limelight3A, false);
         follower.setStartingPose(startingPose);
         follower.update();
 

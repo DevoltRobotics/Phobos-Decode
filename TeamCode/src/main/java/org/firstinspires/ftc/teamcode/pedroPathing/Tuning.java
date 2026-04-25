@@ -108,10 +108,10 @@ public class Tuning extends SelectableOpMode {
 
         );
         if (follower == null) {
-            follower = Constants.createFollower(hardwareMap, visionSb.ll);
+            follower = Constants.createFollower(hardwareMap, visionSb.ll, false);
             PanelsConfigurables.INSTANCE.refreshClass(this);
         } else {
-            follower = Constants.createFollower(hardwareMap, visionSb.ll);
+            follower = Constants.createFollower(hardwareMap, visionSb.ll, false);
         }
 
         follower.setStartingPose(new Pose());

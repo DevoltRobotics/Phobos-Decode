@@ -14,6 +14,8 @@ public class KalmanPedroLocalizer implements Localizer {
     private final PinpointLocalizer pinpointLocalizer;
     private final Limelight3A limelight;
 
+    private boolean isAuto;
+
     private Pose estimatedPose;
     private Pose lastOdoPose;
 
@@ -35,10 +37,12 @@ public class KalmanPedroLocalizer implements Localizer {
 
     public KalmanPedroLocalizer(
             PinpointLocalizer pinpointLocalizer,
-            Limelight3A ll
+            Limelight3A ll,
+            boolean isAuto
     ) {
         this.pinpointLocalizer = pinpointLocalizer;
         this.limelight = ll;
+        this.isAuto = isAuto;
         //this.imu = imu;
 
         //pinpointLocalizer.getPinpoint().resetPosAndIMU();
@@ -146,7 +150,7 @@ public class KalmanPedroLocalizer implements Localizer {
         limelight.updateRobotOrientation(Math.toDegrees(heading) + 90);
         LLResult result = limelight.getLatestResult();
 
-        if (result != null && result.isValid()) {
+        if (result != null && result.isValid() && !isAuto) {
 
             Pose convertedBotPose = from3DToPedro(result.getBotpose_MT2(), heading);
 

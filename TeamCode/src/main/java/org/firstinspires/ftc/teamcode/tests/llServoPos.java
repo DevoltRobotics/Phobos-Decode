@@ -12,7 +12,7 @@ public class llServoPos extends OpMode {
 
     Servo llS;
 
-    public static double servoPos1 = 0.4;
+    public static double servoPos1 = 0.42;
     public static double servoPos2 = 0.47;
 
 

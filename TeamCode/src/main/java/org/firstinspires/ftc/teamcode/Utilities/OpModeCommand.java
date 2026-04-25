@@ -19,6 +19,7 @@ import com.seattlesolvers.solverslib.command.CommandScheduler;
 import com.seattlesolvers.solverslib.command.ConditionalCommand;
 import com.seattlesolvers.solverslib.command.InstantCommand;
 import com.seattlesolvers.solverslib.command.ParallelDeadlineGroup;
+import com.seattlesolvers.solverslib.command.ParallelRaceGroup;
 import com.seattlesolvers.solverslib.command.SequentialCommandGroup;
 import com.seattlesolvers.solverslib.command.Subsystem;
 import com.seattlesolvers.solverslib.command.WaitCommand;
@@ -27,6 +28,7 @@ import org.firstinspires.ftc.teamcode.Subsystems.Intake.moveIntakeAutonomousCMD;
 import org.firstinspires.ftc.teamcode.Subsystems.Lifting.LiftingSubsystem;
 import org.firstinspires.ftc.teamcode.Subsystems.Sensors.SensorsSubsystem;
 import org.firstinspires.ftc.teamcode.Subsystems.ShooterSubsystem.ShooterSubsystem;
+import org.firstinspires.ftc.teamcode.Subsystems.ShooterSubsystem.aimCMD;
 import org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.postSorterCmd;
 import org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.preSorterTeleopCMD;
 import org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.rampCMD;
@@ -101,7 +103,7 @@ public abstract class OpModeCommand extends OpMode {
                 visionSb = new VisionSubsystem(hardwareMap, telemetry, currentAlliance, isAuto, closeAuto)
         );
 
-        follower = Constants.createFollower(hardwareMap, visionSb.ll);
+        follower = Constants.createFollower(hardwareMap, visionSb.ll, isAuto);
 
         follower.update();
 
@@ -174,11 +176,13 @@ public abstract class OpModeCommand extends OpMode {
     }
 
     public Command shootThreeSpamerFarCMD() {
-        return new SequentialCommandGroup(
-                new InstantCommand(() -> sorterSb.setHorizontalPos(blockerHFreePos)),
-                new InstantCommand(() -> intakeSb.setIntakePower(1, 1)),
-                new WaitCommand(900) // deadline
-
+        return new ParallelRaceGroup(
+                new aimCMD(shooterSb, true, () -> false),
+                new SequentialCommandGroup(
+                        new InstantCommand(() -> sorterSb.setHorizontalPos(blockerHFreePos)),
+                        new InstantCommand(() -> intakeSb.setIntakePower(0.95, 1)),
+                        new WaitCommand(900) // deadline
+                )
 
         );
     }

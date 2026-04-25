@@ -72,8 +72,8 @@ public class PedroSubsystem extends SubsystemBase {
         return new FieldCentricCmd(gamepad, angleOffset);
     }
 
-    public Command turnToCmd(Pose pose) {
-        return new TurnToCommand(pose);
+    public Command turnToCmd(double heading) {
+        return new TurnToCommand(heading);
     }
 
     class FieldCentricCmd extends CommandBase {
@@ -186,16 +186,16 @@ public class PedroSubsystem extends SubsystemBase {
 
     class TurnToCommand extends CommandBase {
 
-        Pose pose;
+        double heading;
 
-        TurnToCommand(Pose pose) {
-            this.pose = pose;
+        TurnToCommand(double heading) {
+            this.heading = heading;
             addRequirements(PedroSubsystem.this);
         }
 
         @Override
         public void initialize() {
-            follower.turnTo(pose.getHeading());
+            follower.turnTo(Math.toRadians(heading));
         }
 
         @Override
