@@ -7,6 +7,7 @@ import static org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.SorterSu
 import static org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.SorterSubsystem.downRampPos;
 import static org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.SorterSubsystem.upRampPos;
 import static org.firstinspires.ftc.teamcode.Utilities.shooterConstants.manualIncrement;
+import static org.firstinspires.ftc.teamcode.pedroPathing.PedroSubsystem.EndPose;
 import static org.firstinspires.ftc.teamcode.pedroPathing.PedroSubsystem.xBlueCloseCorner;
 import static org.firstinspires.ftc.teamcode.pedroPathing.PedroSubsystem.xBlueFarCorner;
 import static org.firstinspires.ftc.teamcode.pedroPathing.PedroSubsystem.xRedCloseCorner;
@@ -66,7 +67,9 @@ public abstract class teleOp extends OpModeCommand {
 
         new InstantCommand(() -> visionSb.setLLState(VisionSubsystem.llState.posEstimate)).schedule();
 
-        follower.setPose(new Pose(7.5, 8.2, 0));
+        //follower.setPose(new Pose(7.5, 8.2, 0));
+
+        follower.setPose(EndPose);
 
         chassis = new GamepadEx(gamepad1);
         garra = new GamepadEx(gamepad2);

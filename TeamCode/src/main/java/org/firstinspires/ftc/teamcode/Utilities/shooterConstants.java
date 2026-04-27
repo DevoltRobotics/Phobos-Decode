@@ -18,9 +18,9 @@ public class shooterConstants {
 
     ////
 
-    public static int goalX_FAR = 136;
-    public static int goalY_FAR = 138;
-    public static double SCORE_HEIGHT_FAR = 16; //inches
+    public static int goalX_FAR = 141;
+    public static int goalY_FAR = 139;
+    public static double SCORE_HEIGHT_FAR = 15; //inches
     public static double SCORE_ANGLE_FAR = -0.65;// Math.toRadians(-30); //inches
     public static double PASS_THROUGH_POINT_RADIUS_FAR = 7; //inches
 
@@ -31,7 +31,7 @@ public class shooterConstants {
 
     public static double servoHoodRatio = (double) 259 / 25;
 
-    public static double hoodAdjustment = 0.12; //16
+    public static double hoodAdjustment = 0.16; //0.16
 
     public static double gethoodTicksFromDegrees(double degrees){
         double range = MIN_HOOD_ANGLE - MAX_HOOD_ANGLE; //25
@@ -66,7 +66,7 @@ public class shooterConstants {
 
     public static double flywheelOffSetMultiplier_CLOSE = 1.093;
 
-    public static double flywheelOffSet_FAR = 115;
+    public static double flywheelOffSet_FAR = 128;
 
     public static double flywheelOffSetMultiplier_FAR = 1.12;
 

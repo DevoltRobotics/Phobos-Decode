@@ -21,7 +21,7 @@ public class SorterSubsystem extends SubsystemBase {
 
     //CONSTANTS
 
-    public static double upRampPos = 0.72;
+    public static double upRampPos = 0.68;
     public static double downRampPos = 0.93;
 
     public static double blockersUp = 0.2;

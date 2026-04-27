@@ -115,22 +115,13 @@ public class ShooterSubsystem extends SubsystemBase {
 
         this.isAuto = isAuto;
 
-        //if (isAuto) {
+        if (isAuto) {
             this.turretM.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             this.turretM.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        //}
+        }
 
         this.telemetry = telemetry;
         this.alliance = alliance;
-
-        if (alliance.equals(Alliance.RED)){
-            goalX = goalX_CLOSE;
-            goalY = goalY_CLOSE;
-        }else{
-            goalX = 144 - goalY_CLOSE;
-            goalY = goalY_CLOSE;
-
-        }
 
         turretPid = new PIDFController(principalTurretCoeffs);
         secondaryTurretPid = new PIDFController(secondaryTurretCoeffs);
@@ -144,26 +135,6 @@ public class ShooterSubsystem extends SubsystemBase {
 
     @Override
     public void periodic() {
-
-        if (follower.getPose().getY() > 50){
-            if (alliance.equals(Alliance.RED)){
-                goalX = goalX_CLOSE;
-                goalY = goalY_CLOSE;
-            }else{
-                goalX = 144 - goalY_CLOSE;
-                goalY = goalY_CLOSE;
-
-            }
-        }else{
-            if (alliance.equals(Alliance.RED)){
-                goalX = goalX_FAR;
-                goalY = goalY_FAR;
-            }else{
-                goalX = 144 - goalY_FAR;
-                goalY = goalY_FAR;
-
-            }
-        }
         //SHOOTER
         //shooterController.setCoefficients(shooterCoeffs);
 

@@ -34,7 +34,7 @@ public class CloseFull_GLOBAL extends OpModeCommand {
     private Path launchPreload, intakeFirst, launchFirst, intakeSecond, launchSecond, intakeThird, launchThird, openGate3, intakeFourth, launchFourth, intakeFive, launchFive, park;
 
     private Pose currentStartingPose;
-    Command autoCommand;
+    Command autoCommand, parkCommand;
 
     Pose m(Pose p) {
         return Alliance.BLUE.equals(currentAlliance) ? p.mirror() : p;
@@ -52,22 +52,23 @@ public class CloseFull_GLOBAL extends OpModeCommand {
     Pose openGate1ControlPoint = m(new Pose(106.0, 62.0, Math.toRadians(0)));
     Pose openGate1Pose = m(new Pose(127, 66, Math.toRadians(0)));
 
-    Pose pickUp2Pose = m(new Pose(131.0, 59.0, Math.toRadians(50)));
+    Pose pickUp2Pose = m(new Pose(130.5, 58.0, Math.toRadians(50)));
     Pose shoot2Pose = m(new Pose(88.0, 81.0, Math.toRadians(0)));
 
     Pose openGate2ControlPoint = m(new Pose(106.0, 62.0, Math.toRadians(0)));
     Pose openGate2Pose = m(new Pose(127, 63, Math.toRadians(0)));
 
     Pose pickUp3Pose = m(new Pose(131, 59.0, Math.toRadians(50)));
-    Pose shoot3Pose = m(new Pose(88.0, 81.0, Math.toRadians(320)));
+    Pose shoot3Pose = m(new Pose(88.0, 81.0, Math.toRadians(0)));
 
-    Pose openGate3ControlPoint = m(new Pose(90, 62.0, Math.toRadians(0)));
-    Pose openGate3Pose = m(new Pose(121, 71, Math.toRadians(270)));
-    Pose pickUp4Pose = m(new Pose(134.0, 36, Math.toRadians(270)));
-    Pose shoot4Pose = m(new Pose(88.0, 81.0, Math.toRadians(0)));
+    Pose openGate3ControlPoint = m(new Pose(106.0, 62.0, Math.toRadians(0)));
+    Pose openGate3Pose = m(new Pose(127, 63, Math.toRadians(0)));
+
+    Pose pickUp4Pose = m(new Pose(131, 59.0, Math.toRadians(50)));
+    Pose shoot4Pose = m(new Pose(88.0, 84.0, Math.toRadians(0)));
     Pose pickUp5Pose = m(new Pose(125.0, 84.0, Math.toRadians(0)));
 
-    Pose shoot5Pose = m(new Pose(92.0, 85.0, Math.toRadians(0)));
+    Pose shoot5Pose = m(new Pose(88, 108.0, Math.toRadians(0)));
     Pose parkPose = m(new Pose(115.0, 85.0, Math.toRadians(0)));
 
     PathChain fullAuto;
@@ -97,7 +98,7 @@ public class CloseFull_GLOBAL extends OpModeCommand {
                         openGate1Pose))
                 .setConstantHeadingInterpolation(
                         openGate1Pose.getHeading())
-                .addParametricCallback(0.8, ()-> follower.setMaxPower(0.7))
+                .addParametricCallback(0.8, () -> follower.setMaxPower(0.7))
                 .build();
 
         intakeSecond = new Path(new BezierLine(
@@ -122,7 +123,7 @@ public class CloseFull_GLOBAL extends OpModeCommand {
                         openGate2Pose))
                 .setConstantHeadingInterpolation(
                         openGate2Pose.getHeading())
-                .addParametricCallback(0.8, ()-> follower.setMaxPower(0.7))
+                .addParametricCallback(0.8, () -> follower.setMaxPower(0.7))
                 .build();
 
 
@@ -173,7 +174,8 @@ public class CloseFull_GLOBAL extends OpModeCommand {
         launchFive = new Path(new BezierLine(
                 pickUp5Pose,
                 shoot5Pose));
-        launchFive.setConstantHeadingInterpolation(pickUp5Pose.getHeading());
+        launchFive.setTangentHeadingInterpolation();
+        launchFive.reverseHeadingInterpolation();
 
         park = new Path(new BezierLine(shoot5Pose, parkPose));
         park.setConstantHeadingInterpolation(shoot5Pose.getHeading());
@@ -210,145 +212,151 @@ public class CloseFull_GLOBAL extends OpModeCommand {
 
         createPaths();
 
-
-        autoCommand = new SequentialCommandGroup(
-
-                new InstantCommand(() -> follower.setMaxPower(1)),
-
-                new ParallelRaceGroup(
-                        new SequentialCommandGroup(
-                                new InstantCommand(() -> intakeSb.setIntakePower(0.3, 0)),
-
-                                pedroSb.followPathCmd(launchPreload),
-
-                                new InstantCommand(() -> sorterSb.setHorizontalPos(blockerHFreePos)),
-
-                                new WaitCommand(600),
-
-                                new InstantCommand(() -> intakeSb.setIntakePower(1, 1)),
-
-                                new WaitCommand(950)
-
-                        ),
-
-                        new aimCMD(shooterSb, false, true)
-
-                ),
-
-                ///PRELOAD_LAUNCHED
-
+        parkCommand = new SequentialCommandGroup(
                 stopShootCMD(false),
-
-                new InstantCommand(() -> intakeSb.setIntakePower(1, 0.8)),
-
-                pedroSb.followPathCmd(intakeFirst).withTimeout(1800),
-
-                new ParallelRaceGroup(
-                        new SequentialCommandGroup(
-                                pedroSb.followPathCmd(launchFirst),
-                                shootThreeSpamerCloseCMD()
-                        ),
-
-                        new aimCMD(shooterSb, false, true)
-                ),
-
-                /// FIRST_LAUNCHED
-
-                stopShootCMD(false),
-
-                new InstantCommand(() -> intakeSb.setIntakePower(1, 0.8)),
-
-                pedroSb.followPathCmd(openGate1).withTimeout(1800),
-
-                new InstantCommand(() -> follower.setMaxPower(1)),
-
-                pedroSb.followPathCmd(intakeSecond).withTimeout(800),
-
-                new WaitCommand(800),
-
-                new ParallelRaceGroup(
-                        new SequentialCommandGroup(
-                                pedroSb.followPathCmd(launchSecond),
-                                shootThreeSpamerCloseCMD()
-
-                        ),
-                        new aimCMD(shooterSb, false, true)
-                ),
-
-                /// SECOND_LAUNCHED
-
-                stopShootCMD(false),
-
-                new InstantCommand(() -> intakeSb.setIntakePower(1, 0.8)),
-
-                pedroSb.followPathCmd(openGate2).withTimeout(1800),
-
-                new InstantCommand(() -> follower.setMaxPower(1)),
-
-                new WaitCommand(100),
-
-                pedroSb.followPathCmd(intakeThird).withTimeout(800),
-
-                new WaitCommand(800),
-
-                new ParallelRaceGroup(
-                        new SequentialCommandGroup(
-                                pedroSb.followPathCmd(launchThird),
-                                shootThreeSpamerCloseCMD()
-
-                        ),
-                        new aimCMD(shooterSb, false, true)
-                ),
-
-                ///THIRD_LAUNCHED
-                stopShootCMD(false),
-
-                new InstantCommand(() -> intakeSb.setIntakePower(1, 0.8)),
-
-                pedroSb.followPathCmd(openGate3),
-
-                new WaitCommand(400),
-
-                pedroSb.followPathCmd(intakeFourth).withTimeout(800),
-
-                new WaitCommand(200),
-
-                new ParallelRaceGroup(
-                        new SequentialCommandGroup(
-                                pedroSb.followPathCmd(launchFourth),
-                                shootThreeSpamerCloseCMD()
-
-                        ),
-                        new aimCMD(shooterSb, false, true)
-                ),
-
-                /// FOURTH_LAUNCHED
-
-                stopShootCMD(false),
-
-                new InstantCommand(() -> intakeSb.setIntakePower(1, 0.8)),
-
-
-                pedroSb.followPathCmd(intakeFive).withTimeout(1200),
-
-
-                new ParallelRaceGroup(
-                        new SequentialCommandGroup(
-                                pedroSb.followPathCmd(launchFive),
-                                shootThreeSpamerCloseCMD()
-
-                        ),
-                        new aimCMD(shooterSb, false, true)
-                ),
-
-                /// FIVE_LAUNCHED
-
-                stopShootCMD(false),
-
-                new InstantCommand(() -> intakeSb.setIntakePower(1, 0.8)),
                 new InstantCommand(() -> shooterSb.setShooterTarget(0)),
+                new InstantCommand(() -> follower.setMaxPower(1)),
 
                 pedroSb.followPathCmd(park)
+        );
+
+        autoCommand = new SequentialCommandGroup(
+                new ParallelRaceGroup(
+                        new SequentialCommandGroup(
+
+                                new InstantCommand(() -> follower.setMaxPower(1)),
+
+                                new ParallelRaceGroup(
+                                        new SequentialCommandGroup(
+                                                new InstantCommand(() -> intakeSb.setIntakePower(0.3, 0)),
+
+                                                pedroSb.followPathCmd(launchPreload),
+
+                                                new InstantCommand(() -> sorterSb.setHorizontalPos(blockerHFreePos)),
+
+                                                new WaitCommand(600),
+
+                                                new InstantCommand(() -> intakeSb.setIntakePower(1, 1)),
+
+                                                new WaitCommand(950)
+
+                                        ),
+
+                                        new aimCMD(shooterSb, false, true)
+
+                                ),
+
+                                ///PRELOAD_LAUNCHED
+
+                                stopShootCMD(false),
+
+                                new InstantCommand(() -> intakeSb.setIntakePower(1, 0.8)),
+
+                                pedroSb.followPathCmd(intakeFirst).withTimeout(1800),
+
+                                new ParallelRaceGroup(
+                                        new SequentialCommandGroup(
+                                                pedroSb.followPathCmd(launchFirst),
+                                                shootThreeSpamerCloseCMD()
+                                        ),
+
+                                        new aimCMD(shooterSb, false, true)
+                                ),
+
+                                /// FIRST_LAUNCHED
+
+                                stopShootCMD(false),
+
+                                new InstantCommand(() -> intakeSb.setIntakePower(1, 0.8)),
+
+                                pedroSb.followPathCmd(openGate1).withTimeout(1600),
+
+                                new InstantCommand(() -> follower.setMaxPower(1)),
+
+                                pedroSb.followPathCmd(intakeSecond).withTimeout(800),
+
+                                new WaitCommand(800),
+
+                                new ParallelRaceGroup(
+                                        new SequentialCommandGroup(
+                                                pedroSb.followPathCmd(launchSecond),
+                                                shootThreeSpamerCloseCMD()
+
+                                        ),
+                                        new aimCMD(shooterSb, false, true)
+                                ),
+
+                                /// SECOND_LAUNCHED
+
+                                stopShootCMD(false),
+
+                                new InstantCommand(() -> intakeSb.setIntakePower(1, 0.8)),
+
+                                pedroSb.followPathCmd(openGate2).withTimeout(1800),
+
+                                new InstantCommand(() -> follower.setMaxPower(1)),
+
+                                new WaitCommand(100),
+
+                                pedroSb.followPathCmd(intakeThird).withTimeout(800),
+
+                                new WaitCommand(800),
+
+                                new ParallelRaceGroup(
+                                        new SequentialCommandGroup(
+                                                pedroSb.followPathCmd(launchThird),
+                                                shootThreeSpamerCloseCMD()
+
+                                        ),
+                                        new aimCMD(shooterSb, false, true)
+                                ),
+
+                                ///THIRD_LAUNCHED
+                                stopShootCMD(false),
+
+                                new InstantCommand(() -> intakeSb.setIntakePower(1, 0.8)),
+
+                                pedroSb.followPathCmd(openGate3),
+
+                                new WaitCommand(400),
+
+                                pedroSb.followPathCmd(intakeFourth).withTimeout(800),
+
+                                new WaitCommand(200),
+
+                                new ParallelRaceGroup(
+                                        new SequentialCommandGroup(
+                                                pedroSb.followPathCmd(launchFourth),
+                                                shootThreeSpamerCloseCMD()
+
+                                        ),
+                                        new aimCMD(shooterSb, false, true)
+                                ),
+
+                                /// FOURTH_LAUNCHED
+
+                                stopShootCMD(false),
+
+                                new InstantCommand(() -> intakeSb.setIntakePower(1, 0.8)),
+
+
+                                pedroSb.followPathCmd(intakeFive).withTimeout(1200),
+
+
+                                new ParallelRaceGroup(
+                                        new SequentialCommandGroup(
+                                                pedroSb.followPathCmd(launchFive),
+                                                shootThreeSpamerCloseCMD()
+
+                                        ),
+                                        new aimCMD(shooterSb, false, true)
+                                )
+
+                        ),
+                        new WaitCommand(29000)
+                ),
+
+                parkCommand
         );
 
     }

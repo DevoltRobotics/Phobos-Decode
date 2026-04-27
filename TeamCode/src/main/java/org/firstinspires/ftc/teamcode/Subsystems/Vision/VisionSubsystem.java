@@ -27,7 +27,7 @@ public class VisionSubsystem extends SubsystemBase {
 
     public LLResult result;
 
-    static double RIGHT_BOUND = 6;
+    static double RIGHT_BOUND = 10;
     private static final int PPG_TAG_ID = 23;
     private static final int PGP_TAG_ID = 22;
     private static final int GPP_TAG_ID = 21;
@@ -96,8 +96,7 @@ public class VisionSubsystem extends SubsystemBase {
         }
 
         if (result.isValid()) {
-            telemetry.addData("tx", result.getTx());
-            telemetry.addData("isArtifactCorner", isArtifactsCorner());
+            telemetry.addData("isArtifactCorner", currentArtifactCorner);
 
         }
     }
@@ -117,6 +116,22 @@ public class VisionSubsystem extends SubsystemBase {
     }
 
 
+    public boolean isArtifactsCorner(boolean Corner) {
+        if (result.isValid()) {
+
+            if (Alliance.RED.equals(alliance)) {
+                return (result.getTx() <= RIGHT_BOUND);
+
+            }else {
+                return (result.getTx() >= -RIGHT_BOUND);
+
+            }
+
+        } else {
+            return Corner;
+        }
+    }
+
     public boolean isArtifactsCorner() {
         if (result.isValid()) {
 
@@ -132,6 +147,8 @@ public class VisionSubsystem extends SubsystemBase {
             return true;
         }
     }
+
+    public boolean currentArtifactCorner = true;
 
     public Double getAllianceTA() {
         if (result != null && result.isValid() && !result.getFiducialResults().isEmpty()) {

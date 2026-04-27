@@ -34,17 +34,22 @@ import com.seattlesolvers.solverslib.geometry.Pose2d;
 import com.seattlesolvers.solverslib.geometry.Translation2d;
 import com.seattlesolvers.solverslib.geometry.Vector2d;
 
+import org.firstinspires.ftc.teamcode.Utilities.Alliance;
+
 import java.util.function.BooleanSupplier;
 
 public class aimCMD extends CommandBase {
 
     ShooterSubsystem shooterSb;
 
+
+    int goalX;
+    int goalY = goalY_FAR;
+
     double hoodAngle = 0;
     double flywheelSpeed = 0;
 
-    int goalX = goalX_FAR;
-    int goalY = goalY_FAR;
+    double extraOffset = 0;
     double SCORE_HEIGHT = SCORE_HEIGHT_FAR; //inches
     double SCORE_ANGLE = SCORE_ANGLE_FAR; //inches
 
@@ -67,6 +72,10 @@ public class aimCMD extends CommandBase {
 
         this.isClose = isClose;
 
+        this.extraOffset = 0;
+
+        goalX = Alliance.RED.equals(shooterSb.alliance) ? goalX_FAR : 144- goalX_FAR;
+
         addRequirements(shooterSubsystem);
     }
 
@@ -78,6 +87,10 @@ public class aimCMD extends CommandBase {
 
         this.isClose = isClose;
 
+        this.extraOffset = 0;
+
+        goalX = Alliance.RED.equals(shooterSb.alliance) ? goalX_FAR : 144 - goalX_FAR;
+
         addRequirements(shooterSubsystem);
     }
 
@@ -88,6 +101,25 @@ public class aimCMD extends CommandBase {
         this.isShooting = isShooting;
 
         this.isClose = ()-> isClose;
+
+        this.extraOffset = 0;
+
+        goalX = Alliance.RED.equals(shooterSb.alliance) ? goalX_FAR : 144-goalX_FAR;
+
+        addRequirements(shooterSubsystem);
+    }
+
+    public aimCMD(ShooterSubsystem shooterSubsystem, boolean isShooting, boolean isClose, double extraOffset) {
+
+        this.shooterSb = shooterSubsystem;
+
+        this.isShooting = isShooting;
+
+        this.isClose = ()-> isClose;
+
+        this.extraOffset = extraOffset;
+
+        goalX = Alliance.RED.equals(shooterSb.alliance) ? goalX_FAR : 144- goalX_FAR;
 
         addRequirements(shooterSubsystem);
     }
@@ -108,8 +140,10 @@ public class aimCMD extends CommandBase {
         Pose2d shooterPose = new Pose2d(shooterX, shooterY, heading);
 
         if (shooterPose.getY() < 50) {
-            goalX = goalX_FAR;
+
+            goalX = Alliance.RED.equals(shooterSb.alliance) ? goalX_FAR : 144 - goalX_FAR;
             goalY = goalY_FAR;
+
             SCORE_HEIGHT = SCORE_HEIGHT_FAR; //inches
             SCORE_ANGLE = SCORE_ANGLE_FAR; //inches
 
@@ -120,7 +154,8 @@ public class aimCMD extends CommandBase {
             flywheelOffSet = flywheelOffSet_FAR;
 
         } else {
-            goalX = goalX_CLOSE;
+            goalX = Alliance.RED.equals(shooterSb.alliance) ? goalX_CLOSE : 144 - goalX_CLOSE;
+
             goalY = goalY_CLOSE;
             SCORE_HEIGHT = SCORE_HEIGHT_CLOSE; //inches
             SCORE_ANGLE = SCORE_ANGLE_CLOSE; //inches
@@ -186,10 +221,11 @@ public class aimCMD extends CommandBase {
         }
 //update turret
         double turretVelCompOffset = Math.atan(perpendicularComponent / ivr) * kTurretvel;
-        double turretAngle = Math.toDegrees(shooterPose.getHeading() - robotToGoalVector.angle() + turretVelCompOffset);
 
-//double turretAngle = shooterSb.turretToGoalAngle - Math.toDegrees(turretVelCompOffset);
+        //double turretVelCompensation = Alliance.RED.equals(shooterSb.alliance) ? turretVelCompOffset : -turretVelCompOffset;
+        //double turretAngle = Math.toDegrees(shooterPose.getHeading() - robotToGoalVector.angle());
 
+        double turretAngle = Math.toDegrees(angleWrap(shooterPose.getHeading() - robotToGoalVector.angle() + turretVelCompOffset));
         double finalHoodAngle;
 
         if (isShooting && Math.abs(shooterSb.shooterError) > velocityShooterDeadPoint && !reAnguled) {
@@ -198,135 +234,13 @@ public class aimCMD extends CommandBase {
         } else {
             reAnguled = false;
             finalHoodAngle = hoodAngle;
+
         }
 
         shooterSb.setShooterTarget(flywheelTarget);
         shooterSb.setHoodPose(MathFunctions.clamp(Math.toDegrees(hoodAngle), MAX_HOOD_ANGLE + 0.001, MIN_HOOD_ANGLE - 0.001));
         shooterSb.setTurretTarget(turretAngle);
     }
-   /* @Override
-    public void execute() {
-
-        Pose robotPose = shooterSb.follower.getPose();
-
-        double heading = robotPose.getHeading();
-
-// shooter is 2.5 inches behind robot center
-        double offsetX = -2.5;
-        double offsetY = 0;
-
-// rotate offset into global frame
-        double shooterX = robotPose.getX() + offsetX * Math.cos(heading) - offsetY * Math.sin(heading);
-        double shooterY = robotPose.getY() + offsetX * Math.sin(heading) + offsetY * Math.cos(heading);
-
-        Pose2d shooterPose = new Pose2d(shooterX, shooterY, heading);
-
-        if (shooterPose.getY() < 50){
-            goalX = goalX_FAR;
-            goalY = goalY_FAR;
-            SCORE_HEIGHT = SCORE_HEIGHT_FAR; //inches
-            SCORE_ANGLE = SCORE_ANGLE_FAR; //inches
-
-            PASS_THROUGH_POINT_RADIUS = PASS_THROUGH_POINT_RADIUS_FAR; //inches
-
-            flywheelOffSetMultiplier = flywheelOffSetMultiplier_FAR;
-
-            flywheelOffSet = flywheelOffSet_FAR;
-
-        }else {
-            goalX = goalX_CLOSE;
-            goalY = goalY_CLOSE;
-            SCORE_HEIGHT = SCORE_HEIGHT_CLOSE; //inches
-            SCORE_ANGLE = SCORE_ANGLE_CLOSE; //inches
-
-            PASS_THROUGH_POINT_RADIUS = PASS_THROUGH_POINT_RADIUS_CLOSE;
-
-            flywheelOffSetMultiplier = flywheelOffSetMultiplier_CLOSE;
-
-            flywheelOffSet = flywheelOffSet_CLOSE;
-        }
-
-        Translation2d goalPosition = new Translation2d(goalX, goalY);
-
-        Translation2d robotToGoal =
-                goalPosition.minus(shooterPose.getTranslation());
-
-        Vector2d robotToGoalVector =
-                new Vector2d(robotToGoal.getX(), robotToGoal.getY());
-
-        double g = 32.174 * 12;
-        double x = robotToGoalVector.magnitude() - PASS_THROUGH_POINT_RADIUS;
-        double y = SCORE_HEIGHT;
-        double a = SCORE_ANGLE;
-
-        //calculate initial launch components
-        hoodAngle = MathFunctions.clamp(Math.atan(2 * y / x - Math.tan(a)), Math.toRadians(MAX_HOOD_ANGLE), Math.toRadians(MIN_HOOD_ANGLE));
-
-        double denom = 2 * Math.pow(Math.cos(hoodAngle), 2) * (x * Math.tan(hoodAngle) - y);
-
-        flywheelSpeed =  Math.sqrt(g * x * x / (2 * Math.pow(Math.cos(hoodAngle), 2) * (x * Math.tan(hoodAngle) - y)));
-
-        Vector robotVelocity = shooterSb.follower.getVelocity();
-
-        double coordinateTheta = robotVelocity.getTheta() - robotToGoalVector.angle();
-
-        double parralelComponent = -Math.cos(coordinateTheta) * robotVelocity.getMagnitude();
-        double perpendicularComponent = Math.sin(coordinateTheta) * robotVelocity.getMagnitude();
-
-        //velocity compensation variables
-        double vz = flywheelSpeed * Math.sin(hoodAngle);
-        double time = x / (flywheelSpeed * Math.cos(hoodAngle));
-        double ivr = x / time + parralelComponent;
-        double nvr = Math.sqrt(ivr * ivr + perpendicularComponent * perpendicularComponent);
-        double ndr =  nvr * time;
-
-        //recalculate launch components
-        hoodAngle = MathFunctions.clamp(Math.atan(vz / nvr),
-                Math.toRadians(MAX_HOOD_ANGLE), Math.toRadians(MIN_HOOD_ANGLE));
-        
-        flywheelSpeed = Math.sqrt(g * ndr * ndr / (2 * Math.pow(Math.cos(hoodAngle), 2)
-                * (ndr * Math.tan(hoodAngle) - y)));
-
-        double flywheelTarget;
-
-        if (isClose.getAsBoolean()){
-            flywheelTarget = MathFunctions.clamp(getFlywheelTicksFromVelocitya(flywheelSpeed), minflywheelClose, MAX_FLYWHEEL_SPEED);
-
-        }else {
-            flywheelTarget = MathFunctions.clamp(getFlywheelTicksFromVelocitya(flywheelSpeed), minflywheelFar, MAX_FLYWHEEL_SPEED);
-
-        }
-        //update turret
-        double turretVelCompOffset = Math.atan(perpendicularComponent / ivr);
-        double turretAngle = Math.toDegrees(shooterPose.getHeading() - robotToGoalVector.angle() + (turretVelCompOffset * kTurretvel));
-
-        //double turretAngle = shooterSb.turretToGoalAngle - (Math.toDegrees(turretVelCompOffset) * kTurretvel);
-
-        double finalHoodAngle;
-
-        if (isShooting && Math.abs(shooterSb.shooterError.getAsDouble()) > velocityShooterDeadPoint && !reAnguled){
-            hoodAngle += hoodAdjustment;
-            reAnguled = true;
-        }else {
-            reAnguled = false;
-            finalHoodAngle = hoodAngle;
-        }
-
-        shooterSb.setShooterTarget(flywheelTarget);
-        shooterSb.setHoodPose(MathFunctions.clamp(Math.toDegrees(hoodAngle), MAX_HOOD_ANGLE + 0.001, MIN_HOOD_ANGLE - 0.001));
-        shooterSb.setTurretTarget(turretAngle);
-
-        PanelsTelemetry.INSTANCE.getFtcTelemetry().addData("flywheelSpeed", flywheelSpeed);
-        PanelsTelemetry.INSTANCE.getFtcTelemetry().addData("hoodPose", hoodAngle);
-        PanelsTelemetry.INSTANCE.getFtcTelemetry().addData("turretTargetAngle", turretAngle);
-
-        PanelsTelemetry.INSTANCE.getFtcTelemetry().addData("isClose", isClose);
-
-        PanelsTelemetry.INSTANCE.getFtcTelemetry().addData("shooterPose", shooterPose);
-
-    }
-
-    */
 
     public double getFlywheelTicksFromVelocitya(double velocity) {
         double wheelRadius = 1.889; // inches (CHANGE THIS)
@@ -341,4 +255,15 @@ public class aimCMD extends CommandBase {
         );
     }
 
+    private double angleWrap(double angle) {
+        while (angle > Math.PI) angle -= 2 * Math.PI;
+        while (angle < -Math.PI) angle += 2 * Math.PI;
+        return angle;
+    }
+
+    private double angleWrapDegree(double angle) {
+        while (angle > 180) angle -= 360;
+        while (angle < -180) angle += 360;
+        return angle;
+    }
 }

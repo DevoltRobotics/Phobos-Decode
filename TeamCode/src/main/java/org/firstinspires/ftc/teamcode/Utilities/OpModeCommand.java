@@ -177,7 +177,7 @@ public abstract class OpModeCommand extends OpMode {
 
     public Command shootThreeSpamerFarCMD() {
         return new ParallelRaceGroup(
-                new aimCMD(shooterSb, true, () -> false),
+                new aimCMD(shooterSb, true, false),
                 new SequentialCommandGroup(
                         new InstantCommand(() -> sorterSb.setHorizontalPos(blockerHFreePos)),
                         new InstantCommand(() -> intakeSb.setIntakePower(0.95, 1)),
