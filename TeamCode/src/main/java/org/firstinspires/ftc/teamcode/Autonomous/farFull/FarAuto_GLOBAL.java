@@ -166,7 +166,7 @@ public class FarAuto_GLOBAL extends OpModeCommand {
                 .addPath(new BezierLine(
                         pickCornerPose,
                         shootCyclesPose))
-                .setConstantHeadingInterpolation(Alliance.BLUE.equals(currentAlliance) ? Math.toRadians(175) : Math.toRadians(5))
+                .setConstantHeadingInterpolation(Alliance.BLUE.equals(currentAlliance) ? Math.toRadians(178) : Math.toRadians(2))
                 .setTimeoutConstraint(1)
                 .build();
 
@@ -174,7 +174,7 @@ public class FarAuto_GLOBAL extends OpModeCommand {
                 .addPath(new BezierLine(
                         pickCenterPose,
                         shoot1Pose))
-                .setConstantHeadingInterpolation(Alliance.BLUE.equals(currentAlliance) ? Math.toRadians(175) : Math.toRadians(5))
+                .setConstantHeadingInterpolation(Alliance.BLUE.equals(currentAlliance) ? Math.toRadians(178) : Math.toRadians(2))
                 .setTimeoutConstraint(1)
                 .build();
 
@@ -196,6 +196,7 @@ public class FarAuto_GLOBAL extends OpModeCommand {
 
         follower.setStartingPose(startingPose);
 
+        /*
         new SequentialCommandGroup(
                 new lateralBlockersCMD(sorterSb, blockersUp, blockersUp),
                 new horizontalBlockerCMD(sorterSb, blockerHFreePos),
@@ -213,6 +214,8 @@ public class FarAuto_GLOBAL extends OpModeCommand {
 
         ).schedule();
 
+
+         */
         createPaths();
 
         parkCommand = new SequentialCommandGroup(
@@ -234,6 +237,22 @@ public class FarAuto_GLOBAL extends OpModeCommand {
                                                 new WaitCommand(3600),
                                                 new SequentialCommandGroup(
                                                         pedroSb.followPathCmd(shootPreload),
+                                                        new WaitCommand(1000000)
+                                                ),
+
+                                                new SequentialCommandGroup(
+                                                        new lateralBlockersCMD(sorterSb, blockersUp, blockersUp),
+                                                        new horizontalBlockerCMD(sorterSb, blockerHFreePos),
+
+                                                        new rampCMD(sorterSb, downRampPos),
+
+                                                        new WaitCommand(200),
+
+                                                        new rampCMD(sorterSb, upRampPos),
+
+                                                        new lateralBlockersCMD(sorterSb, blockersUp, 0),
+                                                        new horizontalBlockerCMD(sorterSb, blockerHHidePos),
+
                                                         new WaitCommand(1000000)
                                                 )
                                         ),
@@ -287,7 +306,7 @@ public class FarAuto_GLOBAL extends OpModeCommand {
 
                                         new ParallelRaceGroup(
                                             shootThreeSpamerFarCMD(),
-                                            new setIsCorner(visionSb)
+                                            new setIsCorner(visionSb, true)
                                         ),
 
                                         /// SECOND_LAUNCHED
@@ -322,7 +341,7 @@ public class FarAuto_GLOBAL extends OpModeCommand {
 
                                         new ParallelRaceGroup(
                                                 shootThreeSpamerFarCMD(),
-                                                new setIsCorner(visionSb)
+                                                new setIsCorner(visionSb, false)
                                         ),
                                         /// THIRD_LAUNCHED
 
@@ -355,7 +374,7 @@ public class FarAuto_GLOBAL extends OpModeCommand {
 
                                         new ParallelRaceGroup(
                                                 shootThreeSpamerFarCMD(),
-                                                new setIsCorner(visionSb)
+                                                new setIsCorner(visionSb, true)
                                         ),
                                         /// FOURTH_LAUNCHED
 
@@ -389,7 +408,7 @@ public class FarAuto_GLOBAL extends OpModeCommand {
 
                                         new ParallelRaceGroup(
                                                 shootThreeSpamerFarCMD(),
-                                                new setIsCorner(visionSb)
+                                                new setIsCorner(visionSb, true)
                                         ),
                                         /// FIVE_LAUNCHED
                                         stopShootCMD(false),
@@ -420,15 +439,13 @@ public class FarAuto_GLOBAL extends OpModeCommand {
 
                                         ),
 
-                                        new ParallelRaceGroup(
-                                                shootThreeSpamerFarCMD(),
-                                                new setIsCorner(visionSb)
-                                        )
+                                        shootThreeSpamerFarCMD()
+
                                         /// SIX_LAUNCHED
 
                                 ),
 
-                                new WaitCommand(29500)
+                                new WaitCommand(29400)
                         ),
 
                         parkCommand

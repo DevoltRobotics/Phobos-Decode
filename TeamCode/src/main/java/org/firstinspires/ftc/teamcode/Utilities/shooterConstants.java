@@ -55,7 +55,7 @@ public class shooterConstants {
 // Clamp to motor capability
 
 
-    public static double MAX_FLYWHEEL_SPEED = 2000;
+    public static double MAX_FLYWHEEL_SPEED = 2100;
 
     public static double MIN_FLYWHEEL_SPEED = 800;
 
@@ -66,7 +66,7 @@ public class shooterConstants {
 
     public static double flywheelOffSetMultiplier_CLOSE = 1.093;
 
-    public static double flywheelOffSet_FAR = 128;
+    public static double flywheelOffSet_FAR = 133;
 
     public static double flywheelOffSetMultiplier_FAR = 1.12;
 
@@ -86,7 +86,7 @@ public class shooterConstants {
     }
 
     //TURRET
-    public static double kTurretvel = 0.75;
+    public static double kTurretvel = 0.85;
 
     public static PIDFCoefficients principalTurretCoeffs = new PIDFCoefficients(0.04, 0.0, 0.002, 0.001); //f = 0.001
 

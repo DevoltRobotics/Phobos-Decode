@@ -9,17 +9,25 @@ public class setIsCorner extends CommandBase {
 
     private final VisionSubsystem visionSubsystem;
 
+    private boolean preCorner;
     public setIsCorner(VisionSubsystem vSb) {
         visionSubsystem = vSb;
+        preCorner = true;
 
         addRequirements(visionSubsystem);
     }
 
+    public setIsCorner(VisionSubsystem vSb, boolean preCorner) {
+        visionSubsystem = vSb;
+        this.preCorner = preCorner;
+
+        addRequirements(visionSubsystem);
+    }
 
     @Override
     public void execute() {
 
-        visionSubsystem.currentArtifactCorner = visionSubsystem.isArtifactsCorner();
+        visionSubsystem.currentArtifactCorner = visionSubsystem.isArtifactsCorner(preCorner);
     }
 
 

@@ -38,18 +38,14 @@ import org.firstinspires.ftc.teamcode.Utilities.Alliance;
 import java.util.function.BooleanSupplier;
 
 @Configurable
-public class aimCMD extends CommandBase {
+public class RESETAIMCMD extends CommandBase {
 
     ShooterSubsystem shooterSb;
 
 
-    public static double newTurretOffset = 8;
-    public static double nedeedDesv = 55;
-    public static double offsetXRed = -2.5;
-    public static double offsetXBlue = 2.5;
-
+    public static double newTurretOffset = 0;
+    public static double nedeedDesv = 10;
     public static double offsetX = -2.5;
-
 
     int goalX;
     int goalY = goalY_FAR;
@@ -57,7 +53,7 @@ public class aimCMD extends CommandBase {
     double hoodAngle = 0;
     double flywheelSpeed = 0;
 
-    public static int extraOffset = 5;
+    double extraOffset = 0;
     double SCORE_HEIGHT = SCORE_HEIGHT_FAR; //inches
     double SCORE_ANGLE = SCORE_ANGLE_FAR; //inches
 
@@ -72,7 +68,7 @@ public class aimCMD extends CommandBase {
 
     boolean reAnguled = false;
 
-    public aimCMD(ShooterSubsystem shooterSubsystem, BooleanSupplier isClose) {
+    public RESETAIMCMD(ShooterSubsystem shooterSubsystem, BooleanSupplier isClose) {
 
         this.shooterSb = shooterSubsystem;
 
@@ -80,12 +76,14 @@ public class aimCMD extends CommandBase {
 
         this.isClose = isClose;
 
+        this.extraOffset = 0;
+
         goalX = Alliance.RED.equals(shooterSb.alliance) ? goalX_FAR : 144- goalX_FAR;
 
         addRequirements(shooterSubsystem);
     }
 
-    public aimCMD(ShooterSubsystem shooterSubsystem, boolean isShooting, BooleanSupplier isClose) {
+    public RESETAIMCMD(ShooterSubsystem shooterSubsystem, boolean isShooting, BooleanSupplier isClose) {
 
         this.shooterSb = shooterSubsystem;
 
@@ -93,31 +91,37 @@ public class aimCMD extends CommandBase {
 
         this.isClose = isClose;
 
+        this.extraOffset = 0;
+
         goalX = Alliance.RED.equals(shooterSb.alliance) ? goalX_FAR : 144 - goalX_FAR;
 
         addRequirements(shooterSubsystem);
     }
 
-    public aimCMD(ShooterSubsystem shooterSubsystem, boolean isShooting, boolean isClose) {
+    public RESETAIMCMD(ShooterSubsystem shooterSubsystem, boolean isShooting, boolean isClose) {
 
         this.shooterSb = shooterSubsystem;
 
         this.isShooting = isShooting;
 
         this.isClose = ()-> isClose;
+
+        this.extraOffset = 0;
 
         goalX = Alliance.RED.equals(shooterSb.alliance) ? goalX_FAR : 144-goalX_FAR;
 
         addRequirements(shooterSubsystem);
     }
 
-    public aimCMD(ShooterSubsystem shooterSubsystem, boolean isShooting, boolean isClose, double extraOffset) {
+    public RESETAIMCMD(ShooterSubsystem shooterSubsystem, boolean isShooting, boolean isClose, double extraOffset) {
 
         this.shooterSb = shooterSubsystem;
 
         this.isShooting = isShooting;
 
         this.isClose = ()-> isClose;
+
+        this.extraOffset = extraOffset;
 
         goalX = Alliance.RED.equals(shooterSb.alliance) ? goalX_FAR : 144 - goalX_FAR;
 
@@ -128,34 +132,23 @@ public class aimCMD extends CommandBase {
     public void execute() {
         Pose2d robotPose = new Pose2d(shooterSb.follower.getPose().getX(), shooterSb.follower.getPose().getY(), shooterSb.follower.getPose().getHeading());
 
-        if (Alliance.RED.equals(shooterSb.alliance)) {
-            offsetX = offsetXRed;
-
-        }else if (Alliance.BLUE.equals(shooterSb.alliance)) {
-            offsetX = offsetXBlue;
-
-        }
-
         double heading = robotPose.getHeading();
 
 // shooter is 2.5 inches behind robot center
 
 // rotate offset into global frame
-        double shooterX = robotPose.getX() + offsetXRed; //* Math.cos(heading);
-        double shooterY = robotPose.getY() + offsetXRed * Math.sin(heading);
+        double shooterX = robotPose.getX() + offsetX * Math.cos(heading);
+        double shooterY = robotPose.getY() + offsetX * Math.sin(heading);
 
         Pose2d shooterPose = new Pose2d(shooterX, shooterY, heading);
 
         PanelsTelemetry.INSTANCE.getFtcTelemetry().addData("shooterPose", shooterPose);
 
         if (shooterPose.getY() < 50) {
+
             goalX = Alliance.RED.equals(shooterSb.alliance) ? goalX_FAR : 144 - goalX_FAR;
             goalY = goalY_FAR;
 
-            if (Math.toDegrees(shooterPose.getHeading()) > nedeedDesv) {
-
-                goalX = goalX - extraOffset;
-            }
             SCORE_HEIGHT = SCORE_HEIGHT_FAR; //inches
             SCORE_ANGLE = SCORE_ANGLE_FAR; //inches
 
@@ -168,10 +161,6 @@ public class aimCMD extends CommandBase {
         } else {
             goalX = Alliance.RED.equals(shooterSb.alliance) ? goalX_CLOSE : 144 - goalX_CLOSE;
 
-            if (Math.toDegrees(shooterPose.getHeading()) > (180 - nedeedDesv)) {
-
-                goalX = goalX + extraOffset;
-            }
             goalY = goalY_CLOSE;
             SCORE_HEIGHT = SCORE_HEIGHT_CLOSE; //inches
             SCORE_ANGLE = SCORE_ANGLE_CLOSE; //inches
@@ -256,15 +245,11 @@ public class aimCMD extends CommandBase {
         shooterSb.setShooterTarget(flywheelTarget);
         shooterSb.setHoodPose(MathFunctions.clamp(Math.toDegrees(hoodAngle), MAX_HOOD_ANGLE + 0.001, MIN_HOOD_ANGLE - 0.001));
 
-        shooterSb.telemetry.addData("goalX", goalX);
 
-        shooterSb.setTurretTarget(turretAngle);
-/*
+
         if (Alliance.RED.equals(shooterSb.alliance)) {
             if (turretAngle > nedeedDesv) {
                 shooterSb.setTurretTarget(turretAngle + newTurretOffset);
-
-                PanelsTelemetry.INSTANCE.getFtcTelemetry().addLine("angleActualized");
 
             }else {
                 shooterSb.setTurretTarget(turretAngle);
@@ -274,7 +259,6 @@ public class aimCMD extends CommandBase {
         }else if (Alliance.BLUE.equals(shooterSb.alliance)) {
             if (turretAngle < -nedeedDesv) {
                 shooterSb.setTurretTarget(turretAngle - newTurretOffset);
-                PanelsTelemetry.INSTANCE.getFtcTelemetry().addLine("angleActualized");
 
             }else {
                 shooterSb.setTurretTarget(turretAngle);
@@ -282,9 +266,6 @@ public class aimCMD extends CommandBase {
             }
 
         }
-
-
- */
     }
 
     public double getFlywheelTicksFromVelocitya(double velocity) {

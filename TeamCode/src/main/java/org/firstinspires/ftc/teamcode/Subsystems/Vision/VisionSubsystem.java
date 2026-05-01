@@ -20,8 +20,8 @@ public class VisionSubsystem extends SubsystemBase {
 
     Servo llS;
 
-    public static double llSDownPos = 0.47;
-    public static double llSUpPos = 0.42;
+    public static double llSDownPos = 0.6;
+    public static double llSUpPos = 0.44;
 
     public static int limelightTaRatio = 100;
 
@@ -71,7 +71,7 @@ public class VisionSubsystem extends SubsystemBase {
             if (closeAuto) {
                 ll.pipelineSwitch(2);
             } else {
-                ll.pipelineSwitch(1);
+                ll.pipelineSwitch(3);
             }
 
         } else {

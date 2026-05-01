@@ -8,6 +8,7 @@ import static org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.SorterSu
 import static org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.SorterSubsystem.upRampPos;
 import static org.firstinspires.ftc.teamcode.Utilities.shooterConstants.manualIncrement;
 import static org.firstinspires.ftc.teamcode.pedroPathing.PedroSubsystem.EndPose;
+import static org.firstinspires.ftc.teamcode.pedroPathing.PedroSubsystem.intakeWidth;
 import static org.firstinspires.ftc.teamcode.pedroPathing.PedroSubsystem.xBlueCloseCorner;
 import static org.firstinspires.ftc.teamcode.pedroPathing.PedroSubsystem.xBlueFarCorner;
 import static org.firstinspires.ftc.teamcode.pedroPathing.PedroSubsystem.xRedCloseCorner;
@@ -88,8 +89,8 @@ public abstract class teleOp extends OpModeCommand {
 
         upChassis.whenPressed(
                 new ConditionalCommand(
-                        new InstantCommand(() -> follower.setPose(new Pose(xRedFarCorner, yRedFarCorner, angleOffSet))),
-                        new InstantCommand(() -> follower.setPose(new Pose(xBlueFarCorner, yBlueFarCorner, angleOffSet))),
+                        new InstantCommand(() -> follower.setPose(new Pose(xRedFarCorner - intakeWidth, yRedFarCorner, angleOffSet))),
+                        new InstantCommand(() -> follower.setPose(new Pose(xBlueFarCorner + intakeWidth, yBlueFarCorner, angleOffSet))),
                         () -> Alliance.RED.equals(currentAlliance))
         );
 
@@ -126,13 +127,15 @@ public abstract class teleOp extends OpModeCommand {
                         () -> Alliance.RED.equals(currentAlliance))
         );
 
-        Button yChassis = new GamepadButton(
+        /*Button yChassis = new GamepadButton(
                 chassis,
                 GamepadKeys.Button.DPAD_LEFT);
 
         yChassis.whenPressed(
                 new InstantCommand(() -> follower.setPose(new Pose(follower.getPose().getX(), follower.getPose().getY(), angleOffSet)))
         );
+
+         */
 
         /// //////////////////////////////////
 
@@ -157,14 +160,14 @@ public abstract class teleOp extends OpModeCommand {
         turretLeft.whileActiveOnce(new InstantCommand(
                 () -> shooterSb.setTurretTarget(shooterSb.getCurrentPosition() - manualIncrement)));
 
-        /*Button resetTurretButton = new GamepadButton(
+        Button resetTurretButton = new GamepadButton(
                 garra,
-                GamepadKeys.Button.START);
+                GamepadKeys.Button.RIGHT_STICK_BUTTON);
 
         resetTurretButton.whenPressed(new InstantCommand(() -> shooterSb.resetTurret()));
 
 
-         */
+
         Button blockerUpButton = new GamepadButton(
                 garra,
                 GamepadKeys.Button.Y);
@@ -372,9 +375,8 @@ public abstract class teleOp extends OpModeCommand {
     public void run() {
         PedroSubsystem.EndPose = follower.getPose();
 
-        telemetry.addData("Heading", Math.toDegrees(follower.getPose().getHeading()));
+        telemetry.addData("HeadingDEG", Math.toDegrees(follower.getPose().getHeading()));
 
         telemetry.addData("EndPose", PedroSubsystem.EndPose);
-
     }
 }

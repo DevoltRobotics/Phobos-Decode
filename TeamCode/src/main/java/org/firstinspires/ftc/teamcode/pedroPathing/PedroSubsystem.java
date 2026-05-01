@@ -19,9 +19,12 @@ public class PedroSubsystem extends SubsystemBase {
     public Follower follower;
 
     public static double slowModeMultiplier = 0.4;
+
+    public static double intakeWidth = 1.5;
+
     public static double xBlueFarCorner = 7.5;
     public static double yBlueFarCorner = 8.075;
-    public static double xRedFarCorner = 144 - xBlueFarCorner - 1.5;
+    public static double xRedFarCorner = 144 - xBlueFarCorner;
     public static double yRedFarCorner = yBlueFarCorner;
 
     public static double xBlueCloseCorner = 14.5;
