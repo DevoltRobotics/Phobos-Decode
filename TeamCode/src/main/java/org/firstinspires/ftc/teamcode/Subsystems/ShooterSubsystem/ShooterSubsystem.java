@@ -207,7 +207,7 @@ public class ShooterSubsystem extends SubsystemBase {
         telemetry.addData("turretError", error);
         PanelsTelemetry.INSTANCE.getFtcTelemetry().addData("turretTarget", turretTarget);
 
-        PanelsTelemetry.INSTANCE.getFtcTelemetry().addData("turret angle", turretP);
+        telemetry.addData("turret angle", turretP);
     }
 
     public void setShooterTarget(double target){

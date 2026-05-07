@@ -152,10 +152,15 @@ public class aimCMD extends CommandBase {
             goalX = Alliance.RED.equals(shooterSb.alliance) ? goalX_FAR : 144 - goalX_FAR;
             goalY = goalY_FAR;
 
-            if (Math.toDegrees(shooterPose.getHeading()) > nedeedDesv) {
+            if (Alliance.RED.equals(shooterSb.alliance) &&  Math.toDegrees(shooterPose.getHeading()) > nedeedDesv) {
 
-                goalX = goalX - extraOffset;
+                goalX = (goalX - extraOffset);
+            }else if (Alliance.BLUE.equals(shooterSb.alliance) &&  Math.toDegrees(shooterPose.getHeading()) <  180 - nedeedDesv) {
+
+                goalX = (goalX + extraOffset);
             }
+
+
             SCORE_HEIGHT = SCORE_HEIGHT_FAR; //inches
             SCORE_ANGLE = SCORE_ANGLE_FAR; //inches
 
@@ -168,10 +173,6 @@ public class aimCMD extends CommandBase {
         } else {
             goalX = Alliance.RED.equals(shooterSb.alliance) ? goalX_CLOSE : 144 - goalX_CLOSE;
 
-            if (Math.toDegrees(shooterPose.getHeading()) > (180 - nedeedDesv)) {
-
-                goalX = goalX + extraOffset;
-            }
             goalY = goalY_CLOSE;
             SCORE_HEIGHT = SCORE_HEIGHT_CLOSE; //inches
             SCORE_ANGLE = SCORE_ANGLE_CLOSE; //inches

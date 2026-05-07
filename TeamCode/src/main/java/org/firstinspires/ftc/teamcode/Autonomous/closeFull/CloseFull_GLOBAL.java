@@ -59,13 +59,20 @@ public class CloseFull_GLOBAL extends OpModeCommand {
     Pose openGate2Pose = m(new Pose(127, 63, Math.toRadians(0)));
 
     Pose pickUp3Pose = m(new Pose(131, 59.0, Math.toRadians(50)));
-    Pose shoot3Pose = m(new Pose(88.0, 81.0, Math.toRadians(0)));
+    //Pose shoot3Pose = m(new Pose(88.0, 81.0, Math.toRadians(0)));
 
+    Pose shoot3Pose = m(new Pose(88.0, 84.0, Math.toRadians(0)));
+
+    /*
     Pose openGate3ControlPoint = m(new Pose(106.0, 62.0, Math.toRadians(0)));
     Pose openGate3Pose = m(new Pose(127, 63, Math.toRadians(0)));
 
+
+
     Pose pickUp4Pose = m(new Pose(131, 59.0, Math.toRadians(50)));
     Pose shoot4Pose = m(new Pose(88.0, 84.0, Math.toRadians(0)));
+
+     */
     Pose pickUp5Pose = m(new Pose(125.0, 84.0, Math.toRadians(0)));
 
     Pose shoot5Pose = m(new Pose(88, 108.0, Math.toRadians(0)));
@@ -144,6 +151,7 @@ public class CloseFull_GLOBAL extends OpModeCommand {
 
 
         //SEBAS ERROR EN ESTE PATH, IGUAL SIGUE TENIENDO ERROR EN EL INTAKE FOURTH Y LAUNCH FOURTH
+        /*
         openGate3 = new Path(new BezierCurve(
                 shoot3Pose,
                 openGate3ControlPoint,
@@ -166,8 +174,10 @@ public class CloseFull_GLOBAL extends OpModeCommand {
                 shoot4Pose.getHeading()
         );
 
+
+         */
         intakeFive = new Path(new BezierLine(
-                shoot4Pose,
+                shoot3Pose,
                 pickUp5Pose));
         intakeFive.setConstantHeadingInterpolation(pickUp5Pose.getHeading());
 
@@ -315,30 +325,6 @@ public class CloseFull_GLOBAL extends OpModeCommand {
                                 stopShootCMD(false),
 
                                 new InstantCommand(() -> intakeSb.setIntakePower(1, 0.8)),
-
-                                pedroSb.followPathCmd(openGate3),
-
-                                new WaitCommand(400),
-
-                                pedroSb.followPathCmd(intakeFourth).withTimeout(800),
-
-                                new WaitCommand(200),
-
-                                new ParallelRaceGroup(
-                                        new SequentialCommandGroup(
-                                                pedroSb.followPathCmd(launchFourth),
-                                                shootThreeSpamerCloseCMD()
-
-                                        ),
-                                        new aimCMD(shooterSb, false, true)
-                                ),
-
-                                /// FOURTH_LAUNCHED
-
-                                stopShootCMD(false),
-
-                                new InstantCommand(() -> intakeSb.setIntakePower(1, 0.8)),
-
 
                                 pedroSb.followPathCmd(intakeFive).withTimeout(1200),
 
