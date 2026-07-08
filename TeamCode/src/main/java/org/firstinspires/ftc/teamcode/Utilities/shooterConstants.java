@@ -9,9 +9,10 @@ import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 public class shooterConstants {
 
     //POSES
-    public static int goalX_CLOSE = 145;
-    public static int goalY_CLOSE = 136;
-    public static double SCORE_HEIGHT_CLOSE = 26; //inches 30
+    public static int goalX_CLOSE = 143;
+    public static int goalY_CLOSE = 137;
+
+    public static double SCORE_HEIGHT_CLOSE = 27; //inches 30
     public static double SCORE_ANGLE_CLOSE = Math.toRadians(-30); //inches
 
     public static double PASS_THROUGH_POINT_RADIUS_CLOSE = 5; //inches
@@ -62,9 +63,9 @@ public class shooterConstants {
     public static double minflywheelClose = 800;
     public static double minflywheelFar = 1500;
 
-    public static double flywheelOffSet_CLOSE = 175;
+    public static double flywheelOffSet_CLOSE = 170;
 
-    public static double flywheelOffSetMultiplier_CLOSE = 1.093;
+    public static double flywheelOffSetMultiplier_CLOSE = 1.089;
 
     public static double flywheelOffSet_FAR = 133;
 
@@ -86,7 +87,7 @@ public class shooterConstants {
     }
 
     //TURRET
-    public static double kTurretvel = 0.85;
+    public static double kTurretvel = 1.13;
 
     public static PIDFCoefficients principalTurretCoeffs = new PIDFCoefficients(0.04, 0.0, 0.002, 0.001); //f = 0.001
 
@@ -99,7 +100,7 @@ public class shooterConstants {
 
     public static double minimunPower = 0.042;
 
-    public static double capstanRatio = 0.315; //0.331
+    public static double capstanRatio =  27 / 80d; //0.331
 
     public static double ticktsToDegrees = (double) 360 / 8192;
 

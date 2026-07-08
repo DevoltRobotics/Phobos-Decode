@@ -42,7 +42,6 @@ public class aimCMD extends CommandBase {
 
     ShooterSubsystem shooterSb;
 
-
     public static double newTurretOffset = 8;
     public static double nedeedDesv = 55;
     public static double offsetXRed = -2.5;
@@ -68,7 +67,7 @@ public class aimCMD extends CommandBase {
     double flywheelOffSet = flywheelOffSet_FAR;
 
     BooleanSupplier isClose;
-    boolean isShooting = false;
+    BooleanSupplier isShooting;
 
     boolean reAnguled = false;
 
@@ -76,7 +75,7 @@ public class aimCMD extends CommandBase {
 
         this.shooterSb = shooterSubsystem;
 
-        this.isShooting = false;
+        this.isShooting = ()->false;
 
         this.isClose = isClose;
 
@@ -85,7 +84,7 @@ public class aimCMD extends CommandBase {
         addRequirements(shooterSubsystem);
     }
 
-    public aimCMD(ShooterSubsystem shooterSubsystem, boolean isShooting, BooleanSupplier isClose) {
+    public aimCMD(ShooterSubsystem shooterSubsystem, BooleanSupplier isShooting, BooleanSupplier isClose) {
 
         this.shooterSb = shooterSubsystem;
 
@@ -102,11 +101,11 @@ public class aimCMD extends CommandBase {
 
         this.shooterSb = shooterSubsystem;
 
-        this.isShooting = isShooting;
+        this.isShooting = ()->isShooting;
 
-        this.isClose = ()-> isClose;
+        this.isClose = () -> isClose;
 
-        goalX = Alliance.RED.equals(shooterSb.alliance) ? goalX_FAR : 144-goalX_FAR;
+        goalX = Alliance.RED.equals(shooterSb.alliance) ? goalX_FAR : 144 - goalX_FAR;
 
         addRequirements(shooterSubsystem);
     }
@@ -115,9 +114,9 @@ public class aimCMD extends CommandBase {
 
         this.shooterSb = shooterSubsystem;
 
-        this.isShooting = isShooting;
+        this.isShooting = ()->isShooting;
 
-        this.isClose = ()-> isClose;
+        this.isClose = () -> isClose;
 
         goalX = Alliance.RED.equals(shooterSb.alliance) ? goalX_FAR : 144 - goalX_FAR;
 
@@ -126,23 +125,17 @@ public class aimCMD extends CommandBase {
 
     @Override
     public void execute() {
+        shooterSb.telemetry.addLine("---------------------------");
+
         Pose2d robotPose = new Pose2d(shooterSb.follower.getPose().getX(), shooterSb.follower.getPose().getY(), shooterSb.follower.getPose().getHeading());
-
-        if (Alliance.RED.equals(shooterSb.alliance)) {
-            offsetX = offsetXRed;
-
-        }else if (Alliance.BLUE.equals(shooterSb.alliance)) {
-            offsetX = offsetXBlue;
-
-        }
 
         double heading = robotPose.getHeading();
 
 // shooter is 2.5 inches behind robot center
 
 // rotate offset into global frame
-        double shooterX = robotPose.getX() + offsetXRed; //* Math.cos(heading);
-        double shooterY = robotPose.getY() + offsetXRed * Math.sin(heading);
+        double shooterX = MathFunctions.clamp(robotPose.getX() + offsetX * Math.cos(heading), 0, 144);
+        double shooterY = MathFunctions.clamp(robotPose.getY() + offsetX * Math.sin(heading), 0, 144);
 
         Pose2d shooterPose = new Pose2d(shooterX, shooterY, heading);
 
@@ -151,15 +144,6 @@ public class aimCMD extends CommandBase {
         if (shooterPose.getY() < 50) {
             goalX = Alliance.RED.equals(shooterSb.alliance) ? goalX_FAR : 144 - goalX_FAR;
             goalY = goalY_FAR;
-
-            if (Alliance.RED.equals(shooterSb.alliance) &&  Math.toDegrees(shooterPose.getHeading()) > nedeedDesv) {
-
-                goalX = (goalX - extraOffset);
-            }else if (Alliance.BLUE.equals(shooterSb.alliance) &&  Math.toDegrees(shooterPose.getHeading()) <  180 - nedeedDesv) {
-
-                goalX = (goalX + extraOffset);
-            }
-
 
             SCORE_HEIGHT = SCORE_HEIGHT_FAR; //inches
             SCORE_ANGLE = SCORE_ANGLE_FAR; //inches
@@ -193,39 +177,64 @@ public class aimCMD extends CommandBase {
                 new Vector2d(robotToGoal.getX(), robotToGoal.getY());
 
         double g = 32.174 * 12;
-        double x = robotToGoalVector.magnitude() - PASS_THROUGH_POINT_RADIUS;
+        double x = Math.max(robotToGoalVector.magnitude() - PASS_THROUGH_POINT_RADIUS, 0.1);
         double y = SCORE_HEIGHT;
         double a = SCORE_ANGLE;
 
 //calculate initial launch components
-        hoodAngle = MathFunctions.clamp(Math.atan(2 * y / x - Math.tan(a)), Math.toRadians(MAX_HOOD_ANGLE), Math.toRadians(MIN_HOOD_ANGLE));
+        hoodAngle = MathFunctions.clamp(Math.atan2(2 * y, x - Math.tan(a)), Math.toRadians(MAX_HOOD_ANGLE), Math.toRadians(MIN_HOOD_ANGLE));
 
-        double denom = 2 * Math.pow(Math.cos(hoodAngle), 2) * (x * Math.tan(hoodAngle) - y);
+        flywheelSpeed = Math.max(Math.sqrt(g * x * x / Math.max((2 * Math.pow(Math.cos(hoodAngle), 2) * (x * Math.tan(hoodAngle) - y)), 0.01)), 1.0);
 
-        PanelsTelemetry.INSTANCE.getFtcTelemetry().addData("denominador", (g * x * x / (2 * Math.pow(Math.cos(hoodAngle), 2) * (x * Math.tan(hoodAngle) - y))));
+        shooterSb.telemetry.addData("hoodAngle", hoodAngle);
+        shooterSb.telemetry.addData("flywheelSpeed", flywheelSpeed);
 
-        flywheelSpeed = Math.sqrt(g * x * x / (2 * Math.pow(Math.cos(hoodAngle), 2) * (x * Math.tan(hoodAngle) - y)));
+        shooterSb.telemetry.addData("denom_flywheelSpeed", 2 * Math.pow(Math.cos(hoodAngle), 2) * (x * Math.tan(hoodAngle) - y));
 
         Vector robotVelocity = shooterSb.follower.getVelocity();
 
         double coordinateTheta = robotVelocity.getTheta() - robotToGoalVector.angle();
 
+        shooterSb.telemetry.addData("coordinateTheta", coordinateTheta);
+        shooterSb.telemetry.addData("robotVelocity.getTheta()", robotVelocity.getTheta());
+        shooterSb.telemetry.addData("robotToGoalVector.angle()", robotToGoalVector.angle());
+
         double parralelComponent = -Math.cos(coordinateTheta) * robotVelocity.getMagnitude();
         double perpendicularComponent = Math.sin(coordinateTheta) * robotVelocity.getMagnitude();
+
+        shooterSb.telemetry.addData("parralelComponent", parralelComponent);
+        shooterSb.telemetry.addData("perpendicularComponent", perpendicularComponent);
+
 
 //velocity compensation variables
         double vz = flywheelSpeed * Math.sin(hoodAngle);
         double time = x / (flywheelSpeed * Math.cos(hoodAngle));
         double ivr = x / time + parralelComponent;
-        double nvr = Math.sqrt(ivr * ivr + perpendicularComponent * perpendicularComponent);
+        double nvr = Math.sqrt((ivr * ivr) + (perpendicularComponent * perpendicularComponent));
         double ndr = nvr * time;
+
+        shooterSb.telemetry.addData("vz", vz);
+        shooterSb.telemetry.addData("time", time);
+        shooterSb.telemetry.addData("ivr", ivr);
+        shooterSb.telemetry.addData("nvr", nvr);
+        shooterSb.telemetry.addData("ndr", ndr);
 
 //recalculate launch components
         hoodAngle = MathFunctions.clamp(Math.atan(vz / nvr),
                 Math.toRadians(MAX_HOOD_ANGLE), Math.toRadians(MIN_HOOD_ANGLE));
 
-        flywheelSpeed = Math.sqrt(g * ndr * ndr / (2 * Math.pow(Math.cos(hoodAngle), 2)
-                * (ndr * Math.tan(hoodAngle) - y)));
+        flywheelSpeed = Math.max(Math.sqrt(g * ndr * ndr / (2 * Math.pow(Math.cos(hoodAngle), 2)
+                * (ndr * Math.tan(hoodAngle) - y))), 1.0);
+
+        double denom =
+                2 * Math.pow(Math.cos(hoodAngle), 2)
+                        * (x * Math.tan(hoodAngle) - y);
+
+        shooterSb.telemetry.addData("Invalid denominator", denom);
+        shooterSb.telemetry.addData("x", x);
+        shooterSb.telemetry.addData("hoodAngle", Math.toDegrees(hoodAngle));
+        shooterSb.telemetry.addData("y", y);
+
 
         double flywheelTarget;
 
@@ -236,56 +245,33 @@ public class aimCMD extends CommandBase {
             flywheelTarget = MathFunctions.clamp(getFlywheelTicksFromVelocitya(flywheelSpeed), minflywheelFar, MAX_FLYWHEEL_SPEED);
 
         }
-//update turret
-        double turretVelCompOffset = Math.atan(perpendicularComponent / ivr) * kTurretvel;
 
-        //double turretVelCompensation = Alliance.RED.equals(shooterSb.alliance) ? turretVelCompOffset : -turretVelCompOffset;
-        //double turretAngle = Math.toDegrees(shooterPose.getHeading() - robotToGoalVector.angle());
+//update turret
+        double atanValue = Math.atan2(perpendicularComponent, ivr);
+
+        double turretVelCompOffset =
+                Math.signum(atanValue)
+                        * Math.pow(Math.abs(atanValue), kTurretvel);
+
+        shooterSb.telemetry.addData("TurretVelCompOffset", turretVelCompOffset);
+        shooterSb.telemetry.addData("atanValue", atanValue);
+        shooterSb.telemetry.addData("perpendicularComponent", perpendicularComponent);
+        shooterSb.telemetry.addData("ivr", ivr);
 
         double turretAngle = Math.toDegrees(angleWrap(shooterPose.getHeading() - robotToGoalVector.angle() + turretVelCompOffset));
-        double finalHoodAngle;
 
-        if (isShooting && Math.abs(shooterSb.shooterError) > velocityShooterDeadPoint && !reAnguled) {
+        if (isShooting.getAsBoolean() && Math.abs(shooterSb.shooterError) > velocityShooterDeadPoint && !reAnguled) {
             hoodAngle += hoodAdjustment;
             reAnguled = true;
         } else {
             reAnguled = false;
-            finalHoodAngle = hoodAngle;
-
         }
 
         shooterSb.setShooterTarget(flywheelTarget);
         shooterSb.setHoodPose(MathFunctions.clamp(Math.toDegrees(hoodAngle), MAX_HOOD_ANGLE + 0.001, MIN_HOOD_ANGLE - 0.001));
 
-        shooterSb.telemetry.addData("goalX", goalX);
-
         shooterSb.setTurretTarget(turretAngle);
-/*
-        if (Alliance.RED.equals(shooterSb.alliance)) {
-            if (turretAngle > nedeedDesv) {
-                shooterSb.setTurretTarget(turretAngle + newTurretOffset);
 
-                PanelsTelemetry.INSTANCE.getFtcTelemetry().addLine("angleActualized");
-
-            }else {
-                shooterSb.setTurretTarget(turretAngle);
-
-            }
-
-        }else if (Alliance.BLUE.equals(shooterSb.alliance)) {
-            if (turretAngle < -nedeedDesv) {
-                shooterSb.setTurretTarget(turretAngle - newTurretOffset);
-                PanelsTelemetry.INSTANCE.getFtcTelemetry().addLine("angleActualized");
-
-            }else {
-                shooterSb.setTurretTarget(turretAngle);
-
-            }
-
-        }
-
-
- */
     }
 
     public double getFlywheelTicksFromVelocitya(double velocity) {

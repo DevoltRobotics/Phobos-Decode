@@ -133,7 +133,7 @@ public class SensorsSubsystem extends SubsystemBase {
             leftDetected = false;
         }
 
-        telemetry.addData("RightGreen", greenInR);
+        /*telemetry.addData("RightGreen", greenInR);
         telemetry.addData("LeftGreen", greenInL);
         telemetry.addData("RightBlue", blueInR);
         telemetry.addData("LeftBlue", blueInL);
@@ -146,6 +146,8 @@ public class SensorsSubsystem extends SubsystemBase {
         telemetry.addData("relaseOrder", relaseOrder);
 
         telemetry.addData("pattern", teleOpPattern);
+
+         */
     }
 
     public void setLightPos(double pos){

@@ -17,21 +17,11 @@ import org.firstinspires.ftc.teamcode.Utilities.Pattern;
 public class VisionSubsystem extends SubsystemBase {
 
     public Limelight3A ll;
-
-    Servo llS;
-
-    public static double llSDownPos = 0.6;
-    public static double llSUpPos = 0.44;
-
     public static int limelightTaRatio = 100;
 
     public LLResult result;
 
     static double RIGHT_BOUND = 10;
-    private static final int PPG_TAG_ID = 23;
-    private static final int PGP_TAG_ID = 22;
-    private static final int GPP_TAG_ID = 21;
-
     public Pattern pattern = Pattern.PGP;
 
     public final Alliance alliance;
@@ -54,7 +44,6 @@ public class VisionSubsystem extends SubsystemBase {
 
     public VisionSubsystem(HardwareMap hMap, Telemetry telemetry, Alliance alliance, boolean isAuto, boolean closeAuto) {
         ll = hMap.get(Limelight3A.class, "limelight");
-        llS = hMap.get(Servo.class, "llS");
 
         this.alliance = alliance;
 
@@ -67,54 +56,15 @@ public class VisionSubsystem extends SubsystemBase {
         ll.setPollRateHz(75);
         ll.start();
 
-        if (this.isAuto) {
-            if (closeAuto) {
-                ll.pipelineSwitch(2);
-            } else {
-                ll.pipelineSwitch(3);
-            }
+        ll.pipelineSwitch(2);
 
-        } else {
-            ll.pipelineSwitch(2);
-        }
 
     }
 
     public void periodic() {
         result = ll.getLatestResult();
 
-        if (!hasMovedServo) {
-            if (llState.artifact.equals(llStatus)) {
-                setLLServoPos(llSDownPos);
-
-            } else {
-                setLLServoPos(llSUpPos);
-
-            }
-            hasMovedServo = true;
-
-        }
-
-        if (result.isValid()) {
-            telemetry.addData("isArtifactCorner", currentArtifactCorner);
-
-        }
     }
-
-    public void setLLServoPos(double pos) {
-        llS.setPosition(pos);
-
-    }
-
-    public void setLLState(llState state) {
-        llStatus = state;
-    }
-
-
-    public void setPinepeline(int pipeline) {
-        ll.pipelineSwitch(pipeline);
-    }
-
 
     public boolean isArtifactsCorner(boolean Corner) {
         if (result.isValid()) {

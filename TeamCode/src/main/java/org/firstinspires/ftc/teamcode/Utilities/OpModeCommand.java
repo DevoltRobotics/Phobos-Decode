@@ -53,7 +53,6 @@ public abstract class OpModeCommand extends OpMode {
     public final boolean isAuto;
     public final boolean closeAuto;
 
-
     public VisionSubsystem visionSb;
     public PedroSubsystem pedroSb;
     public IntakeSubsystem intakeSb;
@@ -118,11 +117,6 @@ public abstract class OpModeCommand extends OpMode {
                 shooterSb = new ShooterSubsystem(hardwareMap, telemetry, follower, currentAlliance, isAuto)
         );
 
-        if (isAuto && !closeAuto) {
-            visionSb.setLLState(VisionSubsystem.llState.artifact);
-        } else {
-            visionSb.setLLState(VisionSubsystem.llState.posEstimate);
-        }
 
         //imu = hardwareMap.get(IMU.class, "imu");
 
@@ -146,6 +140,7 @@ public abstract class OpModeCommand extends OpMode {
 
         dt = timer.seconds() - lastTime;
 
+        telemetry.addLine("-----------------------------");
         telemetry.addData("deltaT", dt);
 
         PanelsTelemetry.INSTANCE.getFtcTelemetry().update();

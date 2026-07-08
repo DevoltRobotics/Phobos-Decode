@@ -49,13 +49,11 @@ public abstract class teleOp extends OpModeCommand {
     GamepadEx garra;
 
     double angleOffSet;
-    boolean isTurretManual = true;
-
     boolean isShooting = false;
 
     boolean preparingShoot = false;
 
-    boolean isClose = false;
+    boolean isClose = true;
     public static int timerSorting = 400;
 
     public teleOp(Alliance alliance) {
@@ -66,8 +64,6 @@ public abstract class teleOp extends OpModeCommand {
     public void initialize() {
         //INIT_CMDS
 
-        new InstantCommand(() -> visionSb.setLLState(VisionSubsystem.llState.posEstimate)).schedule();
-
         //follower.setPose(new Pose(7.5, 8.2, 0));
 
         follower.setPose(EndPose);
@@ -75,13 +71,11 @@ public abstract class teleOp extends OpModeCommand {
         chassis = new GamepadEx(gamepad1);
         garra = new GamepadEx(gamepad2);
 
+
         ///CHASSIS
 
         CommandScheduler.getInstance().setDefaultCommand(pedroSb, pedroSb.fieldCentricCmd(gamepad1, angleOffSet));
 
-        /// GARRA
-
-        CommandScheduler.getInstance().setDefaultCommand(sensorsSb, new lightSorterCMD(sensorsSb, shooterSb, visionSb, () -> preparingShoot, gamepad2));
 
         Button upChassis = new GamepadButton(
                 chassis,
@@ -92,6 +86,7 @@ public abstract class teleOp extends OpModeCommand {
                         new InstantCommand(() -> follower.setPose(new Pose(xRedFarCorner - intakeWidth, yRedFarCorner, angleOffSet))),
                         new InstantCommand(() -> follower.setPose(new Pose(xBlueFarCorner + intakeWidth, yBlueFarCorner, angleOffSet))),
                         () -> Alliance.RED.equals(currentAlliance))
+
         );
 
         Button rightChassis = new GamepadButton(
@@ -127,46 +122,34 @@ public abstract class teleOp extends OpModeCommand {
                         () -> Alliance.RED.equals(currentAlliance))
         );
 
-        /*Button yChassis = new GamepadButton(
-                chassis,
-                GamepadKeys.Button.DPAD_LEFT);
+        /// GARRA
 
-        yChassis.whenPressed(
-                new InstantCommand(() -> follower.setPose(new Pose(follower.getPose().getX(), follower.getPose().getY(), angleOffSet)))
-        );
-
-         */
+        CommandScheduler.getInstance().setDefaultCommand(sensorsSb, new lightSorterCMD(sensorsSb, shooterSb, visionSb, () -> preparingShoot, gamepad2));
 
         /// //////////////////////////////////
 
-        Trigger intakeIn = new Trigger(() -> gamepad2.right_trigger >= 0.5);
-        Trigger intakeOut = new Trigger(() -> gamepad2.left_trigger >= 0.5);
+        Trigger intakeIn = new Trigger(() -> gamepad2.right_trigger >= 0.3);
+        Trigger intakeOut = new Trigger(() -> gamepad2.left_trigger >= 0.3);
 
         intakeIn.whileActiveOnce(new ConditionalCommand(
                 new ConditionalCommand(
                         new moveIntakeTeleOpCMD(intakeSb, 1, 1),
                         new moveIntakeTeleOpCMD(intakeSb, 1, -0.8),
                         () -> isShooting),
-                new moveIntakeTeleOpCMD(intakeSb, 1, 0.8),
+
+                new ConditionalCommand(
+                        new moveIntakeTeleOpCMD(intakeSb, 1, 1),
+                        new moveIntakeTeleOpCMD(intakeSb, 1, 0.8),
+                        () -> isShooting),
                 () -> sensorsSb.sorterMode));
 
         intakeOut.whileActiveOnce(new moveIntakeTeleOpCMD(intakeSb, -0.8, -1));
-
-        Trigger turretRight = new Trigger(() -> gamepad2.right_bumper);
-        Trigger turretLeft = new Trigger(() -> gamepad2.left_bumper);
-
-        turretRight.whileActiveOnce(new InstantCommand(
-                () -> shooterSb.setTurretTarget(shooterSb.getCurrentPosition() + manualIncrement)));
-        turretLeft.whileActiveOnce(new InstantCommand(
-                () -> shooterSb.setTurretTarget(shooterSb.getCurrentPosition() - manualIncrement)));
 
         Button resetTurretButton = new GamepadButton(
                 garra,
                 GamepadKeys.Button.RIGHT_STICK_BUTTON);
 
         resetTurretButton.whenPressed(new InstantCommand(() -> shooterSb.resetTurret()));
-
-
 
         Button blockerUpButton = new GamepadButton(
                 garra,
@@ -194,15 +177,14 @@ public abstract class teleOp extends OpModeCommand {
 
         );
 
+        CommandScheduler.getInstance().setDefaultCommand(shooterSb, new aimCMD(shooterSb, ()-> isShooting, ()-> isClose));
+
         Button prepareShootFar = new GamepadButton(
                 garra,
                 GamepadKeys.Button.DPAD_LEFT);
 
         prepareShootFar.whenPressed(
                 new ParallelCommandGroup(
-                        new InstantCommand(
-                                () -> isTurretManual = false
-                        ),
 
                         new InstantCommand(
                                 () -> preparingShoot = true
@@ -214,10 +196,7 @@ public abstract class teleOp extends OpModeCommand {
 
                         new InstantCommand(
                                 () -> isClose = false
-                        ),
-
-                        new aimCMD(shooterSb, () -> isClose)
-
+                        )
                 ));
 
         Button prepareShootClose = new GamepadButton(
@@ -232,19 +211,12 @@ public abstract class teleOp extends OpModeCommand {
                         ),
 
                         new InstantCommand(
-                                () -> isTurretManual = false
-                        ),
-
-                        new InstantCommand(
                                 () -> preparingShoot = true
                         ),
 
                         new InstantCommand(
                                 () -> isClose = true
-                        ),
-
-                        new aimCMD(shooterSb, () -> isClose)
-
+                        )
                 ));
 
         Button shootButton = new GamepadButton(
@@ -253,14 +225,6 @@ public abstract class teleOp extends OpModeCommand {
 
         shootButton.whenPressed(
                 new ParallelCommandGroup(
-
-                        new aimCMD(shooterSb, true, () -> isClose),
-
-                        new InstantCommand(
-                                () ->
-                                        isTurretManual = false
-                        ),
-
                         new InstantCommand(
                                 () -> isShooting = true
                         ),
@@ -285,18 +249,9 @@ public abstract class teleOp extends OpModeCommand {
 
         stopShootButton.whenPressed(
                 new ParallelCommandGroup(
-                        /*new InstantCommand(
-                                () -> shooterSb.setOffTarget()
-                        ),
 
-                         */
-
-                        new InstantCommand(
-                                () -> preparingShoot = false
-                        ),
                         new moveIntakeAutonomousCMD(intakeSb, 0, 0),
 
-                        //new InstantCommand(() -> shooterSb.setTurretTarget(0)),
                         new SequentialCommandGroup(
                                 new ConditionalCommand(
                                         new InstantCommand(() -> sorterSb.setHorizontalPos(blockerHSortingPos)),
@@ -314,13 +269,9 @@ public abstract class teleOp extends OpModeCommand {
                         ),
 
                         new InstantCommand(
-                                () -> isTurretManual = true
-                        ),
-
-                        new InstantCommand(
                                 () -> isShooting = false
                         )
-                ));
+                        ));
 
         Button toggleSorterMode = new GamepadButton(
                 garra,
@@ -375,8 +326,7 @@ public abstract class teleOp extends OpModeCommand {
     public void run() {
         PedroSubsystem.EndPose = follower.getPose();
 
-        telemetry.addData("HeadingDEG", Math.toDegrees(follower.getPose().getHeading()));
-
+        telemetry.addLine("-----------------------------");
         telemetry.addData("EndPose", PedroSubsystem.EndPose);
     }
 }
