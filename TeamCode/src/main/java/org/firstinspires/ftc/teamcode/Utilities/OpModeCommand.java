@@ -60,7 +60,7 @@ public abstract class OpModeCommand extends OpMode {
     public SensorsSubsystem sensorsSb;
     public ShooterSubsystem shooterSb;
 
-    public boolean isLifting = false;
+    public boolean isRobotFar = false;
 
     public OpModeCommand(Alliance alliance, boolean isAuto, boolean closeAuto) {
         this.currentAlliance = alliance;
@@ -138,6 +138,8 @@ public abstract class OpModeCommand extends OpMode {
         CommandScheduler.getInstance().run();
         run();
 
+        isRobotFar = follower.getPose().getY() < 50;
+
         dt = timer.seconds() - lastTime;
 
         telemetry.addLine("-----------------------------");
@@ -149,15 +151,13 @@ public abstract class OpModeCommand extends OpMode {
 
         follower.update();
 
-        /*Drawing.drawRobot(follower.getPose());
-        Drawing.sendPacket();
 
-         */
     }
 
     public void stop() {
         reset();
     }
+
 
     public abstract void initialize();
 

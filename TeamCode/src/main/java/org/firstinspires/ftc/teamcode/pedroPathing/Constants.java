@@ -37,20 +37,19 @@ import org.firstinspires.ftc.teamcode.pedroPathing.EstimatorLocalizer.KalmanPedr
 public class Constants {
     public static FollowerConstants followerConstants = new FollowerConstants()
             .mass(14)
-            .forwardZeroPowerAcceleration(-32.46)
-            .lateralZeroPowerAcceleration(-55.04)
+            .forwardZeroPowerAcceleration(-47.23)
+            .lateralZeroPowerAcceleration(-62.18)
 
-            .headingPIDFCoefficients(new PIDFCoefficients(0.8,0,0.05,0.025))
-            .translationalPIDFCoefficients(new PIDFCoefficients(0.45, 0, 0.05, 0.05))
-            .drivePIDFCoefficients(new FilteredPIDFCoefficients(0.03, 0,0.008, 0.6, 0.12))
+            .headingPIDFCoefficients(new PIDFCoefficients(0.9, 0, 0.05, 0.06))
+            .translationalPIDFCoefficients(new PIDFCoefficients(0.1, 0, 0.01, 0.05))
+            .drivePIDFCoefficients(new FilteredPIDFCoefficients(0.03, 0, 0.008, 0.6, 0.12))
 
-            //.secondaryHeadingPIDFCoefficients(new PIDFCoefficients(0.5,0,0.13,0.025))
-            .secondaryHeadingPIDFCoefficients(new PIDFCoefficients(0.25,0,0.05,0.025))
+            .secondaryHeadingPIDFCoefficients(new PIDFCoefficients(0.8, 0, 0.03, 0.05))
             .secondaryTranslationalPIDFCoefficients(new PIDFCoefficients(0.18, 0, 0.035, 0.04))
-            .secondaryDrivePIDFCoefficients(new FilteredPIDFCoefficients(0.008, 0,0.01, 0.6, 0.098))
+            .secondaryDrivePIDFCoefficients(new FilteredPIDFCoefficients(0.008, 0, 0.01, 0.6, 0.098))
 
             .useSecondaryHeadingPIDF(true)
-            .useSecondaryTranslationalPIDF(true)
+            .useSecondaryTranslationalPIDF(false)
             .useSecondaryDrivePIDF(false)
 
             .drivePIDFSwitch(10)
@@ -73,12 +72,10 @@ public class Constants {
             .leftRearMotorDirection(DcMotorSimple.Direction.REVERSE)
             .rightFrontMotorDirection(DcMotorSimple.Direction.FORWARD)
             .rightRearMotorDirection(DcMotorSimple.Direction.FORWARD)
-            .xVelocity(75.9)
-            .yVelocity(59.5)
+            .xVelocity(65.8)
+            .yVelocity(49.8);
 
-            ;
-
-    public static PinpointConstants localizerConstants = new PinpointConstants()
+         public static PinpointConstants localizerConstants = new PinpointConstants()
             //.forwardPodY(-1.85) //-2
             //.strafePodX(-5) //-4
 
@@ -97,7 +94,7 @@ public class Constants {
             0.1,
             0.1,
             0.009, //0.009
-                150,
+            150,
             2.7,
             10,
             1.5

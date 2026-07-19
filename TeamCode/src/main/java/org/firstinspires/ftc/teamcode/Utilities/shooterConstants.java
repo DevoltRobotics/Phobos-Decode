@@ -9,10 +9,10 @@ import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 public class shooterConstants {
 
     //POSES
-    public static int goalX_CLOSE = 143;
-    public static int goalY_CLOSE = 137;
+    public static int goalX_CLOSE = 138;
+    public static int goalY_CLOSE = 132;
 
-    public static double SCORE_HEIGHT_CLOSE = 27; //inches 30
+    public static double SCORE_HEIGHT_CLOSE = 26; //inches 30
     public static double SCORE_ANGLE_CLOSE = Math.toRadians(-30); //inches
 
     public static double PASS_THROUGH_POINT_RADIUS_CLOSE = 5; //inches
@@ -63,15 +63,15 @@ public class shooterConstants {
     public static double minflywheelClose = 800;
     public static double minflywheelFar = 1500;
 
-    public static double flywheelOffSet_CLOSE = 170;
+    public static double flywheelOffSet_CLOSE = 50;
 
-    public static double flywheelOffSetMultiplier_CLOSE = 1.089;
+    public static double flywheelOffSetMultiplier_CLOSE = 1.125;
 
-    public static double flywheelOffSet_FAR = 133;
+    public static double flywheelOffSet_FAR = 145;
 
     public static double flywheelOffSetMultiplier_FAR = 1.12;
 
-    public static double velocityShooterDeadPoint = 60;
+    public static double velocityShooterDeadPoint = 70;
 
     public static double getFlywheelTicksFromVelocity(double velocity) {
         double wheelRadius = 1.889; // inches (CHANGE THIS)

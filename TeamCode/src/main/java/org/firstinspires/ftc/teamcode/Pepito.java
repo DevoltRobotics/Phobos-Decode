@@ -7,7 +7,6 @@ public class Pepito extends OpMode {
 
     DcMotor motor1;
 
-    double =
 
 
     @Override
@@ -23,10 +22,6 @@ public class Pepito extends OpMode {
 
     @Override
     public void loop() {
-        if (gamepad1){
-
-
-        }
 
     }
 }

@@ -147,7 +147,7 @@ public class FAR_TRAJ extends OpModeCommand {
         }
 
         createPaths();
-
+/*
         autoCommand =
                 new ConditionalCommand(
                         new SequentialCommandGroup(
@@ -226,6 +226,8 @@ public class FAR_TRAJ extends OpModeCommand {
                         () -> timer.seconds() < 28
 
                 );
+
+ */
 
     }
 

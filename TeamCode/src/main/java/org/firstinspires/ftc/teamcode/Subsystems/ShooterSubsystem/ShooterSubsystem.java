@@ -46,7 +46,7 @@ public class ShooterSubsystem extends SubsystemBase {
     double feedforward = 0;
 
 
-    public double shooterTarget = 0;
+    public Double shooterTarget = 0.0;
 
     public double shooterError;
 
@@ -147,16 +147,13 @@ public class ShooterSubsystem extends SubsystemBase {
         /*turretPid.setMinimumOutput(minimunPower);
 
         secondaryTurretPid.setMinimumOutput(minimunPower);
-
-
          */
+
         if (Math.abs(error) > turretPidSwitch || !useSecondaryPID) {
             turretPower = Range.clip(turretPid.calculate(turretP, target), -1, 1);
         }else{
             turretPower = Range.clip(secondaryTurretPid.calculate(turretP, target), -1, 1);
         }
-
-        double thetaRad = Math.toRadians(turretP);
 
         if (turretP < -20) {
             feedforward = kG;
@@ -184,7 +181,14 @@ public class ShooterSubsystem extends SubsystemBase {
 
         double motorVel = shooterM.getVelocity();
 
-        shooterController.setSetPoint(shooterTarget);
+        double prevShooterTarget = 1300;
+        if (!shooterTarget.isNaN()) {
+            shooterController.setSetPoint(shooterTarget);
+            prevShooterTarget = shooterTarget;
+        }else {
+            shooterController.setSetPoint(prevShooterTarget);
+
+        }
 
         double shooterTargetPwr = (shooterkV * shooterTarget) + shooterController.calculate(motorVel);
 

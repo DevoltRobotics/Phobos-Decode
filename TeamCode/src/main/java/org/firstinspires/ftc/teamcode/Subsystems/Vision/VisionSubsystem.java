@@ -66,40 +66,6 @@ public class VisionSubsystem extends SubsystemBase {
 
     }
 
-    public boolean isArtifactsCorner(boolean Corner) {
-        if (result.isValid()) {
-
-            if (Alliance.RED.equals(alliance)) {
-                return (result.getTx() <= RIGHT_BOUND);
-
-            }else {
-                return (result.getTx() >= -RIGHT_BOUND);
-
-            }
-
-        } else {
-            return Corner;
-        }
-    }
-
-    public boolean isArtifactsCorner() {
-        if (result.isValid()) {
-
-            if (Alliance.RED.equals(alliance)) {
-                return (result.getTx() <= RIGHT_BOUND);
-
-            }else {
-                return (result.getTx() >= -RIGHT_BOUND);
-
-            }
-
-        } else {
-            return true;
-        }
-    }
-
-    public boolean currentArtifactCorner = true;
-
     public Double getAllianceTA() {
         if (result != null && result.isValid() && !result.getFiducialResults().isEmpty()) {
             int id = result.getFiducialResults().get(0).getFiducialId();

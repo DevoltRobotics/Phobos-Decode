@@ -27,7 +27,7 @@ public class setIsCorner extends CommandBase {
     @Override
     public void execute() {
 
-        visionSubsystem.currentArtifactCorner = visionSubsystem.isArtifactsCorner(preCorner);
+        //visionSubsystem.currentArtifactCorner = visionSubsystem.isArtifactsCorner(preCorner);
     }
 
 

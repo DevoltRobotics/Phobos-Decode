@@ -138,7 +138,10 @@ public abstract class teleOp extends OpModeCommand {
                         () -> isShooting),
 
                 new ConditionalCommand(
-                        new moveIntakeTeleOpCMD(intakeSb, 1, 1),
+                        new ConditionalCommand(
+                                new moveIntakeTeleOpCMD(intakeSb, 1, 0.8),
+                                new moveIntakeTeleOpCMD(intakeSb, 1, 1),
+                                ()-> isRobotFar),
                         new moveIntakeTeleOpCMD(intakeSb, 1, 0.8),
                         () -> isShooting),
                 () -> sensorsSb.sorterMode));
@@ -233,7 +236,10 @@ public abstract class teleOp extends OpModeCommand {
                                 () -> preparingShoot = true
                         ),
 
-                        new moveIntakeAutonomousCMD(intakeSb, 1, 1),
+                        new ConditionalCommand(
+                                new moveIntakeAutonomousCMD(intakeSb, 1, 0.8),
+                                new moveIntakeAutonomousCMD(intakeSb, 1, 1),
+                                ()-> isRobotFar),
 
                         new ConditionalCommand(
                                 shootThreesorterCMD(timerSorting),

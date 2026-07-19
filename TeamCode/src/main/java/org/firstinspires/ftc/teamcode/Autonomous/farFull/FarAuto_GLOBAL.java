@@ -5,6 +5,7 @@ import static org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.SorterSu
 import static org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.SorterSubsystem.blockersUp;
 import static org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.SorterSubsystem.downRampPos;
 import static org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.SorterSubsystem.upRampPos;
+import static org.firstinspires.ftc.teamcode.Utilities.Alliance.*;
 
 import com.pedropathing.geometry.BezierCurve;
 import com.pedropathing.geometry.BezierLine;
@@ -45,19 +46,18 @@ public class FarAuto_GLOBAL extends OpModeCommand {
 
 
     Pose m(Pose p) {
-        return Alliance.BLUE.equals(currentAlliance) ? p.mirror() : p;
+        return BLUE.equals(currentAlliance) ? p.mirror() : p;
     }
     Pose startingPose = m(new Pose(88.0, 8.2, Math.toRadians(0)));
     Pose shootPreloadPose = m(new Pose(84, 21, Math.toRadians(20)));
 
-    Pose pick2Pose = m(new Pose(130.0, 37, Math.toRadians(20)));
-    Pose shoot2Pose = m(new Pose(90.0, 15.0, Math.toRadians(0)));
+    Pose pick1Pose = m(new Pose(130, 37, Math.toRadians(0)));
+    Pose pick1ControlPoint = m(new Pose(93, 40, Math.toRadians(0)));
+    Pose shoot1Pose = m(new Pose(90, 15, Math.toRadians(0)));
 
-    Pose pick1Pose = m(new Pose(132.0, 10, Math.toRadians(0)));
-    Pose backPick1Pose = m(new Pose(128.0, 10, Math.toRadians(0)));
-    Pose front1Pose = m(new Pose(132.0, 10, Math.toRadians(0)));
+    Pose pick2Pose = m(new Pose(132.0, 10, Math.toRadians(20)));
+    Pose shoot2Pose = m(new Pose(91.0, 14, Math.toRadians(0)));
 
-    Pose shoot1Pose = m(new Pose(91, 14, Math.toRadians(0)));
     Pose preparePick2Pose = m(new Pose(103.0, 35, Math.toRadians(15)));
 
     Pose pick2ControlPoint = m(new Pose(93, 40, Math.toRadians(0)));
@@ -82,77 +82,48 @@ public class FarAuto_GLOBAL extends OpModeCommand {
                         shootPreloadPose.getHeading())
                 .build();
 
-        intakeSecond = follower.pathBuilder()
-                .addPath(new BezierLine(
-                        shootPreloadPose,
-                        pick2Pose))
-                .setTangentHeadingInterpolation()
-                .build();
-
-        launchSecond = follower.pathBuilder()
-                .addPath(new BezierLine(
-                        pick2Pose,
-                        shoot2Pose))
-                .setLinearHeadingInterpolation(
-                        intakeSecond.endPose().getHeading(),
-                        Alliance.BLUE.equals(currentAlliance) ? Math.toRadians(180) : 0
-
-                )
-                .setTimeoutConstraint(1)
-                .build();
-
         intakeFirst = follower.pathBuilder()
-                .addPath(new BezierLine(
-                        shoot2Pose,
+                .addPath(new BezierCurve(
+                        shootPreloadPose,
+                        pick1ControlPoint,
                         pick1Pose))
                 .setTangentHeadingInterpolation()
-                .addParametricCallback(0.8, ()-> follower.setMaxPower(0.8))
                 .build();
-
-        /*backIntakeFirst = follower.pathBuilder()
-                .addPath(new BezierLine(
-                        pick1Pose,
-                        backPick1Pose))
-                .setLinearHeadingInterpolation(
-                        pick1Pose.getHeading(),
-                        backPick1Pose.getHeading()
-                )
-                .addPath(new BezierLine(
-                        backPick1Pose,
-                        front1Pose))
-                .setConstantHeadingInterpolation(front1Pose.getHeading())
-                .build();
-
-         */
 
         launchFirst = follower.pathBuilder()
                 .addPath(new BezierLine(
                         pick1Pose,
                         shoot1Pose))
                 .setLinearHeadingInterpolation(
-                        pick1Pose.getHeading(),
-                        shoot1Pose.getHeading()
+                        intakeSecond.endPose().getHeading(),
+                        BLUE.equals(currentAlliance) ? Math.toRadians(180) : 0
+
                 )
                 .setTimeoutConstraint(1)
                 .build();
 
-        /*prepareIntakeSeond = follower.pathBuilder()
+        intakeSecond = follower.pathBuilder()
                 .addPath(new BezierLine(
                         shoot1Pose,
-                        preparePick2Pose))
-                .setConstantHeadingInterpolation(
-                        pick2Pose.getHeading())
-                .setTimeoutConstraint(1)
+                        pick2Pose))
+                .setTangentHeadingInterpolation()
+                .addParametricCallback(0.8, ()-> follower.setMaxPower(0.8))
                 .build();
 
-         */
-
+        launchSecond = follower.pathBuilder()
+                .addPath(new BezierLine(
+                        pick2Pose,
+                        shoot2Pose))
+                .setTangentHeadingInterpolation()
+                .setReversed()
+                .setTimeoutConstraint(1)
+                .build();
 
         pickCorner = follower.pathBuilder()
                 .addPath(new BezierLine(
                         shootCyclesPose,
                         pickCornerPose))
-                .setConstantHeadingInterpolation(Alliance.BLUE.equals(currentAlliance) ? Math.toRadians(180) : 0)
+                .setConstantHeadingInterpolation(BLUE.equals(currentAlliance) ? Math.toRadians(180) : 0)
                 .build();
 
         pickCenter = follower.pathBuilder()
@@ -166,7 +137,7 @@ public class FarAuto_GLOBAL extends OpModeCommand {
                 .addPath(new BezierLine(
                         pickCornerPose,
                         shootCyclesPose))
-                .setConstantHeadingInterpolation(Alliance.BLUE.equals(currentAlliance) ? Math.toRadians(178) : Math.toRadians(2))
+                .setConstantHeadingInterpolation(BLUE.equals(currentAlliance) ? Math.toRadians(178) : Math.toRadians(2))
                 .setTimeoutConstraint(1)
                 .build();
 
@@ -174,7 +145,7 @@ public class FarAuto_GLOBAL extends OpModeCommand {
                 .addPath(new BezierLine(
                         pickCenterPose,
                         shoot1Pose))
-                .setConstantHeadingInterpolation(Alliance.BLUE.equals(currentAlliance) ? Math.toRadians(178) : Math.toRadians(2))
+                .setConstantHeadingInterpolation(BLUE.equals(currentAlliance) ? Math.toRadians(178) : Math.toRadians(2))
                 .setTimeoutConstraint(1)
                 .build();
 
@@ -196,26 +167,6 @@ public class FarAuto_GLOBAL extends OpModeCommand {
 
         follower.setStartingPose(startingPose);
 
-        /*
-        new SequentialCommandGroup(
-                new lateralBlockersCMD(sorterSb, blockersUp, blockersUp),
-                new horizontalBlockerCMD(sorterSb, blockerHFreePos),
-
-                new rampCMD(sorterSb, downRampPos),
-
-                new WaitCommand(200),
-
-                new rampCMD(sorterSb, upRampPos),
-
-                new lateralBlockersCMD(sorterSb, blockersUp, 0),
-                new horizontalBlockerCMD(sorterSb, blockerHHidePos),
-
-                new WaitCommand(300)
-
-        ).schedule();
-
-
-         */
         createPaths();
 
         parkCommand = new SequentialCommandGroup(
@@ -313,8 +264,9 @@ public class FarAuto_GLOBAL extends OpModeCommand {
 
                                         stopShootCMD(false),
 
-                                        new InstantCommand(() -> intakeSb.setIntakePower(1, 0.8)),
+                                        new InstantCommand(() -> intakeSb.setIntakePower(1, 0.8))
 
+                                        /*
                                         new ConditionalCommand(
                                                 new SequentialCommandGroup(
                                                         pedroSb.followPathCmd(pickCorner).withTimeout(1500),
@@ -442,7 +394,7 @@ public class FarAuto_GLOBAL extends OpModeCommand {
                                         shootThreeSpamerFarCMD()
 
                                         /// SIX_LAUNCHED
-
+*/
                                 ),
 
                                 new WaitCommand(29400)

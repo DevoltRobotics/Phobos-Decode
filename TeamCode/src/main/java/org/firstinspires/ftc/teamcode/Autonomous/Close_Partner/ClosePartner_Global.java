@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.Autonomous.closeFull;
+package org.firstinspires.ftc.teamcode.Autonomous.Close_Partner;
 
 import static org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.SorterSubsystem.blockerHFreePos;
 import static org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.SorterSubsystem.blockerHHidePos;
@@ -24,14 +24,14 @@ import org.firstinspires.ftc.teamcode.Utilities.Alliance;
 import org.firstinspires.ftc.teamcode.Utilities.OpModeCommand;
 import org.firstinspires.ftc.teamcode.pedroPathing.PedroSubsystem;
 
-public class CloseFull_GLOBAL extends OpModeCommand {
+public class ClosePartner_Global extends OpModeCommand {
 
-    public CloseFull_GLOBAL(Alliance alliance) {
+    public ClosePartner_Global(Alliance alliance) {
         super(alliance, true, true);
     }
 
-    private PathChain openGate1, openGate2;
-    private Path launchPreload, intakeFirst, launchFirst, intakeSecond, launchSecond, intakeThird, launchThird, openGate3, intakeFourth, launchFourth, intakeFive, launchFive, park;
+    private PathChain openGate1, openGate2, openGate3;
+    private Path launchPreload, intakeFirst, launchFirst, launchSecond, launchThird, launchFourth, intakeFive, launchFive, park;
 
     private Pose currentStartingPose;
     Command autoCommand, parkCommand;
@@ -39,46 +39,37 @@ public class CloseFull_GLOBAL extends OpModeCommand {
     Pose m(Pose p) {
         return Alliance.BLUE.equals(currentAlliance) ? p.mirror() : p;
     }
+    private Pose startingPose;
+    private Pose shootPreloadPose;
 
-    Pose startingPose = m(new Pose(110.0, 134.5, Math.toRadians(0)));
+    private Pose pickUp1ControlPoint;
+    private Pose pickUp1Pose;
+    private Pose shoot1Pose;
 
-    Pose shootPreloadPose = m(new Pose(87.0, 85.0, Math.toRadians(320)));
-    Pose pickUp1ControlPoint = m(new Pose(88.0, 54.0, Math.toRadians(0)));
-    Pose pickUp1Pose = m(new Pose(126.0, 57.0, Math.toRadians(0)));
+    private Pose openGate1Pose;
 
-    Pose shoot1ControlPoint = m(new Pose(105.0, 62.0, Math.toRadians(0)));
-    Pose shoot1Pose = m(new Pose(88.0, 81.0, Math.toRadians(320)));
+    private Pose pickUp2Pose;
+    private Pose pickUp2ControlPoint;
+    private Pose shoot2Pose;
 
-    Pose openGate1ControlPoint = m(new Pose(106.0, 62.0, Math.toRadians(0)));
-    Pose openGate1Pose = m(new Pose(127, 66, Math.toRadians(0)));
+    private Pose openGate2Pose;
 
-    Pose pickUp2Pose = m(new Pose(130.5, 58.0, Math.toRadians(50)));
-    Pose shoot2Pose = m(new Pose(88.0, 81.0, Math.toRadians(0)));
+    private Pose pickUp3Pose;
+    private Pose pickUp3ControlPoint;
+    private Pose shoot3Pose;
 
-    Pose openGate2ControlPoint = m(new Pose(106.0, 62.0, Math.toRadians(0)));
-    Pose openGate2Pose = m(new Pose(127, 63, Math.toRadians(0)));
+    private Pose openGate3Pose;
 
-    Pose pickUp3Pose = m(new Pose(131, 59.0, Math.toRadians(50)));
-    //Pose shoot3Pose = m(new Pose(88.0, 81.0, Math.toRadians(0)));
+    private Pose pickUp4Pose;
+    private Pose pickUp4ControlPoint;
 
-    Pose shoot3Pose = m(new Pose(88.0, 84.0, Math.toRadians(0)));
+    private Pose shoot4Pose;
+    private Pose shoot4ControlPoint;
 
-    /*
-    Pose openGate3ControlPoint = m(new Pose(106.0, 62.0, Math.toRadians(0)));
-    Pose openGate3Pose = m(new Pose(127, 63, Math.toRadians(0)));
+    private Pose pickUp5Pose;
 
-
-
-    Pose pickUp4Pose = m(new Pose(131, 59.0, Math.toRadians(50)));
-    Pose shoot4Pose = m(new Pose(88.0, 84.0, Math.toRadians(0)));
-
-     */
-    Pose pickUp5Pose = m(new Pose(125.0, 84.0, Math.toRadians(0)));
-
-    Pose shoot5Pose = m(new Pose(88, 108.0, Math.toRadians(0)));
-    Pose parkPose = m(new Pose(115.0, 85.0, Math.toRadians(0)));
-
-    PathChain fullAuto;
+    private Pose shoot5Pose;
+    private Pose parkPose;
 
     public void createPaths() {
         launchPreload = new Path(new BezierLine(startingPose, shootPreloadPose));
@@ -99,116 +90,134 @@ public class CloseFull_GLOBAL extends OpModeCommand {
         launchFirst.reverseHeadingInterpolation();
 
         openGate1 = follower.pathBuilder()
-                .addPath(new BezierCurve(
+                .addPath(new BezierLine(
                         shoot1Pose,
-                        openGate1ControlPoint,
                         openGate1Pose))
                 .setConstantHeadingInterpolation(
                         openGate1Pose.getHeading())
-                .addParametricCallback(0.8, () -> follower.setMaxPower(0.7))
+                .addParametricCallback(0.8, () -> follower.setMaxPower(0.6))
+                .setTimeoutConstraint(100)
+                .addPath(new BezierCurve(
+                        openGate1Pose,
+                        pickUp2ControlPoint,
+                        pickUp2Pose)
+                )
+                .setLinearHeadingInterpolation(
+                        openGate1Pose.getHeading(),
+                        pickUp2Pose.getHeading())
                 .build();
-
-        intakeSecond = new Path(new BezierLine(
-                openGate1Pose,
-                pickUp2Pose));
-        intakeSecond.setLinearHeadingInterpolation(
-                openGate1Pose.getHeading(),
-                pickUp2Pose.getHeading());
 
         launchSecond = new Path(new BezierLine(
                 pickUp2Pose,
                 shoot2Pose));
-        launchSecond.setLinearHeadingInterpolation(
-                pickUp2Pose.getHeading(),
-                shoot2Pose.getHeading()
-        );
+        launchSecond.setTangentHeadingInterpolation();
+        launchSecond.reverseHeadingInterpolation();
 
         openGate2 = follower.pathBuilder()
-                .addPath(new BezierCurve(
+                .addPath(new BezierLine(
                         shoot2Pose,
-                        openGate2ControlPoint,
                         openGate2Pose))
                 .setConstantHeadingInterpolation(
                         openGate2Pose.getHeading())
-                .addParametricCallback(0.8, () -> follower.setMaxPower(0.7))
+                .addParametricCallback(0.8, () -> follower.setMaxPower(0.6))
+                .setTimeoutConstraint(100)
+                .addPath(new BezierCurve(
+                        openGate2Pose,
+                        pickUp3ControlPoint,
+                        pickUp3Pose)
+                )
+                .setLinearHeadingInterpolation(
+                        openGate2Pose.getHeading(),
+                        pickUp3Pose.getHeading())
                 .build();
-
-
-        intakeThird = new Path(new BezierLine(
-                openGate2Pose,
-                pickUp3Pose));
-        intakeThird.setLinearHeadingInterpolation(
-                openGate2Pose.getHeading(),
-                pickUp3Pose.getHeading());
 
         launchThird = new Path(new BezierLine(
                 pickUp3Pose,
                 shoot3Pose));
-        launchThird.setLinearHeadingInterpolation(
-                pickUp3Pose.getHeading(),
-                shoot3Pose.getHeading()
-        );
+        launchThird.setTangentHeadingInterpolation();
+        launchThird.reverseHeadingInterpolation();
 
+        openGate3 = follower.pathBuilder()
+                .addPath(new BezierLine(
+                        shoot3Pose,
+                        openGate3Pose))
+                .setConstantHeadingInterpolation(
+                        openGate3Pose.getHeading())
+                .addParametricCallback(0.8, () -> follower.setMaxPower(0.6))
+                .setTimeoutConstraint(100)
+                .addPath(new BezierCurve(
+                        openGate3Pose,
+                        pickUp4ControlPoint,
+                        pickUp4Pose)
+                )
+                .setLinearHeadingInterpolation(
+                        openGate3Pose.getHeading(),
+                        pickUp4Pose.getHeading())
+                .build();
 
-        //SEBAS ERROR EN ESTE PATH, IGUAL SIGUE TENIENDO ERROR EN EL INTAKE FOURTH Y LAUNCH FOURTH
-        /*
-        openGate3 = new Path(new BezierCurve(
-                shoot3Pose,
-                openGate3ControlPoint,
-                openGate3Pose));
-        openGate3.setConstantHeadingInterpolation(
-                openGate3Pose.getHeading()
-        );
-
-        intakeFourth = new Path(new BezierLine(
-                openGate3Pose,
-                pickUp4Pose));
-        intakeFourth.setConstantHeadingInterpolation(
-                openGate3Pose.getHeading());
-
-        launchFourth = new Path(new BezierLine(
+        launchFourth = new Path(new BezierCurve(
                 pickUp4Pose,
+                shoot4ControlPoint,
                 shoot4Pose));
-        launchFourth.setLinearHeadingInterpolation(
-                pickUp4Pose.getHeading(),
-                shoot4Pose.getHeading()
-        );
+        launchFourth.setTangentHeadingInterpolation();
+        launchFourth.reverseHeadingInterpolation();
 
-
-         */
         intakeFive = new Path(new BezierLine(
-                shoot3Pose,
+                shoot4Pose,
                 pickUp5Pose));
         intakeFive.setConstantHeadingInterpolation(pickUp5Pose.getHeading());
 
         launchFive = new Path(new BezierLine(
                 pickUp5Pose,
                 shoot5Pose));
-        launchFive.setTangentHeadingInterpolation();
-        launchFive.reverseHeadingInterpolation();
+        launchFive.setConstantHeadingInterpolation(pickUp5Pose.getHeading());
 
         park = new Path(new BezierLine(shoot5Pose, parkPose));
         park.setConstantHeadingInterpolation(shoot5Pose.getHeading());
 
     }
 
-
     @Override
     public void initialize() {
 
-        if (currentAlliance.equals(Alliance.RED)) {
-            follower.setStartingPose(startingPose);
+        startingPose = m(new Pose(110.0, 133, Math.toRadians(0)));
 
-        } else {
-            follower.setStartingPose(startingPose.mirror());
+        shootPreloadPose = m(new Pose(87.0, 85.0, Math.toRadians(320)));
 
-        }
+        pickUp1ControlPoint = m(new Pose(88.0, 54.0, Math.toRadians(0)));
+        pickUp1Pose = m(new Pose(126.0, 57.0, Math.toRadians(0)));
+        shoot1Pose = m(new Pose(85.0, 77.0, Math.toRadians(320)));
+
+        openGate1Pose = m(new Pose(121, 66, Math.toRadians(340)));
+
+        pickUp2Pose = m(new Pose(131.0, 58.0, Math.toRadians(45)));
+        pickUp2ControlPoint = m(new Pose(124.0, 58.0, Math.toRadians(50)));
+
+        shoot2Pose = m(new Pose(85.0, 77.0, Math.toRadians(320)));
+
+        openGate2Pose = m(new Pose(121, 66, Math.toRadians(340)));
+
+        pickUp3Pose = m(new Pose(131.0, 58.0, Math.toRadians(45)));
+        pickUp3ControlPoint = m(new Pose(124.0, 58.0, Math.toRadians(50)));
+        shoot3Pose = m(new Pose(85.0, 77.0, Math.toRadians(320)));
+
+        openGate3Pose = m(new Pose(121, 66, Math.toRadians(340)));
+
+        pickUp4Pose = m(new Pose(131.0, 58.0, Math.toRadians(45)));
+        pickUp4ControlPoint = m(new Pose(124.0, 58.0, Math.toRadians(50)));
+
+        shoot4Pose = m(new Pose(89.0, 81.0, Math.toRadians(320)));
+        shoot4ControlPoint = m(new Pose(108, 62, Math.toRadians(320)));
+
+
+        pickUp5Pose = m(new Pose(125.0, 81.0, Math.toRadians(0)));
+
+        shoot5Pose = m(new Pose(92.0, 81.0, Math.toRadians(0)));
+        parkPose = m(new Pose(115.0, 81.0, Math.toRadians(0)));
 
         new SequentialCommandGroup(
                 new lateralBlockersCMD(sorterSb, blockersUp, blockersUp),
                 new horizontalBlockerCMD(sorterSb, blockerHFreePos),
-
-                new rampCMD(sorterSb, upRampPos),
 
                 new WaitCommand(200),
 
@@ -236,6 +245,7 @@ public class CloseFull_GLOBAL extends OpModeCommand {
 
                                 new InstantCommand(() -> follower.setMaxPower(1)),
 
+                                new rampCMD(sorterSb, upRampPos),
                                 new ParallelRaceGroup(
                                         new SequentialCommandGroup(
                                                 new InstantCommand(() -> intakeSb.setIntakePower(0.3, 0)),
@@ -249,7 +259,6 @@ public class CloseFull_GLOBAL extends OpModeCommand {
                                                 new InstantCommand(() -> intakeSb.setIntakePower(1, 1)),
 
                                                 new WaitCommand(950)
-
                                         ),
 
                                         new aimCMD(shooterSb, false, true)
@@ -283,8 +292,6 @@ public class CloseFull_GLOBAL extends OpModeCommand {
 
                                 new InstantCommand(() -> follower.setMaxPower(1)),
 
-                                pedroSb.followPathCmd(intakeSecond).withTimeout(800),
-
                                 new WaitCommand(800),
 
                                 new ParallelRaceGroup(
@@ -306,10 +313,6 @@ public class CloseFull_GLOBAL extends OpModeCommand {
 
                                 new InstantCommand(() -> follower.setMaxPower(1)),
 
-                                new WaitCommand(100),
-
-                                pedroSb.followPathCmd(intakeThird).withTimeout(800),
-
                                 new WaitCommand(800),
 
                                 new ParallelRaceGroup(
@@ -322,6 +325,28 @@ public class CloseFull_GLOBAL extends OpModeCommand {
                                 ),
 
                                 ///THIRD_LAUNCHED
+
+                                stopShootCMD(false),
+
+                                new InstantCommand(() -> intakeSb.setIntakePower(1, 0.8)),
+
+                                pedroSb.followPathCmd(openGate3).withTimeout(1800),
+
+                                new InstantCommand(() -> follower.setMaxPower(1)),
+
+                                new WaitCommand(800),
+
+                                new ParallelRaceGroup(
+                                        new SequentialCommandGroup(
+                                                pedroSb.followPathCmd(launchFourth),
+                                                shootThreeSpamerCloseCMD()
+
+                                        ),
+                                        new aimCMD(shooterSb, false, true)
+                                ),
+
+                                ///FOURTH_LAUNCHED
+
                                 stopShootCMD(false),
 
                                 new InstantCommand(() -> intakeSb.setIntakePower(1, 0.8)),
