@@ -95,8 +95,6 @@ public class ClosePartner_Global extends OpModeCommand {
                         openGate1Pose))
                 .setConstantHeadingInterpolation(
                         openGate1Pose.getHeading())
-                .addParametricCallback(0.8, () -> follower.setMaxPower(0.6))
-                .setTimeoutConstraint(100)
                 .addPath(new BezierCurve(
                         openGate1Pose,
                         pickUp2ControlPoint,
@@ -105,6 +103,7 @@ public class ClosePartner_Global extends OpModeCommand {
                 .setLinearHeadingInterpolation(
                         openGate1Pose.getHeading(),
                         pickUp2Pose.getHeading())
+                .setTimeoutConstraint(1)
                 .build();
 
         launchSecond = new Path(new BezierLine(
@@ -119,8 +118,6 @@ public class ClosePartner_Global extends OpModeCommand {
                         openGate2Pose))
                 .setConstantHeadingInterpolation(
                         openGate2Pose.getHeading())
-                .addParametricCallback(0.8, () -> follower.setMaxPower(0.6))
-                .setTimeoutConstraint(100)
                 .addPath(new BezierCurve(
                         openGate2Pose,
                         pickUp3ControlPoint,
@@ -129,6 +126,7 @@ public class ClosePartner_Global extends OpModeCommand {
                 .setLinearHeadingInterpolation(
                         openGate2Pose.getHeading(),
                         pickUp3Pose.getHeading())
+                .setTimeoutConstraint(1)
                 .build();
 
         launchThird = new Path(new BezierLine(
@@ -143,8 +141,6 @@ public class ClosePartner_Global extends OpModeCommand {
                         openGate3Pose))
                 .setConstantHeadingInterpolation(
                         openGate3Pose.getHeading())
-                .addParametricCallback(0.8, () -> follower.setMaxPower(0.6))
-                .setTimeoutConstraint(100)
                 .addPath(new BezierCurve(
                         openGate3Pose,
                         pickUp4ControlPoint,
@@ -153,6 +149,7 @@ public class ClosePartner_Global extends OpModeCommand {
                 .setLinearHeadingInterpolation(
                         openGate3Pose.getHeading(),
                         pickUp4Pose.getHeading())
+                .setTimeoutConstraint(1)
                 .build();
 
         launchFourth = new Path(new BezierCurve(
@@ -161,6 +158,7 @@ public class ClosePartner_Global extends OpModeCommand {
                 shoot4Pose));
         launchFourth.setTangentHeadingInterpolation();
         launchFourth.reverseHeadingInterpolation();
+        launchFourth.setTimeoutConstraint(1);
 
         intakeFive = new Path(new BezierLine(
                 shoot4Pose,
@@ -171,6 +169,7 @@ public class ClosePartner_Global extends OpModeCommand {
                 pickUp5Pose,
                 shoot5Pose));
         launchFive.setConstantHeadingInterpolation(pickUp5Pose.getHeading());
+        launchFive.setTimeoutConstraint(1);
 
         park = new Path(new BezierLine(shoot5Pose, parkPose));
         park.setConstantHeadingInterpolation(shoot5Pose.getHeading());
@@ -184,44 +183,45 @@ public class ClosePartner_Global extends OpModeCommand {
 
         shootPreloadPose = m(new Pose(87.0, 85.0, Math.toRadians(320)));
 
-        pickUp1ControlPoint = m(new Pose(88.0, 54.0, Math.toRadians(0)));
         pickUp1Pose = m(new Pose(126.0, 57.0, Math.toRadians(0)));
-        shoot1Pose = m(new Pose(85.0, 77.0, Math.toRadians(320)));
+        pickUp1ControlPoint = m(new Pose(88.0, 54.0, Math.toRadians(0)));
 
-        openGate1Pose = m(new Pose(121, 66, Math.toRadians(340)));
+        shoot1Pose = m(new Pose(85.0, 72.0, Math.toRadians(320)));
 
-        pickUp2Pose = m(new Pose(131.0, 58.0, Math.toRadians(45)));
-        pickUp2ControlPoint = m(new Pose(124.0, 58.0, Math.toRadians(50)));
+        openGate1Pose = m(new Pose(120, 65.5, Math.toRadians(340)));
 
-        shoot2Pose = m(new Pose(85.0, 77.0, Math.toRadians(320)));
+        pickUp2Pose = m(new Pose(132, 57.5, Math.toRadians(40)));
+        pickUp2ControlPoint = m(new Pose(124.0, 56.0, Math.toRadians(50)));
 
-        openGate2Pose = m(new Pose(121, 66, Math.toRadians(340)));
+        shoot2Pose = m(new Pose(82.0, 75.0, Math.toRadians(320)));
 
-        pickUp3Pose = m(new Pose(131.0, 58.0, Math.toRadians(45)));
-        pickUp3ControlPoint = m(new Pose(124.0, 58.0, Math.toRadians(50)));
+        openGate2Pose = m(new Pose(120, 65.5, Math.toRadians(340)));
+
+        pickUp3Pose = m(new Pose(132, 57.5, Math.toRadians(40)));
+        pickUp3ControlPoint = m(new Pose(124.0, 64.0, Math.toRadians(50)));
+
         shoot3Pose = m(new Pose(85.0, 77.0, Math.toRadians(320)));
 
-        openGate3Pose = m(new Pose(121, 66, Math.toRadians(340)));
+        openGate3Pose = m(new Pose(120, 65.5, Math.toRadians(340)));
 
-        pickUp4Pose = m(new Pose(131.0, 58.0, Math.toRadians(45)));
-        pickUp4ControlPoint = m(new Pose(124.0, 58.0, Math.toRadians(50)));
+        pickUp4Pose = m(new Pose(132, 57.5, Math.toRadians(40)));
+        pickUp4ControlPoint = m(new Pose(124.0, 56.0, Math.toRadians(50)));
 
         shoot4Pose = m(new Pose(89.0, 81.0, Math.toRadians(320)));
         shoot4ControlPoint = m(new Pose(108, 62, Math.toRadians(320)));
 
-
         pickUp5Pose = m(new Pose(125.0, 81.0, Math.toRadians(0)));
 
-        shoot5Pose = m(new Pose(92.0, 81.0, Math.toRadians(0)));
+        shoot5Pose = m(new Pose(97.0, 81.0, Math.toRadians(0)));
         parkPose = m(new Pose(115.0, 81.0, Math.toRadians(0)));
+
+        follower.setStartingPose(startingPose);
 
         new SequentialCommandGroup(
                 new lateralBlockersCMD(sorterSb, blockersUp, blockersUp),
                 new horizontalBlockerCMD(sorterSb, blockerHFreePos),
 
                 new WaitCommand(200),
-
-                //new turretToPosCMD(turretSb, 0.0),
 
                 new lateralBlockersCMD(sorterSb, blockersUp, 0),
                 new horizontalBlockerCMD(sorterSb, blockerHHidePos)
@@ -261,7 +261,7 @@ public class ClosePartner_Global extends OpModeCommand {
                                                 new WaitCommand(950)
                                         ),
 
-                                        new aimCMD(shooterSb, false, true)
+                                        new aimCMD(shooterSb, false, true, -30)
 
                                 ),
 
@@ -279,7 +279,7 @@ public class ClosePartner_Global extends OpModeCommand {
                                                 shootThreeSpamerCloseCMD()
                                         ),
 
-                                        new aimCMD(shooterSb, false, true)
+                                        new aimCMD(shooterSb, false, true, -30)
                                 ),
 
                                 /// FIRST_LAUNCHED
@@ -287,7 +287,7 @@ public class ClosePartner_Global extends OpModeCommand {
                                 stopShootCMD(false),
 
                                 new InstantCommand(() -> intakeSb.setIntakePower(1, 0.8)),
-
+                                new InstantCommand(() -> follower.setMaxPower(0.6)),
                                 pedroSb.followPathCmd(openGate1).withTimeout(1600),
 
                                 new InstantCommand(() -> follower.setMaxPower(1)),
@@ -300,7 +300,7 @@ public class ClosePartner_Global extends OpModeCommand {
                                                 shootThreeSpamerCloseCMD()
 
                                         ),
-                                        new aimCMD(shooterSb, false, true)
+                                        new aimCMD(shooterSb, false, true, -30)
                                 ),
 
                                 /// SECOND_LAUNCHED
@@ -308,6 +308,7 @@ public class ClosePartner_Global extends OpModeCommand {
                                 stopShootCMD(false),
 
                                 new InstantCommand(() -> intakeSb.setIntakePower(1, 0.8)),
+                                new InstantCommand(() -> follower.setMaxPower(0.6)),
 
                                 pedroSb.followPathCmd(openGate2).withTimeout(1800),
 
@@ -321,7 +322,7 @@ public class ClosePartner_Global extends OpModeCommand {
                                                 shootThreeSpamerCloseCMD()
 
                                         ),
-                                        new aimCMD(shooterSb, false, true)
+                                        new aimCMD(shooterSb, false, true, -30)
                                 ),
 
                                 ///THIRD_LAUNCHED
@@ -330,6 +331,7 @@ public class ClosePartner_Global extends OpModeCommand {
 
                                 new InstantCommand(() -> intakeSb.setIntakePower(1, 0.8)),
 
+                                new InstantCommand(() -> follower.setMaxPower(0.6)),
                                 pedroSb.followPathCmd(openGate3).withTimeout(1800),
 
                                 new InstantCommand(() -> follower.setMaxPower(1)),
@@ -342,7 +344,7 @@ public class ClosePartner_Global extends OpModeCommand {
                                                 shootThreeSpamerCloseCMD()
 
                                         ),
-                                        new aimCMD(shooterSb, false, true)
+                                        new aimCMD(shooterSb, false, true, -30)
                                 ),
 
                                 ///FOURTH_LAUNCHED
@@ -360,7 +362,7 @@ public class ClosePartner_Global extends OpModeCommand {
                                                 shootThreeSpamerCloseCMD()
 
                                         ),
-                                        new aimCMD(shooterSb, false, true)
+                                        new aimCMD(shooterSb, false, true, -30)
                                 )
 
                         ),

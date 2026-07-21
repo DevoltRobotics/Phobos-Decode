@@ -93,6 +93,9 @@ public abstract class OpModeCommand extends OpMode {
     public void init() {
         CommandScheduler.getInstance().setBulkReading(hardwareMap, LynxModule.BulkCachingMode.MANUAL);
 
+        telemetry.addData("Alliance", currentAlliance);
+
+
         telemetry = new JoinedTelemetry(
                 telemetry,
                 PanelsTelemetry.INSTANCE.getFtcTelemetry()
@@ -175,8 +178,8 @@ public abstract class OpModeCommand extends OpMode {
                 new aimCMD(shooterSb, true, false),
                 new SequentialCommandGroup(
                         new InstantCommand(() -> sorterSb.setHorizontalPos(blockerHFreePos)),
-                        new InstantCommand(() -> intakeSb.setIntakePower(0.95, 1)),
-                        new WaitCommand(900) // deadline
+                        new InstantCommand(() -> intakeSb.setIntakePower(0.9, 0.8)),
+                        new WaitCommand(950) // deadline
                 )
 
         );

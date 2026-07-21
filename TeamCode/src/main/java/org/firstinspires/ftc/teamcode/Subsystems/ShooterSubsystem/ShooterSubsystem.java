@@ -108,16 +108,18 @@ public class ShooterSubsystem extends SubsystemBase {
 
         this.isAuto = isAuto;
 
-        /*if (isAuto) {
+        if (isAuto) {
             this.turretM.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             this.turretM.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         }
 
-         */
 
+/*
         this.turretM.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         this.turretM.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
+
+ */
         this.telemetry = telemetry;
         this.alliance = alliance;
 

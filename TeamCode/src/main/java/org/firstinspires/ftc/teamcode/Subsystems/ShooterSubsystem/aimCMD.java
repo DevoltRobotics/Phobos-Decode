@@ -51,7 +51,7 @@ public class aimCMD extends CommandBase {
     double hoodAngle = 0;
     double flywheelSpeed = 0;
 
-    public static int extraOffset = 5;
+    public static int extraOffset = 0;
     double SCORE_HEIGHT = SCORE_HEIGHT_FAR; //inches
     double SCORE_ANGLE = SCORE_ANGLE_FAR; //inches
 
@@ -105,7 +105,7 @@ public class aimCMD extends CommandBase {
         addRequirements(shooterSubsystem);
     }
 
-    public aimCMD(ShooterSubsystem shooterSubsystem, boolean isShooting, boolean isClose, double extraOffset) {
+    public aimCMD(ShooterSubsystem shooterSubsystem, boolean isShooting, boolean isClose, int extraOffset) {
 
         this.shooterSb = shooterSubsystem;
 
@@ -113,6 +113,7 @@ public class aimCMD extends CommandBase {
 
         this.isClose = () -> isClose;
 
+        this.extraOffset = extraOffset;
         goalX = Alliance.RED.equals(shooterSb.alliance) ? goalX_FAR : 144 - goalX_FAR;
 
         addRequirements(shooterSubsystem);
@@ -241,7 +242,7 @@ public class aimCMD extends CommandBase {
         shooterSb.telemetry.addData("y", y);
  */
 
-        double flywheelTarget = MathFunctions.clamp(getFlywheelTicksFromVelocitya(flywheelSpeed), minflywheelClose, MAX_FLYWHEEL_SPEED);;
+        double flywheelTarget = MathFunctions.clamp(getFlywheelTicksFromVelocitya(flywheelSpeed) + extraOffset, minflywheelClose, MAX_FLYWHEEL_SPEED);;
 /*
         if (isClose.getAsBoolean()) {
             flywheelTarget = MathFunctions.clamp(getFlywheelTicksFromVelocitya(flywheelSpeed), minflywheelClose, MAX_FLYWHEEL_SPEED);

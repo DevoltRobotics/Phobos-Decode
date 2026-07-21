@@ -39,36 +39,38 @@ public class CloseFull_Global extends OpModeCommand {
     Pose m(Pose p) {
         return Alliance.BLUE.equals(currentAlliance) ? p.mirror() : p;
     }
-    Pose startingPose = m(new Pose(110.0, 133, Math.toRadians(0)));
+    Pose startingPose;
 
-    Pose shootPreloadPose = m(new Pose(87.0, 85.0, Math.toRadians(320)));
+    Pose shootPreloadPose;
 
-    Pose pickUp1ControlPoint = m(new Pose(88.0, 54.0, Math.toRadians(0)));
-    Pose pickUp1Pose = m(new Pose(126.0, 57.0, Math.toRadians(0)));
-    Pose shoot1Pose = m(new Pose(85.0, 77.0, Math.toRadians(320)));
+    Pose pickUp1ControlPoint;
+    Pose pickUp1Pose;
+    Pose shoot1Pose;
 
-    Pose openGate1Pose = m(new Pose(122, 66, Math.toRadians(340)));
+    Pose openGate1Pose;
 
-    Pose pickUp2Pose = m(new Pose(132.0, 58.0, Math.toRadians(50)));
-    Pose shoot2Pose = m(new Pose(85.0, 77.0, Math.toRadians(320)));
+    Pose pickUp2Pose;
+    Pose pickUp2ControlPoint;
+    Pose shoot2Pose;
 
-    Pose pickUp3Pose = m(new Pose(130, 35, Math.toRadians(0)));
-    Pose pickUp3PControlPoint = m(new Pose(90, 32, Math.toRadians(0)));
+    Pose pickUp3Pose;
+    Pose pickUp3PControlPoint;
 
-    Pose shoot3Pose = m(new Pose(85.0, 77.0, Math.toRadians(320)));
+    Pose shoot3Pose;
 
-    Pose openGate3Pose = m(new Pose(122, 66, Math.toRadians(340)));
+    Pose openGate2Pose;
 
-    Pose pickUp4Pose = m(new Pose(132.0, 58.0, Math.toRadians(50)));
+    Pose pickUp4Pose;
+    Pose pickUp4ControlPoint;
 
-    Pose shoot4Pose = m(new Pose(89.0, 81.0, Math.toRadians(320)));
-    Pose shoot4ControlPoint = m(new Pose(108, 62, Math.toRadians(320)));
+    Pose shoot4Pose;
+    Pose shoot4ControlPoint;
 
 
-    Pose pickUp5Pose = m(new Pose(125.0, 81.0, Math.toRadians(0)));
+    Pose pickUp5Pose;
 
-    Pose shoot5Pose = m(new Pose(92.0, 81.0, Math.toRadians(0)));
-    Pose parkPose = m(new Pose(115.0, 81.0, Math.toRadians(0)));
+    Pose shoot5Pose;
+    Pose parkPose;
 
     PathChain fullAuto;
 
@@ -96,9 +98,9 @@ public class CloseFull_Global extends OpModeCommand {
                         openGate1Pose))
                 .setConstantHeadingInterpolation(
                         openGate1Pose.getHeading())
-                .addParametricCallback(0.8, () -> follower.setMaxPower(0.7))
-                .addPath(new BezierLine(
+                .addPath(new BezierCurve(
                         openGate1Pose,
+                        pickUp2ControlPoint,
                         pickUp2Pose)
                 )
                 .setLinearHeadingInterpolation(
@@ -117,7 +119,6 @@ public class CloseFull_Global extends OpModeCommand {
                 pickUp3PControlPoint,
                 pickUp3Pose));
         intakeThird.setTangentHeadingInterpolation();
-        intakeThird.reverseHeadingInterpolation();
 
         launchThird = new Path(new BezierLine(
                 pickUp3Pose,
@@ -128,16 +129,16 @@ public class CloseFull_Global extends OpModeCommand {
         openGate3 = follower.pathBuilder()
                 .addPath(new BezierLine(
                         shoot3Pose,
-                        openGate3Pose))
+                        openGate2Pose))
                 .setConstantHeadingInterpolation(
-                        openGate3Pose.getHeading())
-                .addParametricCallback(0.8, () -> follower.setMaxPower(0.7))
-                .addPath(new BezierLine(
-                        openGate3Pose,
+                        openGate2Pose.getHeading())
+                .addPath(new BezierCurve(
+                        openGate2Pose,
+                        pickUp4ControlPoint,
                         pickUp4Pose)
                 )
                 .setLinearHeadingInterpolation(
-                        openGate3Pose.getHeading(),
+                        openGate2Pose.getHeading(),
                         pickUp3Pose.getHeading())
                 .build();
 
@@ -167,14 +168,40 @@ public class CloseFull_Global extends OpModeCommand {
 
     @Override
     public void initialize() {
+        startingPose = m(new Pose(110.0, 133, Math.toRadians(0)));
 
-        if (currentAlliance.equals(Alliance.RED)) {
-            follower.setStartingPose(startingPose);
+        shootPreloadPose = m(new Pose(87.0, 85.0, Math.toRadians(320)));
 
-        } else {
-            follower.setStartingPose(startingPose.mirror());
+        pickUp1Pose = m(new Pose(126.0, 57.0, Math.toRadians(0)));
+        pickUp1ControlPoint = m(new Pose(88.0, 54.0, Math.toRadians(0)));
 
-        }
+        shoot1Pose = m(new Pose(85.0, 72.0, Math.toRadians(320)));
+
+        openGate1Pose = m(new Pose(120.5, 65.5, Math.toRadians(360)));
+
+        pickUp2Pose = m(new Pose(132, 57, Math.toRadians(45)));
+        pickUp2ControlPoint = m(new Pose(124.0, 56.0, Math.toRadians(50)));
+
+        shoot2Pose = m(new Pose(82.0, 75.0, Math.toRadians(320)));
+
+        pickUp3Pose = m(new Pose(130, 35, Math.toRadians(0)));
+        pickUp3PControlPoint = m(new Pose(90, 32, Math.toRadians(0)));
+
+        shoot3Pose = m(new Pose(83.0, 72.0, Math.toRadians(320)));
+
+        openGate2Pose = m(new Pose(120, 64, Math.toRadians(360)));
+        pickUp4Pose = m(new Pose(132, 57, Math.toRadians(45)));
+        pickUp4ControlPoint = m(new Pose(124.0, 56.0, Math.toRadians(50)));
+
+        shoot4Pose = m(new Pose(89.0, 81.0, Math.toRadians(320)));
+        shoot4ControlPoint = m(new Pose(108, 62, Math.toRadians(320)));
+
+        pickUp5Pose = m(new Pose(125.0, 81.0, Math.toRadians(0)));
+
+        shoot5Pose = m(new Pose(97.0, 81.0, Math.toRadians(0)));
+        parkPose = m(new Pose(109.0, 81.0, Math.toRadians(0)));
+
+        follower.setStartingPose(startingPose);
 
         new SequentialCommandGroup(
                 new lateralBlockersCMD(sorterSb, blockersUp, blockersUp),
@@ -199,7 +226,6 @@ public class CloseFull_Global extends OpModeCommand {
 
                 pedroSb.followPathCmd(park)
         );
-
         autoCommand = new SequentialCommandGroup(
                 new ParallelRaceGroup(
                         new SequentialCommandGroup(
@@ -248,12 +274,12 @@ public class CloseFull_Global extends OpModeCommand {
                                 stopShootCMD(false),
 
                                 new InstantCommand(() -> intakeSb.setIntakePower(1, 0.8)),
-
+                                new InstantCommand(() -> follower.setMaxPower(0.5)),
                                 pedroSb.followPathCmd(openGate1).withTimeout(1600),
 
                                 new InstantCommand(() -> follower.setMaxPower(1)),
 
-                                new WaitCommand(800),
+                                new WaitCommand(850),
 
                                 new ParallelRaceGroup(
                                         new SequentialCommandGroup(
@@ -272,8 +298,6 @@ public class CloseFull_Global extends OpModeCommand {
 
                                 pedroSb.followPathCmd(intakeThird).withTimeout(1800),
 
-                                new WaitCommand(800),
-
                                 new ParallelRaceGroup(
                                         new SequentialCommandGroup(
                                                 pedroSb.followPathCmd(launchThird),
@@ -289,11 +313,12 @@ public class CloseFull_Global extends OpModeCommand {
 
                                 new InstantCommand(() -> intakeSb.setIntakePower(1, 0.8)),
 
+                                new InstantCommand(() -> follower.setMaxPower(0.5)),
                                 pedroSb.followPathCmd(openGate3).withTimeout(1800),
 
                                 new InstantCommand(() -> follower.setMaxPower(1)),
 
-                                new WaitCommand(800),
+                                new WaitCommand(850),
 
                                 new ParallelRaceGroup(
                                         new SequentialCommandGroup(
@@ -323,7 +348,7 @@ public class CloseFull_Global extends OpModeCommand {
                                 )
 
                         ),
-                        new WaitCommand(29000)
+                        new WaitCommand(29200)
                 ),
 
                 parkCommand

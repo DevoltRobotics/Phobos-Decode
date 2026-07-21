@@ -14,10 +14,7 @@ import com.pedropathing.paths.Path;
 import com.pedropathing.paths.PathChain;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.seattlesolvers.solverslib.command.Command;
-import com.seattlesolvers.solverslib.command.ConditionalCommand;
 import com.seattlesolvers.solverslib.command.InstantCommand;
-import com.seattlesolvers.solverslib.command.ParallelCommandGroup;
-import com.seattlesolvers.solverslib.command.ParallelDeadlineGroup;
 import com.seattlesolvers.solverslib.command.ParallelRaceGroup;
 import com.seattlesolvers.solverslib.command.SequentialCommandGroup;
 import com.seattlesolvers.solverslib.command.WaitCommand;
@@ -26,7 +23,6 @@ import org.firstinspires.ftc.teamcode.Subsystems.ShooterSubsystem.aimCMD;
 import org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.horizontalBlockerCMD;
 import org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.lateralBlockersCMD;
 import org.firstinspires.ftc.teamcode.Subsystems.SorterSubsystem.rampCMD;
-import org.firstinspires.ftc.teamcode.Subsystems.Vision.setIsCorner;
 import org.firstinspires.ftc.teamcode.Utilities.Alliance;
 import org.firstinspires.ftc.teamcode.Utilities.OpModeCommand;
 import org.firstinspires.ftc.teamcode.pedroPathing.PedroSubsystem;
@@ -42,72 +38,69 @@ public class FarAuto_GLOBAL extends OpModeCommand {
     Command autoCommand, parkCommand;
 
     private Path park;
-    private PathChain shootPreload, intakeFirst, backIntakeFirst, launchFirst, prepareIntakeSeond, intakeSecond, launchSecond, adjustAngle, pickCorner, pickCenter, launchCorner, launchCenter;
-
+    private PathChain launchPreload, intakeFirst, backIntakeFirst, launchFirst, prepareIntakeSeond, intakeSecond, launchSecond, adjustAngle, pickCorner, pickCenter, launchCorner, launchCenter;
 
     Pose m(Pose p) {
         return BLUE.equals(currentAlliance) ? p.mirror() : p;
     }
-    Pose startingPose = m(new Pose(88.0, 8.2, Math.toRadians(0)));
-    Pose shootPreloadPose = m(new Pose(84, 21, Math.toRadians(20)));
 
-    Pose pick1Pose = m(new Pose(130, 37, Math.toRadians(0)));
-    Pose pick1ControlPoint = m(new Pose(93, 40, Math.toRadians(0)));
-    Pose shoot1Pose = m(new Pose(90, 15, Math.toRadians(0)));
+    Pose startingPose = m(new Pose(88.5, 8.2, Math.toRadians(0)));
+    Pose shootPreloadPose = m(new Pose(84, 21, Math.toRadians(0)));
 
-    Pose pick2Pose = m(new Pose(132.0, 10, Math.toRadians(20)));
-    Pose shoot2Pose = m(new Pose(91.0, 14, Math.toRadians(0)));
+    Pose preparePick1Pose = m(new Pose(103.0, 35, Math.toRadians(15)));
+    Pose pick1Pose = m(new Pose(132.0, 10, Math.toRadians(350)));
+    Pose shoot1Pose = m(new Pose(91.0, 14, Math.toRadians(0)));
 
-    Pose preparePick2Pose = m(new Pose(103.0, 35, Math.toRadians(15)));
-
+    Pose pick2Pose = m(new Pose(130, 37, Math.toRadians(0)));
     Pose pick2ControlPoint = m(new Pose(93, 40, Math.toRadians(0)));
+    Pose shoot2Pose = m(new Pose(90, 15, Math.toRadians(0)));
 
     Pose shootCyclesPose = m(new Pose(91, 14, Math.toRadians(5)));
 
     Pose pickCornerPose = m(new Pose(133.0, 10, Math.toRadians(0)));
 
     Pose pickCenterControlPoint = m(new Pose(93.0, 40.0, Math.toRadians(0)));
-    Pose pickCenterPose = m(new Pose(132.0, 27, Math.toRadians(0)));
+    Pose pickCenterPose = m(new Pose(132.0, 32, Math.toRadians(0)));
 
     Pose parkPose = m(new Pose(105, 14.0, Math.toRadians(0)));
 
     public void createPaths() {
 
-        shootPreload = follower.pathBuilder()
+        launchPreload = follower.pathBuilder()
                 .addPath(new BezierLine(
                         startingPose,
                         shootPreloadPose))
                 .setLinearHeadingInterpolation(
                         startingPose.getHeading(),
-                        shootPreloadPose.getHeading())
+                        shootPreloadPose.getHeading()
+                )
                 .build();
 
         intakeFirst = follower.pathBuilder()
-                .addPath(new BezierCurve(
+                .addPath(new BezierLine(
                         shootPreloadPose,
-                        pick1ControlPoint,
                         pick1Pose))
-                .setTangentHeadingInterpolation()
+                .setLinearHeadingInterpolation(
+                        shootPreloadPose.getHeading(),
+                        pick1Pose.getHeading()
+                )
                 .build();
 
         launchFirst = follower.pathBuilder()
                 .addPath(new BezierLine(
                         pick1Pose,
                         shoot1Pose))
-                .setLinearHeadingInterpolation(
-                        intakeSecond.endPose().getHeading(),
-                        BLUE.equals(currentAlliance) ? Math.toRadians(180) : 0
-
-                )
-                .setTimeoutConstraint(1)
+                .setTangentHeadingInterpolation()
+                .setReversed()
                 .build();
 
         intakeSecond = follower.pathBuilder()
-                .addPath(new BezierLine(
-                        shoot1Pose,
-                        pick2Pose))
+                .addPath(new BezierCurve(
+                        startingPose,
+                        pick2ControlPoint,
+                        pick2Pose)
+                )
                 .setTangentHeadingInterpolation()
-                .addParametricCallback(0.8, ()-> follower.setMaxPower(0.8))
                 .build();
 
         launchSecond = follower.pathBuilder()
@@ -116,7 +109,6 @@ public class FarAuto_GLOBAL extends OpModeCommand {
                         shoot2Pose))
                 .setTangentHeadingInterpolation()
                 .setReversed()
-                .setTimeoutConstraint(1)
                 .build();
 
         pickCorner = follower.pathBuilder()
@@ -137,19 +129,20 @@ public class FarAuto_GLOBAL extends OpModeCommand {
                 .addPath(new BezierLine(
                         pickCornerPose,
                         shootCyclesPose))
-                .setConstantHeadingInterpolation(BLUE.equals(currentAlliance) ? Math.toRadians(178) : Math.toRadians(2))
-                .setTimeoutConstraint(1)
+                .setTangentHeadingInterpolation()
+                .setReversed()
                 .build();
 
         launchCenter = follower.pathBuilder()
                 .addPath(new BezierLine(
                         pickCenterPose,
-                        shoot1Pose))
-                .setConstantHeadingInterpolation(BLUE.equals(currentAlliance) ? Math.toRadians(178) : Math.toRadians(2))
+                        shoot2Pose))
+                .setTangentHeadingInterpolation()
+                .setReversed()
                 .setTimeoutConstraint(1)
                 .build();
 
-        park = new Path(new BezierLine(shoot1Pose, parkPose));
+        park = new Path(new BezierLine(shoot2Pose, parkPose));
         park.setConstantHeadingInterpolation(parkPose.getHeading());
 
     }
@@ -184,11 +177,13 @@ public class FarAuto_GLOBAL extends OpModeCommand {
                                         new InstantCommand(() -> follower.setMaxPower(1)),
 
                                         new ParallelRaceGroup(
-                                                new aimCMD(shooterSb, false, false, 30),
-                                                new WaitCommand(3600),
+                                                new aimCMD(shooterSb, false, false),
+                                                new WaitCommand(3750),
+
                                                 new SequentialCommandGroup(
-                                                        pedroSb.followPathCmd(shootPreload),
+                                                        pedroSb.followPathCmd(launchPreload).withTimeout(2500),
                                                         new WaitCommand(1000000)
+
                                                 ),
 
                                                 new SequentialCommandGroup(
@@ -211,7 +206,7 @@ public class FarAuto_GLOBAL extends OpModeCommand {
                                         new ParallelRaceGroup(
                                                 new aimCMD(shooterSb, true, false),
                                                 new SequentialCommandGroup(
-                                                        new InstantCommand(() -> intakeSb.setIntakePower(1, 1)),
+                                                        new InstantCommand(() -> intakeSb.setIntakePower(1, 0.8)),
 
                                                         new horizontalBlockerCMD(sorterSb, blockerHFreePos),
 
@@ -225,14 +220,14 @@ public class FarAuto_GLOBAL extends OpModeCommand {
 
                                         new InstantCommand(() -> intakeSb.setIntakePower(1, 0.8)),
 
-                                        pedroSb.followPathCmd(intakeSecond).withTimeout(2500),
+                                        pedroSb.followPathCmd(intakeFirst).withTimeout(2300),
 
                                         new ParallelRaceGroup(
                                                 new SequentialCommandGroup(
-                                                        pedroSb.followPathCmd(launchSecond)
+                                                        pedroSb.followPathCmd(launchFirst)
                                                 ),
 
-                                                new aimCMD(shooterSb, true, false)
+                                                new aimCMD(shooterSb, false, false)
                                         ),
 
                                         shootThreeSpamerFarCMD(),
@@ -243,159 +238,76 @@ public class FarAuto_GLOBAL extends OpModeCommand {
 
                                         new InstantCommand(() -> intakeSb.setIntakePower(1, 0.8)),
 
-                                        pedroSb.followPathCmd(intakeFirst).withTimeout(1600),
+                                        pedroSb.followPathCmd(intakeSecond).withTimeout(1700),
 
                                         new InstantCommand(() -> follower.setMaxPower(1)),
 
                                         new ParallelRaceGroup(
                                                 new SequentialCommandGroup(
-                                                        pedroSb.followPathCmd(launchFirst)
+                                                        pedroSb.followPathCmd(launchSecond)
                                                 ),
 
-                                                new aimCMD(shooterSb, true, false)
+                                                new aimCMD(shooterSb, false, false)
                                         ),
 
-                                        new ParallelRaceGroup(
-                                            shootThreeSpamerFarCMD(),
-                                            new setIsCorner(visionSb, true)
-                                        ),
+                                        shootThreeSpamerFarCMD(),
 
                                         /// SECOND_LAUNCHED
 
                                         stopShootCMD(false),
 
-                                        new InstantCommand(() -> intakeSb.setIntakePower(1, 0.8))
+                                        new InstantCommand(() -> intakeSb.setIntakePower(1, 0.8)),
 
-                                        /*
-                                        new ConditionalCommand(
-                                                new SequentialCommandGroup(
-                                                        pedroSb.followPathCmd(pickCorner).withTimeout(1500),
-
-                                                        new ParallelRaceGroup(
-                                                                new SequentialCommandGroup(
-                                                                        pedroSb.followPathCmd(launchCorner)
-                                                                ),
-
-                                                                new aimCMD(shooterSb, true, false)
-                                                        )),
-                                                new SequentialCommandGroup(
-                                                        pedroSb.followPathCmd(pickCenter).withTimeout(2200),
-
-                                                        new ParallelRaceGroup(
-                                                                new SequentialCommandGroup(
-                                                                        pedroSb.followPathCmd(launchCenter)
-                                                                ),
-
-                                                                new aimCMD(shooterSb, true, false)
-                                                        )), () ->  visionSb.currentArtifactCorner
-
-                                        ),
+                                        pedroSb.followPathCmd(pickCenter).withTimeout(1800),
 
                                         new ParallelRaceGroup(
-                                                shootThreeSpamerFarCMD(),
-                                                new setIsCorner(visionSb, false)
+                                                new SequentialCommandGroup(
+                                                        pedroSb.followPathCmd(launchCenter)
+                                                ),
+
+                                                new aimCMD(shooterSb, false, false)
                                         ),
+
+
+                                        shootThreeSpamerFarCMD(),
+
                                         /// THIRD_LAUNCHED
 
                                         stopShootCMD(false),
 
                                         new InstantCommand(() -> intakeSb.setIntakePower(1, 0.8)),
 
-                                        new ConditionalCommand(
-                                                new SequentialCommandGroup(
-                                                        pedroSb.followPathCmd(pickCorner).withTimeout(1500),
-                                                        new ParallelRaceGroup(
-                                                                new SequentialCommandGroup(
-                                                                        pedroSb.followPathCmd(launchCorner)
-                                                                ),
-
-                                                                new aimCMD(shooterSb, true, false)
-                                                        )),
-                                                new SequentialCommandGroup(
-                                                        pedroSb.followPathCmd(pickCenter).withTimeout(2200),
-
-                                                        new ParallelRaceGroup(
-                                                                new SequentialCommandGroup(
-                                                                        pedroSb.followPathCmd(launchCenter)
-                                                                ),
-
-                                                                new aimCMD(shooterSb, true, false)
-                                                        )), () ->  visionSb.currentArtifactCorner
-
-                                        ),
-
+                                        pedroSb.followPathCmd(pickCorner).withTimeout(1400),
                                         new ParallelRaceGroup(
-                                                shootThreeSpamerFarCMD(),
-                                                new setIsCorner(visionSb, true)
+                                                new SequentialCommandGroup(
+                                                        pedroSb.followPathCmd(launchCorner)
+                                                ),
+
+                                                new aimCMD(shooterSb, false, false)
                                         ),
+
+                                        shootThreeSpamerFarCMD(),
+
                                         /// FOURTH_LAUNCHED
 
                                         stopShootCMD(false),
 
                                         new InstantCommand(() -> intakeSb.setIntakePower(1, 0.8)),
 
-                                        new ConditionalCommand(
-                                                new SequentialCommandGroup(
-                                                        pedroSb.followPathCmd(pickCorner).withTimeout(1500),
-
-                                                        new ParallelRaceGroup(
-                                                                new SequentialCommandGroup(
-                                                                        pedroSb.followPathCmd(launchCorner)
-                                                                ),
-
-                                                                new aimCMD(shooterSb, true, false)
-                                                        )),
-                                                new SequentialCommandGroup(
-                                                        pedroSb.followPathCmd(pickCenter).withTimeout(2200),
-
-                                                        new ParallelRaceGroup(
-                                                                new SequentialCommandGroup(
-                                                                        pedroSb.followPathCmd(launchCenter)
-                                                                ),
-
-                                                                new aimCMD(shooterSb, true, false)
-                                                        )), () ->  visionSb.currentArtifactCorner
-
-                                        ),
+                                        pedroSb.followPathCmd(pickCenter).withTimeout(1800),
 
                                         new ParallelRaceGroup(
-                                                shootThreeSpamerFarCMD(),
-                                                new setIsCorner(visionSb, true)
-                                        ),
-                                        /// FIVE_LAUNCHED
-                                        stopShootCMD(false),
-
-                                        new InstantCommand(() -> intakeSb.setIntakePower(1, 0.8)),
-
-                                        new ConditionalCommand(
                                                 new SequentialCommandGroup(
-                                                        pedroSb.followPathCmd(pickCorner).withTimeout(1500),
+                                                        pedroSb.followPathCmd(launchCenter)
+                                                ),
 
-                                                        new ParallelRaceGroup(
-                                                                new SequentialCommandGroup(
-                                                                        pedroSb.followPathCmd(launchCorner)
-                                                                ),
+                                                new aimCMD(shooterSb, true, false)
 
-                                                                new aimCMD(shooterSb, true, false)
-                                                        )),
-                                                new SequentialCommandGroup(
-                                                        pedroSb.followPathCmd(pickCenter).withTimeout(2200),
-
-                                                        new ParallelRaceGroup(
-                                                                new SequentialCommandGroup(
-                                                                        pedroSb.followPathCmd(launchCenter)
-                                                                ),
-
-                                                                new aimCMD(shooterSb, true, false)
-                                                        )), () -> visionSb.currentArtifactCorner
 
                                         ),
-
                                         shootThreeSpamerFarCMD()
 
-                                        /// SIX_LAUNCHED
-*/
-                                ),
+                                        ),
 
                                 new WaitCommand(29400)
                         ),

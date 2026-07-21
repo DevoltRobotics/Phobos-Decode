@@ -67,7 +67,7 @@ public class shooterConstants {
 
     public static double flywheelOffSetMultiplier_CLOSE = 1.125;
 
-    public static double flywheelOffSet_FAR = 145;
+    public static double flywheelOffSet_FAR = 150;
 
     public static double flywheelOffSetMultiplier_FAR = 1.12;
 
