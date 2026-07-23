@@ -9,7 +9,7 @@ import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 public class shooterConstants {
 
     //POSES
-    public static int goalX_CLOSE = 138;
+    public static int goalX_CLOSE = 135;
     public static int goalY_CLOSE = 132;
 
     public static double SCORE_HEIGHT_CLOSE = 26; //inches 30
@@ -19,7 +19,7 @@ public class shooterConstants {
 
     ////
 
-    public static int goalX_FAR = 141;
+    public static int goalX_FAR = 139;
     public static int goalY_FAR = 139;
     public static double SCORE_HEIGHT_FAR = 15; //inches
     public static double SCORE_ANGLE_FAR = -0.65;// Math.toRadians(-30); //inches

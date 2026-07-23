@@ -139,7 +139,7 @@ public class CloseFull_Global extends OpModeCommand {
                 )
                 .setLinearHeadingInterpolation(
                         openGate2Pose.getHeading(),
-                        pickUp3Pose.getHeading())
+                        pickUp4Pose.getHeading())
                 .build();
 
         launchFourth = new Path(new BezierCurve(
@@ -179,7 +179,7 @@ public class CloseFull_Global extends OpModeCommand {
 
         openGate1Pose = m(new Pose(120.5, 65.5, Math.toRadians(360)));
 
-        pickUp2Pose = m(new Pose(132, 57, Math.toRadians(45)));
+        pickUp2Pose = m(new Pose(132, 56.5, Math.toRadians(45)));
         pickUp2ControlPoint = m(new Pose(124.0, 56.0, Math.toRadians(50)));
 
         shoot2Pose = m(new Pose(82.0, 75.0, Math.toRadians(320)));
@@ -190,16 +190,16 @@ public class CloseFull_Global extends OpModeCommand {
         shoot3Pose = m(new Pose(83.0, 72.0, Math.toRadians(320)));
 
         openGate2Pose = m(new Pose(120, 64, Math.toRadians(360)));
-        pickUp4Pose = m(new Pose(132, 57, Math.toRadians(45)));
+        pickUp4Pose = m(new Pose(132, 56., Math.toRadians(45)));
         pickUp4ControlPoint = m(new Pose(124.0, 56.0, Math.toRadians(50)));
 
         shoot4Pose = m(new Pose(89.0, 81.0, Math.toRadians(320)));
         shoot4ControlPoint = m(new Pose(108, 62, Math.toRadians(320)));
 
-        pickUp5Pose = m(new Pose(125.0, 81.0, Math.toRadians(0)));
+        pickUp5Pose = m(new Pose(122.0, 81.0, Math.toRadians(0)));
 
-        shoot5Pose = m(new Pose(97.0, 81.0, Math.toRadians(0)));
-        parkPose = m(new Pose(109.0, 81.0, Math.toRadians(0)));
+        shoot5Pose = m(new Pose(94.0, 81.0, Math.toRadians(0)));
+        parkPose = m(new Pose(108.0, 81.0, Math.toRadians(0)));
 
         follower.setStartingPose(startingPose);
 

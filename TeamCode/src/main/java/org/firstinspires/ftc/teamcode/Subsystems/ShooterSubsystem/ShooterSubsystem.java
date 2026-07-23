@@ -190,7 +190,7 @@ public class ShooterSubsystem extends SubsystemBase {
         }else {
             shooterController.setSetPoint(prevShooterTarget);
 
-        }
+        }   
 
         double shooterTargetPwr = (shooterkV * shooterTarget) + shooterController.calculate(motorVel);
 
